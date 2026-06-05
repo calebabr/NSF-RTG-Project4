@@ -22,7 +22,7 @@ safely pruned to k neurons with a provable error bound.
 
 **Conjecture from the slides:**
 
-$$\lim_{m \to \infty} C(m, f^\ast) = \#\{x \in [-1,1] : (f^\ast)''(x) = 0 \text{ and changes sign}\}$$
+$$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \text{ and changes sign}\}\rvert$$
 
 The slides list three specific goals for this open problem:
 
@@ -42,10 +42,6 @@ $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 |---|---|
 | Numerically verify the bound holds | Fully addressed by verify_pruning.py: 108 of 108 runs confirmed |
 | Bound the key challenge: Σ\|aⱼ\| grows with m | Tracked in summary figure; growth observed but not controlled; remains open |
-
-### Open Problem 4.2: Higher Dimensions
-
-Not covered in this project.
 
 ---
 
