@@ -258,8 +258,7 @@ time units, amplitude of the injected neuron (does it decay toward zero?),
 and the total cluster count C(t) (does it drop from k+1 back to k?).
 
 **Qualifying runs from current data:** 10 runs across sin(pi x) k=1,
-sin(3pi x) k=5, and sin(4pi x) k=7. More will qualify once
-simulate_parallel.py completes.
+sin(3pi x) k=5, and sin(4pi x) k=7. More data is necessary.
 
 **Outputs per run:** goal2_near.png, goal2_isolated.png
 
@@ -271,6 +270,8 @@ runs returned to k, and bar chart of return rate by injection type)
 **Run with:** `python instability_test.py`
 
 ---
+
+**Note:** Only simulate.py has finished running as of 6/5/2026 10:20 CST. verify_pruning.py has been run with the data from that experiment. simulate_parallel.py is still running. instability_test.py has not yet been run as more data is required from simulate_parallel.py.
 
 ## Model
 
