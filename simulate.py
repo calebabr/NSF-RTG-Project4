@@ -260,7 +260,11 @@ def run_one(target_key, target_label, f_star, k_true, m, T):
         ax = axes[1]
         ax.plot(x_plot, f_star(x_plot), 'k--', lw=2, label=f'Target {target_label}')
         ax.plot(x_plot, f_final, 'r-', lw=2, label='Network $f$')
-        ax.scatter(b_final, np.zeros_like(b_final), c='steelblue', s=8, zorder=5)
+        # Show cluster centers as tick marks instead of all m bias dots
+        y0, y1  = ax.get_ylim()
+        tick_h  = (y1 - y0) * 0.06
+        ax.vlines(cluster_centers, -tick_h/2, tick_h/2,
+                  colors='steelblue', linewidths=2.5, zorder=5)
         ax.set_xlabel('$x$'); ax.set_title('Final Fit vs Target')
         ax.legend(fontsize=8); ax.set_xlim([-1, 1])
 
