@@ -501,7 +501,10 @@ if __name__ == '__main__':
             else:
                 jobs.append((run_dir, run_data, inj_type))
 
-    n_workers = max(1, cpu_count() - 2)
+    # Cap workers conservatively: ODE integration for large m is memory-heavy.
+    # Each spawned process carries ~100 MB Python runtime overhead on top of
+    # the numpy arrays, so 20 workers at m=1500 can exhaust available RAM.
+    n_workers = max(1, min(cpu_count() - 2, 6))
     print(f'\nQualifying runs : {len(qualifying)}')
     print(f'Jobs to run     : {len(jobs)}  ({len(injection_types)} injection types each)')
     print(f'Skipped         : {skip_count}')

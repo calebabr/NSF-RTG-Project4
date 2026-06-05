@@ -280,11 +280,11 @@ $$f(x) = \sum_{j=1}^{m} a_j \, \sigma(x - b_j), \quad \sigma(z) = \max(0, z), \q
 
 **Training via gradient flow on continuous MSE loss:**
 
-$$\mathcal{L} = \frac{1}{2}\int_{-1}^{1}(f(x) - f^*(x))^2\,dx$$
+$$\mathcal{L} = \frac{1}{2}\int_{-1}^{1}(f(x) - f^\ast(x))^2\,dx$$
 
 **Gradient flow ODEs:**
 
-$$\dot{a}_j = -\int_{-1}^{1}(f - f^*)\,\sigma(x - b_j)\,dx \qquad \dot{b}_j = a_j \int_{b_j}^{1}(f - f^*)\,dx$$
+$$\dot{a}_j = -\int_{-1}^{1}(f - f^\ast)\,\sigma(x - b_j)\,dx \qquad \dot{b}_j = a_j \int_{b_j}^{1}(f - f^\ast)\,dx$$
 
 ---
 
