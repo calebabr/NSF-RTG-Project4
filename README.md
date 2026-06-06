@@ -2,17 +2,21 @@
 
 ## Overview
 
-This project numerically investigates two open problems from the course slides:
-**Open Problem 4.1** (cluster count conjecture) and **Open Problem 4.3**
-(provable pruning bound).
+This project numerically investigates three open problems from the course slides:
+**Open Problem 4.1** (cluster count conjecture), **Open Problem 4.2** (higher-dimensional
+collapse), and **Open Problem 4.3** (provable pruning bound).
 
-The setting is a 1D shallow ReLU network trained by gradient flow on a smooth
-target function. The central observed phenomenon is that the bias parameters
-spontaneously collapse into tight clusters over training, and the number of
-clusters appears to converge toward k, the number of inflection points of the
-target function, as the network width m grows. This is the subject of Open
-Problem 4.1. Open Problem 4.3 then asks whether the clustered network can be
-safely pruned to k neurons with a provable error bound.
+The 1D setting (Problems 4.1 and 4.3) studies shallow ReLU networks trained by gradient
+flow on smooth target functions. The central observed phenomenon is that the bias parameters
+spontaneously collapse into tight clusters over training, and the number of clusters appears
+to converge toward k, the number of inflection points of the target function, as the network
+width m grows.
+
+The 2D setting (Problem 4.2) asks whether an analogous collapse generalizes to higher
+dimensions. In d=2, each neuron defines an oriented line (hyperplane) parameterized by an
+angle θ and a normalized offset β. The question is whether gradient flow concentrates the
+neuron measure onto a lower-dimensional set in this (θ, β) space, and whether the collapse
+mode is determined by the structure of the target function.
 
 ---
 
@@ -24,13 +28,25 @@ safely pruned to k neurons with a provable error bound.
 
 $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \text{ and changes sign}\}\rvert$$
 
-The slides list three specific goals for this open problem:
-
-| Specific Goal | Description | Status in This Project |
+| Specific Goal | Description | Status |
 |---|---|---|
 | 4.1.1 | Prove C(m, f*) ≤ Cmax(f*) independent of m | Numerically supported via simulate scripts and instability_test.py; experiment in process |
-| 4.1.2 | Is convergence to clusters finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T) but no dedicated experiment (not yet explicitly addressed) |
-| 4.1.3 | Does the count depend on curvature amplitude or only the sign pattern of f''? | Not addressed yet; would require comparing targets with identical inflection locations but different curvature magnitudes |
+| 4.1.2 | Is convergence finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T); not yet explicitly addressed |
+| 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
+
+### Open Problem 4.2: Higher-Dimensional Collapse
+
+**Conjecture from the slides:** For structured d-dimensional targets, gradient flow
+concentrates the neuron measure onto a lower-dimensional set in hyperplane space. The
+support may be points (same hyperplane), curves (parallel offsets), or several direction
+families.
+
+| Specific Goal | Description | Status |
+|---|---|---|
+| 4.2.1 | Does directional collapse occur for structured targets? | Partially confirmed: angular entropy drops for ridge and separable targets, especially at small width |
+| 4.2.2 | Does collapse mode track target structure? | Confirmed at m=64: ridge shows mild directional concentration, separable shows family splitting, radial resists collapse |
+| 4.2.3 | Does collapse generalize to larger width? | Inverted: collapse is strongest at small m and weakens as m grows; large-m behavior differs from theoretical prediction |
+| 4.2.4 | Are collapsed neurons functionally redundant (prunable)? | Not confirmed; pruning diagnostic is unreliable due to sign-cancellation in output weights |
 
 ### Open Problem 4.3: Provable Pruning
 
@@ -38,7 +54,7 @@ The slides list three specific goals for this open problem:
 
 $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 
-| Aspect | Status in This Project |
+| Aspect | Status |
 |---|---|
 | Numerically verify the bound holds | Fully addressed by verify_pruning.py: 108 of 108 runs confirmed |
 | Bound the key challenge: Σ\|aⱼ\| grows with m | Tracked in summary figure; growth observed but not controlled; remains open |
@@ -47,52 +63,42 @@ $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 
 ## Research Goals and Script Mapping
 
-Each numbered goal below corresponds to work in specific scripts.
-
 ### Goal 1: Verify the Cluster Count Conjecture (4.1 conjecture, 4.1.1)
 
-Numerically confirm that C(m, f*) converges toward k as m grows, and that
-this convergence stabilizes independently of how large m gets once past a
-threshold. Addressed by **simulate.py** and **simulate_parallel.py**.
+Numerically confirm that C(m, f*) converges toward k as m grows, and that this convergence
+stabilizes independently of how large m gets once past a threshold. Addressed by
+**simulate.py** and **simulate_parallel.py**.
 
 ### Goal 2: Show Configurations Near k Are Unstable Above k and Attracted to k (4.1.1)
 
-Test the stability of configurations where the cluster count is within a
-threshold of k. Three run categories are tested, with threshold = 2:
-
-**exact_k** (C == k): inject one extra neuron artificially to create C+1.
-Test whether gradient flow dissolves it back to k. Two injection strategies:
-near (just outside an existing cluster) and isolated (farthest point from all clusters).
-
-**above_k** (k < C <= k+2): the simulation itself produced more clusters than k.
-Continue integrating without any injection and test whether the natural excess
-dissolves toward k on its own.
-
-**below_k** (k-2 <= C < k): fewer clusters than k, an over-merged state.
-Inject one neuron and test whether the under-complete configuration accepts it
-and moves toward k, or rejects it.
-
-Addressed by **instability_test.py**. Supports 4.1.1 by building evidence
-that k acts as an attractor for the cluster count from both sides.
+Test the stability of configurations where the cluster count is within a threshold of k.
+Three run categories: **exact_k**, **above_k**, and **below_k** (threshold = 2). Addressed
+by **instability_test.py**. Supports 4.1.1 by building evidence that k acts as an attractor
+from both sides.
 
 ### Goal 3: Verify Stationary Point Conditions (4.1 conjecture support)
 
-At convergence, verify that ODE velocities are approximately zero and that the
-integrated residual R_j from each bias to 1 is approximately zero for every
-active neuron. This connects the numerical results to the mathematical fixed
-point structure. Addressed automatically inside **simulate.py** and
-**simulate_parallel.py** as part of every run.
+At convergence, verify ODE velocities are approximately zero and the integrated residual R_j
+from each bias to 1 is approximately zero for every active neuron. Addressed automatically
+inside **simulate.py** and **simulate_parallel.py**.
 
 ### Goal 4: Numerically Verify the Pruning Bound (4.3)
 
-Verify the inequality ||f_tilde minus f|| ≤ δ · Σ|aⱼ| across all
-converged runs, and track how the bound components (δ and Σ|aⱼ|) behave as
-m grows. Addressed by **verify_pruning.py**.
+Verify ||f_tilde minus f|| ≤ δ · Σ|aⱼ| across all converged runs, and track how the bound
+components behave as m grows. Addressed by **verify_pruning.py**.
 
-### Goal 5: Build Intuition Toward a Formal Proof (4.1 and 4.3)
+### Goal 5: Test Whether Collapse Generalizes to d=2 (4.2)
 
-Synthesize the numerical evidence from all goals to identify proof strategies
-for the open problems. This is an interpretive goal informed by all scripts.
+Train a shallow ReLU network on three structurally distinct 2D target functions and measure
+whether gradient descent concentrates neuron directions and offsets into clusters over
+training. The three targets are chosen to provoke different theoretically predicted collapse
+modes: directional collapse (ridge), family splitting (separable), and no collapse (radial).
+Addressed by **higher_dim_collapse.py**.
+
+### Goal 6: Build Intuition Toward a Formal Proof (4.1 and 4.3)
+
+Synthesize numerical evidence from all goals to identify proof strategies. This is an
+interpretive goal informed by all scripts.
 
 ---
 
@@ -107,6 +113,7 @@ MathProject4/
 |-- simulate_parallel.py            Parallel extended simulation (Goals 1, 3)
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
+|-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
 |-- regenerate_figures.py           Helper: regenerates clean final fit figures
 |
 |-- notebooks/
@@ -135,6 +142,13 @@ MathProject4/
 |       |-- goal2_results.csv               Instability test results across all runs
 |       |-- goal2_summary.png               Summary heatmap and return rates
 |
+|   |-- collapse_v2_plots_and_results/
+|       |-- collapse_v2_results.json        Diagnostic snapshots across all runs
+|       |-- collapse_v2_summary.png         3x3 summary grid: all targets x all widths
+|       |-- collapse_v2_ridge.png           Per-target diagnostic plot (ridge)
+|       |-- collapse_v2_separable.png       Per-target diagnostic plot (separable)
+|       |-- collapse_v2_radial.png          Per-target diagnostic plot (radial)
+|
 |-- data/                            Raw trajectory arrays from exploratory notebook
     |-- sol_t.npy
     |-- sol_y.npy
@@ -149,10 +163,8 @@ MathProject4/
 
 **Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
 
-**Purpose:** Establishes baseline numerical evidence for the conjecture across
-six target functions with analytically known inflection point counts. Uses
-integration times long enough to show the onset of collapse for simpler targets
-and to identify which targets need longer integration.
+**Purpose:** Establishes baseline numerical evidence for the conjecture across six target
+functions with analytically known inflection point counts.
 
 **Targets and parameters:**
 
@@ -162,9 +174,8 @@ and to identify which targets need longer integration.
 | sin(2pi x) k=3, x^5 minus 3x^3 k=3 | 500, 1000, 1500 | |
 | sin(3pi x) k=5, sin(4pi x) k=7 | | |
 
-**Key finding:** sin(pi x) converges to exactly 1 cluster at m at or above
-1000, T=1000. sin(4pi x) reaches exactly 7 clusters at m=1500, T=1000.
-Harder targets are still mid-collapse at T=1000.
+**Key finding:** sin(pi x) converges to exactly 1 cluster at m ≥ 1000, T=1000. sin(4pi x)
+reaches exactly 7 clusters at m=1500, T=1000. Harder targets are still mid-collapse at T=1000.
 
 **Outputs per run:** slide93_reproduction.png, clusters_vs_inflections.png,
 ode_verification.png, convergence_check.csv, run_meta.csv
@@ -179,16 +190,8 @@ ode_verification.png, convergence_check.csv, run_meta.csv
 
 **Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
 
-**Purpose:** Extends the baseline in two directions. First, it re-runs all
-existing targets at T=5000 and T=10000 to determine whether the targets still
-mid-collapse at T=1000 eventually converge to k. Second, it adds three new
-targets with k=9, 11, and 13 to test the conjecture at higher complexity.
-Multiprocessing is used because sequential execution at T=10000 with m up to
-5000 would take prohibitively long.
-
-**Why T=5000 and T=10000 only:** simulate.py already demonstrated that T at
-or below 1000 does not produce convergence for harder targets. Running low T
-for new targets would only confirm what is already established.
+**Purpose:** Extends the baseline to T=5000 and T=10000, and adds three new targets with
+k=9, 11, and 13 to test the conjecture at higher complexity.
 
 **Targets and parameters:**
 
@@ -202,8 +205,6 @@ for new targets would only confirm what is already established.
 **Outputs per run:** same four files as simulate.py, plus run_meta.csv
 
 **Global outputs:** run_summary_parallel.csv, convergence_plot_parallel.png
-(combines all T values from both scripts for the full convergence picture;
-new targets show T=5000 and T=10000 only since low T was never run for them)
 
 **Run with:** `python simulate_parallel.py`
 
@@ -213,32 +214,16 @@ new targets show T=5000 and T=10000 only since low T was never run for them)
 
 **Open problems addressed:** 4.3 (pruning bound)
 
-**Purpose:** After the simulation scripts complete, reads the saved b_j and
-a_j values from each run folder and numerically verifies the pruning bound.
-No re-simulation is needed. Works with outputs from both simulate.py and
-simulate_parallel.py.
+**Purpose:** Reads saved b_j and a_j values from each run folder and verifies the pruning
+bound. No re-simulation needed.
 
-**What it verifies per run:**
-
-For each run folder containing convergence_check.csv and run_meta.csv:
-
-1. Groups neurons into clusters using the same gap tolerance as the simulations
-2. Computes delta (max intra-cluster diameter) and the amplitude sum Σ|aⱼ|
-3. Constructs the pruned network f_tilde (one neuron per cluster at centroid)
-4. Computes the actual L2 pruning error and the bound delta times Σ|aⱼ|
-5. Records whether the bound holds and the tightness ratio (actual divided by bound)
-
-**Current result:** Bound holds for all 108 completed runs. Tightness ratios
-range from 0.001 to 0.15, meaning the bound is satisfied but not tight. The
-amplitude sum Σ|aⱼ| grows with m across all targets, which is the core open
-challenge identified in the slides: proving the bound is non-vacuous requires
-showing this growth is controlled relative to how fast delta shrinks.
+**Current result:** Bound holds for all 108 completed runs. Tightness ratios range from
+0.001 to 0.15. The amplitude sum Σ|aⱼ| grows with m — proving the bound is non-vacuous
+requires showing this growth is controlled relative to how fast delta shrinks.
 
 **Outputs per run:** pruning_verification.png
 
 **Global outputs:** pruning_bound_results.csv, pruning_bound_summary.png
-(four panels: actual error vs bound scatter, tightness vs m, amplitude sum vs m,
-cluster diameter vs m)
 
 **Run with:** `python verify_pruning.py`
 
@@ -246,131 +231,97 @@ cluster diameter vs m)
 
 ### instability_test.py: Goal 2 Instability Test
 
-**Open problems addressed:** 4.1.1 (C ≤ Cmax independent of m)
+**Open problems addressed:** 4.1.1
 
-**Purpose:** Operates only on runs that have fully converged to exactly k
-clusters (n_clusters == k_true in run_meta.csv). For each such run, it injects
-one extra neuron into the converged state to create a k+1 cluster configuration,
-then continues integrating the ODE forward to see whether gradient flow drives
-the system back to k clusters. This directly tests the instability claim in
-4.1.1: if k+1 configurations always dissolve, that is evidence that C cannot
-remain above k, which is one of the key things that would need to be proven.
+**Purpose:** Injects one extra neuron into converged k-cluster states and tests whether
+gradient flow drives the system back to k clusters. Two injection strategies per run: near
+(just outside an existing cluster) and isolated (maximally distant from all cluster centers).
 
-**Two injection strategies per run:**
+**Qualifying runs from current data:** 20 runs across exact_k, above_k, and below_k
+categories. More will qualify once simulate_parallel.py completes.
 
-Near injection: places the extra neuron just outside the boundary of an
-existing cluster (at 3 times the cluster tolerance distance). Tests whether
-proximity to an existing cluster causes merging.
+**Outputs per run:** goal2_near.png, goal2_isolated.png, goal2_natural.png (above_k only)
 
-Isolated injection: places the extra neuron at the location in the domain
-that is maximally distant from all existing cluster centers. Tests whether
-the amplitude decays even when there is no nearby cluster to merge with.
-
-**What is tracked:** bias trajectory of the injected neuron over T_PERTURB=1000
-time units, amplitude of the injected neuron (does it decay toward zero?),
-and the total cluster count C(t) (does it drop from k+1 back to k?).
-
-**Qualifying runs from current data:** 20 runs across all three categories:
-10 exact_k, 3 above_k, and 7 below_k. More will qualify once
-simulate_parallel.py completes and more runs converge near k.
-
-**Outputs per run:** goal2_near.png (injection), goal2_isolated.png (injection),
-goal2_natural.png (natural dissolution, above_k runs only)
-
-**Global outputs:** goal2_results.csv, goal2_summary.png (heatmap of which
-runs returned to k, and bar chart of return rate by injection type)
-
-**Run order:** run after both simulate scripts and verify_pruning.py
+**Global outputs:** goal2_results.csv, goal2_summary.png
 
 **Run with:** `python instability_test.py`
 
 ---
 
-**Note:** Only simulate.py has finished running as of 6/5/2026 10:20 am CST. verify_pruning.py has been run with the results from simulate.py. simulate_parallel.py is currently running. instability_test.py has not yet been run as more data is required from simulate_parallel.py.
+### collapse_v2.py: Open Problem 4.2 — 2D Collapse Experiment
 
-## Model and Controlled Variables
+**Open problems addressed:** 4.2 (higher-dimensional collapse)
 
-### Network
+**Purpose:** Trains a shallow ReLU network (f(x) = Σ aⱼ σ(wⱼᵀx + bⱼ), x ∈ [-1,1]²) on
+three target functions designed to provoke distinct collapse modes, then tracks the angular
+distribution of neuron normals and the (θ, β) point cloud over training.
 
-$$f(x) = \sum_{j=1}^{m} a_j \, \sigma(x - b_j), \quad \sigma(z) = \max(0, z), \quad x \in [-1, 1]$$
+**The canonical reparameterization:** Each neuron is normalized into scale-invariant
+coordinates: θⱼ = angle of wⱼ (which direction the neuron is sensitive to), βⱼ = bⱼ/‖wⱼ‖
+(signed distance from origin to kink), αⱼ = aⱼ‖wⱼ‖ (scale-absorbed output weight). Two
+neurons defining the same hyperplane have identical (θ, β) regardless of raw weight scaling.
 
-### Training via gradient flow on continuous MSE loss
+**Target functions:**
 
-$$\mathcal{L} = \frac{1}{2}\int_{-1}^{1}(f(x) - f^\ast(x))^2\,dx$$
-
-### Gradient flow ODEs
-
-The dot notation denotes time derivatives. The two ODEs govern how each amplitude and bias evolve over time:
-
-$$\frac{da_j}{dt} = \dot{a}_j = -\int_{-1}^{1}(f - f^\ast)\,\sigma(x - b_j)\,dx$$
-
-$$\frac{db_j}{dt} = \dot{b}_j = a_j \int_{b_j}^{1}(f - f^\ast)\,dx$$
-
-At each moment in time t, the right-hand sides are spatial integrals over x from -1 to 1 (or b_j to 1) that measure how misaligned the current network output f is from the target f*. These integrals determine the direction and speed at which each parameter moves. The ODE solver advances all 2m parameters simultaneously from t=0 to t=T.
-
-### Variable Definitions
-
-| Variable | What it is | Role in the experiment |
+| Target | Function | Predicted collapse mode |
 |---|---|---|
-| m | Network width: the number of neurons in the hidden layer | Primary controlled variable. The conjecture is a statement about m going to infinity, so we test many values of m to observe the convergence trend. |
-| T | The upper time limit of the gradient flow simulation. The ODEs define instantaneous velocities da/dt and db/dt using spatial integrals over x from -1 to 1 (those integrals compute how much each neuron should move at a given moment). T is completely separate: it is how far forward in time t we let those velocities evolve the parameters, solving the system from t=0 to t=T. Not wall-clock time, not training epochs. | Controls how long gradient flow runs. Larger T gives the biases more time to collapse and merge. Too small a T means the system is still mid-collapse and has not yet revealed its final cluster structure. |
-| b_j | Bias parameter of neuron j. Determines where on the domain that neuron places its kink. | The quantity being studied. The collapse of b_j values into clusters is the central phenomenon. |
-| a_j | Amplitude (weight) of neuron j. Determines the size of the slope change at the kink. | Evolves jointly with b_j under the gradient flow. The sum of amplitudes in each cluster gives the effective weight of that kink in the pruned network. |
-| f* | The target function being approximated. | Determines k, the number of inflection points, which is the conjectured limit of the cluster count. Different target functions give different k values and test the conjecture across different complexity levels. |
-| k | The number of sign-changing zeros of (f*)'' in (-1, 1). This is the number of inflection points of the target. | The conjectured limit of C(m, f*) as m goes to infinity. The central quantity the experiments are designed to track. |
-| C(m, f*) | The number of distinct bias clusters observed at the end of the simulation for a given m and target. | The output being measured. We track how C changes as m increases across many runs, looking for convergence toward k. |
-| delta | Maximum intra-cluster diameter: the largest spread of b_j values within any single cluster. | Used in the Open Problem 4.3 pruning bound. Measures how tightly the biases have merged. Smaller delta means the clusters are more compact. |
-| T_PERTURB | In instability_test.py only: the additional integration time run after injecting a neuron or starting from a near-k state. Separate from T above. | Controls how long the perturbation test runs. Should be long enough to observe whether the perturbed state dissolves toward k. |
+| Ridge | sin(2πuᵀx) + 0.5sin(4πuᵀx), u=(3/5, 4/5) | All normals concentrate toward θ≈53°; one angular cluster |
+| Separable | sin(2πx₁) + 0.3sin(2πx₂) | Two direction families at θ≈0° and θ≈90°; unequal sizes due to broken symmetry |
+| Radial | cos(π‖x‖) | No preferred direction; angular entropy stays near uniform |
+
+Note: u=(3/5, 4/5) is deliberately non-axis-aligned to distinguish directional collapse
+from coordinate-axis effects. The separable target uses asymmetric weights (1.0 vs 0.3)
+to break the x₁/x₂ symmetry and produce unequal family sizes.
+
+**Width sweep:** Each target is trained at m = 64, 256, and 512 to test whether collapse
+is a large-width or small-width phenomenon.
+
+**Diagnostics:**
+
+| Diagnostic | What it measures |
+|---|---|
+| Angular entropy H({θⱼ}) | Shannon entropy of the binned angle distribution. Drops toward 0 if directions collapse; near log(36)≈3.58 if spread is uniform |
+| DBSCAN cluster count | Number of clusters in the normalized (θ, β) point cloud. Should track the theoretically predicted number of direction families |
+
+Note: a pruning diagnostic (effective width) was also implemented but found to be
+unreliable due to sign-cancellation between neurons with opposite-sign output weights.
+Pruning results are excluded from the analysis.
+
+**Key findings:**
+
+1. Collapse mode tracks target structure at small width (m=64): ridge shows mild angular
+   concentration, separable shows family splitting with entropy dropping from 3.08 to 2.65,
+   radial shows mild collapse due to capacity constraints.
+
+2. Collapse weakens as width increases. At m=512, entropy changes are smaller for all three
+   targets. This is the opposite of the theoretical large-m prediction and suggests collapse
+   is capacity-constrained rather than asymptotic.
+
+3. Radial at large width (m=512) maintains near-uniform entropy (≈3.54 throughout, against
+   a maximum of 3.58), confirming the rotational symmetry prediction only when the network
+   is wide enough to cover all orientations.
+
+4. Separable at m=512 stabilizes at 3 DBSCAN clusters from epoch 2700 onward — consistent
+   with two direction families plus a noise cluster, the clearest structural result in the
+   dataset.
+
+**Parameters:** m ∈ {64, 256, 512}, N_train=4096, N_test=1024, 6000 epochs, Adam lr=1e-3,
+snapshots every 300 epochs.
+
+**Outputs:** collapse_v2_results.json (slim diagnostics), collapse_v2_summary.png (3×3
+grid: rows = angular entropy / cluster count / prune ratio, cols = targets), and one
+per-target diagnostic plot (collapse_v2_{target}.png) with loss curve, entropy trajectory,
+(θ,β) point cloud at final epoch, and effective width panel.
+
+**Run with:** `python collapse_v2.py`
 
 ---
-
-## Target Functions
-
-| Key | Function | Inflection pts k | Introduced in |
-|---|---|---|---|
-| sin_1pi | sin(pi x) | 1 | simulate.py |
-| x_cubed | x^3 | 1 | simulate.py |
-| sin_2pi | sin(2 pi x) | 3 | simulate.py |
-| poly_k3 | x^5 minus 3x^3 | 3 | simulate.py |
-| sin_3pi | sin(3 pi x) | 5 | simulate.py |
-| sin_4pi | sin(4 pi x) | 7 | simulate.py |
-| sin_5pi | sin(5 pi x) | 9 | simulate_parallel.py |
-| sin_6pi | sin(6 pi x) | 11 | simulate_parallel.py |
-| sin_7pi | sin(7 pi x) | 13 | simulate_parallel.py |
-
-For sin(n pi x): the second derivative is negative n squared pi squared times
-sin(n pi x), which has exactly 2n minus 1 sign-changing zeros in the open
-interval from negative 1 to 1.
-
----
-
-## Output Files Per Run
-
-| File | Goal | Contents |
-|---|---|---|
-| slide93_reproduction.png | 1 | Sorted bias trajectories, final fit vs target, MSE loss on log scale |
-| clusters_vs_inflections.png | 1 | Final cluster locations vs analytically known inflection points |
-| ode_verification.png | 3 | Amplitude velocity, bias velocity, and integrated residual R_j at final time |
-| convergence_check.csv | 3 | Per neuron b_j, a_j, da/dt, db/dt, R_j, active flag, R near zero flag |
-| run_meta.csv | All | Single row summary enabling Ctrl+C safe restart without repeating completed runs |
-| pruning_verification.png | 4 | Full vs pruned vs target, pointwise error, actual error vs bound bar chart |
-| goal2_near.png | 2 | Bias trajectories, injected amplitude, and cluster count after near injection |
-| goal2_isolated.png | 2 | Same panels after isolated injection |
-| final_fit_clean.png | helper | Clean version of the final fit panel showing only cluster centers as tick marks instead of all m bias dots. Generated by regenerate_figures.py. |
-
----
-
-## Helper Scripts
 
 ### regenerate_figures.py: Figure Cleaner
 
-**Purpose:** The original slide93_reproduction.png plots all m bias dots at y=0 in the center panel, which is visually cluttered when m is large (hundreds of overlapping dots that obscure each other). This script is a standalone post-processing helper that reads the final bias and amplitude values from each run folder's convergence_check.csv and generates a cleaner version of the final fit figure.
-
-**What it produces:** A new file called final_fit_clean.png in every run folder that has a convergence_check.csv. It shows the target f\* (black dashed), the final network f (red), and the cluster centers as steelblue vertical tick marks at y=0 rather than all m individual bias dots. This makes it immediately clear how many clusters exist and where they are.
-
-**What it does not touch:** slide93_reproduction.png is never modified. final_fit_clean.png is always a separate additional file.
-
-**When to run:** After simulate.py and/or simulate_parallel.py. Can be re-run at any time as it skips folders that already have final_fit_clean.png.
+**Purpose:** Reads final bias and amplitude values from each run folder and generates
+final_fit_clean.png — a cleaner version of the final fit figure showing cluster centers as
+tick marks rather than all m individual bias dots.
 
 **Run with:** `python regenerate_figures.py`
 
@@ -384,8 +335,111 @@ python simulate_parallel.py
 python verify_pruning.py
 python instability_test.py
 python regenerate_figures.py
+python collapse_v2.py          # independent; can be run at any time
 ```
 
-Each script is safe to interrupt and restart. Already completed runs are
-detected via run_meta.csv (simulations) or existing output figures (verify
-and instability scripts) and skipped automatically.
+The first four scripts are safe to interrupt and restart. Already completed runs are
+detected via run_meta.csv (simulations) or existing output figures (verify and instability
+scripts) and skipped automatically. collapse_v2.py is fully independent of the 1D pipeline.
+
+---
+
+## Model and Controlled Variables
+
+### 1D Network (Problems 4.1 and 4.3)
+
+$$f(x) = \sum_{j=1}^{m} a_j \, \sigma(x - b_j), \quad \sigma(z) = \max(0, z), \quad x \in [-1, 1]$$
+
+### 2D Network (Problem 4.2)
+
+$$f(x) = \sum_{j=1}^{m} a_j \, \sigma(w_j^\top x + b_j), \quad x \in [-1, 1]^2$$
+
+### Training
+
+1D: gradient flow on continuous MSE loss
+$$\mathcal{L} = \frac{1}{2}\int_{-1}^{1}(f(x) - f^\ast(x))^2\,dx$$
+
+2D: Adam on empirical MSE loss over N_train=4096 uniform samples from [-1,1]²
+
+### Gradient Flow ODEs (1D only)
+
+$$\dot{a}_j = -\int_{-1}^{1}(f - f^\ast)\,\sigma(x - b_j)\,dx$$
+
+$$\dot{b}_j = a_j \int_{b_j}^{1}(f - f^\ast)\,dx$$
+
+### Variable Definitions
+
+| Variable | What it is | Role |
+|---|---|---|
+| m | Network width | Primary controlled variable |
+| T | Upper time limit of gradient flow (1D only) | Controls how long gradient flow runs |
+| b_j | Bias parameter of neuron j (1D) | Determines kink location; collapse of b_j into clusters is the central 1D phenomenon |
+| w_j, b_j | Weight vector and bias of neuron j (2D) | Together define the oriented hyperplane for that neuron |
+| θⱼ, βⱼ | Canonical angle and normalized offset (2D) | Scale-invariant coordinates; collapse measured in this space |
+| a_j | Amplitude of neuron j | Evolves jointly with b_j; sum of amplitudes per cluster gives effective pruned weight |
+| f* | Target function | Determines k (1D) or collapse mode (2D) |
+| k | Number of sign-changing zeros of (f*)'' in (-1,1) | Conjectured limit of C(m, f*) as m → ∞ (1D only) |
+| C(m, f*) | Number of distinct bias clusters at end of simulation | Output being measured in 1D experiments |
+| delta | Max intra-cluster diameter (1D) | Used in 4.3 pruning bound |
+| T_PERTURB | Additional integration time after injection (instability_test.py only) | Controls perturbation test duration |
+
+---
+
+## Target Functions
+
+### 1D Targets
+
+| Key | Function | Inflection pts k | Introduced in |
+|---|---|---|---|
+| sin_1pi | sin(π x) | 1 | simulate.py |
+| x_cubed | x³ | 1 | simulate.py |
+| sin_2pi | sin(2π x) | 3 | simulate.py |
+| poly_k3 | x⁵ − 3x³ | 3 | simulate.py |
+| sin_3pi | sin(3π x) | 5 | simulate.py |
+| sin_4pi | sin(4π x) | 7 | simulate.py |
+| sin_5pi | sin(5π x) | 9 | simulate_parallel.py |
+| sin_6pi | sin(6π x) | 11 | simulate_parallel.py |
+| sin_7pi | sin(7π x) | 13 | simulate_parallel.py |
+
+For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (−1, 1).
+
+### 2D Targets
+
+| Key | Function | Predicted collapse |
+|---|---|---|
+| ridge | sin(2πuᵀx) + 0.5sin(4πuᵀx), u=(3/5,4/5) | Directional collapse toward θ≈53° |
+| separable | sin(2πx₁) + 0.3sin(2πx₂) | Two direction families, unequal sizes |
+| radial | cos(π‖x‖) | No collapse; entropy near uniform |
+
+---
+
+## Output Files Per Run
+
+### 1D (simulate.py / simulate_parallel.py)
+
+| File | Goal | Contents |
+|---|---|---|
+| slide93_reproduction.png | 1 | Sorted bias trajectories, final fit vs target, MSE loss on log scale |
+| clusters_vs_inflections.png | 1 | Final cluster locations vs analytically known inflection points |
+| ode_verification.png | 3 | Amplitude velocity, bias velocity, and R_j at final time |
+| convergence_check.csv | 3 | Per neuron b_j, a_j, da/dt, db/dt, R_j, active flag |
+| run_meta.csv | All | Single row summary for restart safety |
+| pruning_verification.png | 4 | Full vs pruned vs target, pointwise error, actual error vs bound |
+| goal2_near.png | 2 | Bias trajectories and cluster count after near injection |
+| goal2_isolated.png | 2 | Same after isolated injection |
+| final_fit_clean.png | helper | Clean final fit with cluster centers as tick marks |
+
+### 2D (collapse_v2.py)
+
+| File | Contents |
+|---|---|
+| collapse_v2_results.json | Epoch-by-epoch diagnostics for all target × width combinations |
+| collapse_v2_summary.png | 3×3 grid: angular entropy, cluster count, prune ratio across all targets and widths |
+| collapse_v2_{target}.png | Per-target plot: loss curve, entropy trajectory, (θ,β) point cloud at final epoch, effective width panel |
+
+---
+
+**Note on current run status (as of 6/5/2026 10:20 am CST):** simulate.py has finished.
+verify_pruning.py has been run on simulate.py results (108 runs confirmed). simulate_parallel.py
+is currently running. instability_test.py has not yet been run pending more data from
+simulate_parallel.py. collapse_v2.py has been run and results are fully analyzed.
