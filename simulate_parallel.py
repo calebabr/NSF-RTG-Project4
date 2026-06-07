@@ -45,7 +45,7 @@ from multiprocessing import Pool, cpu_count
 # =============================================================================
 # Quadrature grid
 # =============================================================================
-N_QUAD = 400
+N_QUAD = 200
 X_QUAD = np.linspace(-1.0, 1.0, N_QUAD)
 DX     = X_QUAD[1] - X_QUAD[0]
 
