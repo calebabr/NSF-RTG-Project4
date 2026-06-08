@@ -63,7 +63,7 @@ from multiprocessing import Pool, cpu_count
 # "discrete"         → constant-lr GD in figures/Discrete GD/
 # "discrete_scaled"  → scaled-lr GD in figures/Discrete GD Scaled/
 # =============================================================================
-MODE = "discrete"
+MODE = "flow"
 # "flow"     → ODE results in figures/Replication data/
 # "discrete" → GD results  in figures/Discrete GD/
 
