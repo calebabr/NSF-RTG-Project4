@@ -27,6 +27,8 @@ Output
 
 Usage
 -----
+    # Run from the project root (MathProject4/) — outputs go to figures/Replication data/
+    pip install -r requirements.txt
     python simulate_parallel.py
 """
 
@@ -215,12 +217,12 @@ def run_one(args):
     fstar_vals    = f_star(X_QUAD)
     snap_idx      = np.arange(0, N_SAVE, 5)
     losses_sparse = np.array([
-        0.5 * np.trapezoid(
+        0.5 * np.trapz(
             (network(X_QUAD, sol.y[:m, i], sol.y[m:, i]) - fstar_vals)**2, X_QUAD)
         for i in snap_idx
     ])
     t_sparse   = sol.t[snap_idx]
-    final_loss = float(0.5 * np.trapezoid(
+    final_loss = float(0.5 * np.trapz(
         (network(X_QUAD, sol.y[:m, -1], sol.y[m:, -1]) - fstar_vals)**2, X_QUAD))
 
     # ── Final state ───────────────────────────────────────────────────────────

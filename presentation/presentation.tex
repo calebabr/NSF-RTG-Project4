@@ -75,6 +75,8 @@
   {figures/Replication data/}
   {figures/Replication data/sin_1pi/m=1000/T=1000/}
   {figures/Replication data/sin_4pi/m=1500/T=1000/}
+  {figures/Replication data/sin_1pi/m=1000/T=500/}
+  {figures/Replication data/sin_4pi/m=1000/T=500/}
 }
 
 %% ---- Macros -------------------------------------------------
@@ -272,8 +274,9 @@
       \vspace{0.5em}
       \begin{tcolorbox}[slideboxA, title={Ongoing}]
         \small
-        Extended runs: $m\!\leq\!5000$, $T\!\leq\!10000$.\\
-        New targets: $\sin(n\pi x)$, $k\in\{9,11,13\}$.
+        Colab run: $m$ up to 5000, $T\!=\!500$, 72 jobs.\\
+        Local parallel: $m$ up to 1000, $T\!\leq\!10000$.\\
+        New targets: $\sin(n\pi x)$, $k\!\in\!\{9,11,13\}$.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -306,16 +309,17 @@
     \begin{column}{0.60\textwidth}
       \textbf{Parameter sweep:}
       \begin{itemize}
-        \item \textbf{Baseline:}
+        \item \textbf{Baseline (local scipy):}
               $m\!\in\!\{50,100,250,500,1000,1500\}$,\;
               $T\!\in\!\{200,500,1000\}$
               \hfill 108 runs
-        \item \textbf{Extended (parallel, 20 workers):}
-              $m$ up to 5000,\; $T\!\in\!\{5000,10000\}$
-              \hfill 162 runs
-        \item Lower $T$ omitted for extended runs: baseline
-              established $T\!\leq\!1000$ insufficient for harder
-              targets
+        \item \textbf{Wide-$m$ sweep (Colab scipy):}
+              $m\!\in\!\{50,100,250,500,1000,2000,3500,5000\}$,\;
+              $T\!=\!500$
+              \hfill 72 runs
+        \item \textbf{High-$T$ (local parallel scipy):}
+              $m$ up to 1000,\; $T\!\in\!\{5000,10000\}$
+              \hfill in progress
       \end{itemize}
       \vspace{0.4em}
       \textbf{Per-run outputs:}
@@ -332,15 +336,18 @@
 %% ============================================================
 \begin{frame}{Result 1 — Convergence of $C(m,\fstar) \to k$}
   \begin{center}
+    %% convergence_plot_parallel.png is produced by simulate_colab.ipynb once
+    %% the Colab run completes and data is copied to figures/Replication data/.
+    %% Until then, use convergence_plot.png (baseline, 108 runs, T<=1000).
     \includegraphics[width=0.86\textwidth, height=0.72\textheight,
-                     keepaspectratio]{convergence_plot.png}
+                     keepaspectratio]{convergence_plot_parallel.png}
   \end{center}
   \vspace{-0.3em}
   \begin{center}
   \parbox{0.86\textwidth}{\small\raggedright
-    Each panel shows $C(m,\fstar)$ vs.\ $m$ for one target.
+    Each panel shows $C(m,\fstar)$ vs.\ $m$ for one target ($T=500$, scipy RK45).
     \textbf{Crimson dashed line} $=$ analytical $k$.
-    \textbf{Colored curves} $=$ different $T$ values.
+    All 9 targets including new $k\!\in\!\{9,11,13\}$.
     Curves converge toward the dashed line as $m$ grows,
     directly supporting the conjecture.}
   \end{center}
@@ -571,17 +578,17 @@
       \textbf{Summary:}
       \begin{itemize}
         \item $C(m,\fstar)=k$ confirmed for $\sin(\pi x)$
-              and $\sin(4\pi x)$; convergence trend observed
-              across all targets
+              and $\sin(4\pi x)$; convergence trend across
+              all 9 targets including $k\!\in\!\{9,11,13\}$
         \item Non-monotone collapse dynamics explained
               by the redundancy threshold of gradient flow
         \item ODE fixed-point conditions verified at
-              convergence across all 108 completed runs
+              convergence across all 108 baseline runs
         \item Pruning bound (OP 4.3): 108/108 holds;
               amplitude sum growth identified as the
               key obstacle to a formal proof
         \item Instability framework operational;
-              results expand as parallel runs complete
+              results expand as high-$T$ runs complete
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}

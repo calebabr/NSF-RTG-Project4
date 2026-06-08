@@ -111,6 +111,7 @@ MathProject4/
 |
 |-- simulate.py                     Sequential baseline simulation (Goals 1, 3)
 |-- simulate_parallel.py            Parallel extended simulation (Goals 1, 3)
+|-- simulate_colab.ipynb            Colab cloud simulation — m up to 5000, scipy RK45, Drive output
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
 |-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
@@ -183,6 +184,48 @@ ode_verification.png, convergence_check.csv, run_meta.csv
 **Global outputs:** run_summary.csv, convergence_plot.png
 
 **Run with:** `python simulate.py`
+
+---
+
+### simulate_colab.ipynb: Colab Cloud Simulation
+
+**Open problems addressed:** 4.1 (main conjecture), Goal 3
+
+**Purpose:** Extends the cluster count sweep to m up to 5000 using Colab's free-tier CPU
+(no GPU needed). Outputs all per-run figures and CSVs directly to Google Drive so they
+survive session restarts. Designed as a drop-in companion to `simulate_parallel.py` —
+both target the same 9 functions and use the same SEED and scipy RK45 solver.
+
+**Solver:** `scipy.integrate.solve_ivp` with `method='RK45'`, `rtol=1e-4`, `atol=1e-6`,
+`max_step=1.0` — identical to `simulate_parallel.py`. Adaptive step sizing is mandatory:
+at m ≥ 1000 the initial network output is O(√m), creating a fast early transient (t ≈ 0–5)
+where fixed-step RK4 with dt=0.01 fails completely. An earlier version used PyTorch RK4
+(dt=0.01) and produced correct results for m ≤ 500 but wrong results (C ≈ m, loss ≈ 0.25)
+for m ≥ 1000.
+
+**Targets and parameters:**
+
+| Targets | m values | T |
+|---|---|---|
+| All 9 (sin_1pi through sin_7pi, x_cubed, poly_k3) | 50, 100, 250, 500, 1000, 2000, 3500, 5000 | 500 |
+
+72 total jobs (8 m values × 9 targets). Jobs run in m-first order; each completed job writes
+`run_meta.csv` with `solver='scipy_RK45'`. Runs with the old PyTorch RK4 solver are
+automatically re-run on the next execution even without FORCE_RERUN=True.
+
+**Skip logic:** Checks `run_meta.csv` for `solver='scipy_RK45'`. Runs from the old PyTorch
+solver (which lack the `solver` field) are silently rerun with scipy.
+
+**Outputs per run:** slide93_reproduction.png, clusters_vs_inflections.png,
+ode_verification.png, convergence_check.csv, run_meta.csv
+
+**Global outputs:** run_summary_parallel.csv, convergence_plot_parallel.png (written to Drive)
+
+**After the run:** Download `NSF_RTG_ODE/` from Google Drive and copy its contents into
+`figures/Replication data/`.
+
+**Run:** Upload to Colab, set runtime to CPU, run all cells. Restart-safe — re-run the
+job cell to resume from the last completed job.
 
 ---
 
@@ -464,10 +507,20 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 ---
 
-**Note on current run status (as of 6/7/2026):** simulate.py has finished.
-verify_pruning.py has been run on simulate.py results (108 runs confirmed). simulate_parallel.py
-has been running since 6/5 and is being restarted with optimized settings: N_QUAD=200
-(1.9x speedup) and m values capped at 1000 (removes multi-day large-m jobs). 30 of 90
-jobs are already complete and will be skipped on restart. The new targets sin_5pi, sin_6pi,
-sin_7pi have not yet run. instability_test.py has not yet been run pending more data from
-simulate_parallel.py. collapse_v2.py has been run and results are fully analyzed.
+**Note on current run status (as of 6/8/2026):**
+
+| Script | Status |
+|---|---|
+| simulate.py | ✅ Complete — 108 runs finished |
+| verify_pruning.py | ✅ Complete — 108/108 bound verified |
+| collapse_v2.py | ✅ Complete — all 2D results analyzed |
+| simulate_parallel.py | 🔄 Phase 1 (T=5000) in progress locally |
+| simulate_colab.ipynb | ⚠️ Must rerun — previous run used PyTorch RK4 (dt=0.01), which fails at m ≥ 1000 (see Solver note above). Corrected scipy notebook ready; rerun all 72 jobs from scratch. |
+| instability_test.py | ⏳ Pending — waiting on more data from simulate_parallel.py |
+
+**Key fix (6/8/2026):** The first Colab run used fixed-step PyTorch RK4 with dt=0.01.
+This works for m ≤ 500 but fails for m ≥ 1000 because at initialization the network
+output E[f(x)] ≈ m × 0.01 × E[relu] = O(√m) × 0.25, producing a fast early transient
+with reversal timescale ∼ 1/m. For m=1000 this is ∼0.001 time units — ten times smaller
+than dt=0.01. All m=1000 losses were ≈0.25 (null loss; biases escaped to one side).
+The corrected notebook uses scipy adaptive RK45, identical to simulate_parallel.py.
