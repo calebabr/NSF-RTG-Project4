@@ -63,7 +63,7 @@ from multiprocessing import Pool, cpu_count
 # "discrete"         → constant-lr GD in figures/Discrete GD/
 # "discrete_scaled"  → scaled-lr GD in figures/Discrete GD Scaled/
 # =============================================================================
-MODE = "discrete"
+MODE = "flow"
 # "flow"     → ODE results in figures/Replication data/
 # "discrete" → GD results  in figures/Discrete GD/
 
@@ -92,6 +92,8 @@ N_SAVE           = 300          # number of snapshots for trajectories
 
 # Flow mode: ODE integration duration
 T_PERTURB        = 1000
+# Convergence tolerance for early-stop event (matches simulate_parallel stationarity check)
+CONV_TOL         = 1e-2
 
 # Discrete mode: GD continuation parameters
 LR               = 0.01
@@ -158,6 +160,19 @@ def make_ode(m, f_star):
         db        = a * cum_right[idx]
         return np.concatenate([da, db])
     return ode
+
+def make_convergence_event(ode_fn, tol=CONV_TOL):
+    """
+    Returns a terminal solve_ivp event that fires when max|dy/dt| < tol.
+    This allows early stopping once the ODE has reached a stationary state,
+    avoiding running all the way to T_PERTURB when convergence happens early.
+    """
+    def event(t, y):
+        dydt = ode_fn(t, y)
+        return np.max(np.abs(dydt)) - tol
+    event.terminal  = True
+    event.direction = -1   # trigger on falling edge (grad dropping below tol)
+    return event
 
 def count_clusters(biases, tol=CLUSTER_TOL):
     s = np.sort(biases)
@@ -369,14 +384,17 @@ def test_one(args):
         m_run = m_orig
 
         if MODE == "flow":
+            ode_fn     = make_ode(m_run, f_star)
+            conv_event = make_convergence_event(ode_fn, CONV_TOL)
             sol = solve_ivp(
-                make_ode(m_run, f_star),
+                ode_fn,
                 t_span=(0.0, T_PERTURB),
                 y0=np.concatenate([a_orig, b_orig]),
                 method='RK45',
                 t_eval=np.linspace(0.0, T_PERTURB, N_SAVE),
                 rtol=1e-4, atol=1e-6,
                 max_step=max(0.1, T_PERTURB / 500),
+                events=conv_event,
             )
             t_arr          = sol.t
             b_sorted_traj  = np.sort(sol.y[m_run:, :], axis=0)  # (m_run, n_pts)
@@ -477,14 +495,17 @@ def test_one(args):
     b_init = np.append(b_orig, b_inject)
 
     if MODE == "flow":
+        ode_fn     = make_ode(m_new, f_star)
+        conv_event = make_convergence_event(ode_fn, CONV_TOL)
         sol = solve_ivp(
-            make_ode(m_new, f_star),
+            ode_fn,
             t_span=(0.0, T_PERTURB),
             y0=np.concatenate([a_init, b_init]),
             method='RK45',
             t_eval=np.linspace(0.0, T_PERTURB, N_SAVE),
             rtol=1e-4, atol=1e-6,
             max_step=max(0.1, T_PERTURB / 500),
+            events=conv_event,
         )
         t_arr               = sol.t
         a_inj_traj          = sol.y[m_orig, :]
@@ -713,6 +734,8 @@ if __name__ == '__main__':
             if not os.path.isdir(m_path):
                 continue
             for t_dir in os.listdir(m_path):
+                if t_dir != 'T=500':
+                    continue
                 t_path = os.path.join(m_path, t_dir)
                 if not os.path.isdir(t_path):
                     continue

@@ -35,7 +35,7 @@ import os, csv, tempfile
 # "flow"     → ODE results   in figures/Replication data/
 # "discrete" → GD results    in figures/Discrete GD/
 # =============================================================================
-MODE = "discrete"
+MODE = "flow"
 # "flow"     → ODE results in figures/Replication data/
 # "discrete" → GD results  in figures/Discrete GD/
 
@@ -44,13 +44,13 @@ if MODE == "flow":
     TIME_FIELD       = 'T'
     TIME_LABEL       = 'T'
     INNER_DIR_PREFIX = 'T='
-    MIN_TIME         = 0      # include all T values (T_FINAL=500 is the standard run)
+    ONLY_T           = 500    # only include runs with exactly T=500
 else:
     FIG_BASE         = os.path.join('figures', 'Discrete GD')
     TIME_FIELD       = 'steps'
     TIME_LABEL       = 'steps'
     INNER_DIR_PREFIX = 'steps='
-    MIN_TIME         = 0      # all discrete runs use same step count; no filter needed
+    ONLY_T           = None   # no T filter in discrete mode
 
 OUT_PATH = os.path.join(FIG_BASE, 'convergence_plot_current.png')
 
@@ -103,8 +103,8 @@ for target_key in os.listdir(FIG_BASE):
             with open(meta_file, newline='') as f:
                 row = next(csv.DictReader(f))
             T_val = int(row[TIME_FIELD])
-            if T_val < MIN_TIME:
-                continue   # skip low-T/steps runs (flow mode only)
+            if MODE == 'flow' and T_val != ONLY_T:
+                continue   # only include T=500 runs
             rows.append({
                 'target':     target_key,
                 'm':          int(row['m']),
@@ -198,7 +198,7 @@ for ax_i in range(len(targets_present), len(axes_flat)):
 n_done    = len(rows)
 n_targets = len(set(r['target'] for r in rows))
 if MODE == 'flow':
-    time_note = f'{TIME_LABEL} ≥ {MIN_TIME}  only' if MIN_TIME > 0 else f'{TIME_LABEL} = {rows[0]["T"]}'
+    time_note = f'{TIME_LABEL} = {ONLY_T}'
 else:
     step_vals = sorted(set(r['T'] for r in rows))
     time_note = f'steps = {step_vals[0]}–{step_vals[-1]} (scaled with m)'

@@ -33,7 +33,7 @@ import os, csv
 # "flow"     → ODE results   in figures/Replication data/
 # "discrete" → GD results    in figures/Discrete GD/
 # =============================================================================
-MODE = "discrete"
+MODE = "flow"
 # "flow"     → ODE results in figures/Replication data/
 # "discrete" → GD results  in figures/Discrete GD/
 
