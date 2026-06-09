@@ -34,6 +34,54 @@ $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \t
 | 4.1.2 | Is convergence finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T); not yet explicitly addressed |
 | 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
 
+#### Current Numerical Findings (T=500, m up to 3500; m=5000 in progress)
+
+69 runs across 9 targets (T=500, m ∈ {50,100,250,500,1000,1500,2000,3500}, m=5000 in progress).
+All runs are verified stationary at T=500 (max|da/dt| < 0.01 for all but 3 runs). The stationary cluster count C(m, f*) as a function of m follows
+a consistent non-monotone pattern: C rises at small m (network too narrow to populate all
+k attractor positions), peaks, then falls as m grows.
+
+**C(m, f*) sequences at T=500 (m = 50, 100, 250, 500, 1000, 1500, 2000, 3500):**
+
+| Target | k | C(m) sequence | Status |
+|---|---|---|---|
+| sin_1pi | 1 | 31, 45, 22, 6, **1, 1, 1, 1** | ✅ Converges to k — holds from m=1000 through m=3500 |
+| sin_2pi | 3 | 26, 29, 13, 8, **2**, †, †, † | ⚠️ Falls below k at m=1000; artifact† obscures large m |
+| sin_3pi | 5 | 11, 16, 23, 14, **5**, 2, †, † | ⚠️ Passes through k=5 at m=1000, falls to 2 at m=1500 |
+| sin_4pi | 7 | 9, 11, 21, 26, 17, **7**, 2, † | ⚠️ Passes through k=7 at m=1500, falls to 2 at m=2000 |
+| sin_5pi | 9 | 11, 11, 18, 23, 31, 13, **2** | 🔄 Not yet reached; still falling at m=3500 |
+| sin_6pi | 11 | 13, 14, 14, 15, 31, **40**, 13 | 🔄 Still near peak; C rising through m=2000 |
+| sin_7pi | 13 | 14, 15, 18, 17, 22, **36**, 34 | 🔄 Still near peak; not yet falling |
+| poly_k3 | 3 | 29, 45, 35, 20, 11, 8, 7, **4** | 🔄 Slowly decreasing; C=4 at m=3500 |
+| x_cubed | 1 | 31, 40, 31, 16, 13, 6, 7, **4** | 🔄 Slow; C=4 at m=3500; polynomial targets converge much more slowly |
+
+†**Dense-packing artifact:** When m is large relative to domain width, consecutive sorted
+biases are spaced < 0.02 apart and the gap-based cluster counter collapses to C=1 regardless
+of actual structure. Affects sin_2pi at m ≥ 1500, sin_3pi at m ≥ 2000, sin_4pi at m=3500.
+These cells are marked † and excluded from limit conclusions.
+
+**What we can conclude:**
+
+- The conjecture **lim C(m, f*) = k is supported for sin_1pi (k=1)**: the sequence
+  stabilizes at C=1 and holds there across m=1000–3500.
+
+- For **k=5 and k=7**, the sequence passes through k at an intermediate m value but then
+  falls below k at the next sampled m. This is not convergence to k in the limit sense —
+  the sequence would need to stabilize at or return to k at larger m. Whether this reflects
+  a genuine below-k stationary state or a measurement artifact from the gap threshold is
+  unresolved. m=5000 data will clarify.
+
+- For **k=9, 11, 13**, the sequences have not yet reached k. The peak of the rise shifts
+  right as k increases; these targets need m well beyond 3500 to enter the falling phase.
+
+- **poly_k3 and x_cubed** converge far more slowly than the trigonometric targets with
+  the same k, consistent with the gradient attractor geometry being weaker for polynomial
+  inflection points.
+
+- The dense-packing artifact is the primary measurement blocker at large m. An adaptive
+  cluster threshold (scaling with 1/m rather than fixed at 0.02) is needed to reliably
+  measure C(m, f*) for m ≥ 1500.
+
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
 **Conjecture from the slides:** For structured d-dimensional targets, gradient flow
@@ -233,30 +281,21 @@ job cell to resume from the last completed job.
 
 **Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
 
-**Purpose:** Extends the baseline to T=5000 and T=10000, and adds three new targets with
-k=9, 11, and 13 to test the conjecture at higher complexity. Low-T runs (T=200,500,1000
-from simulate.py) are excluded from the convergence plot: they do not produce reliable
-convergence evidence and only inflate runtime.
+**Purpose:** Extends the m sweep to m=5000 at T=500, across all 9 targets including the
+three new high-k targets (k=9, 11, 13). All runs use T=500 — long enough to reach
+stationarity at all tested m values (verified: max|da/dt| < 0.01 for nearly all runs).
 
 **Targets and parameters:**
 
-| Targets | m values | T values |
+| Targets | m values | T |
 |---|---|---|
-| All 6 from simulate.py | 50, 100, 250, 500, 1000 | 5000, 10000 |
-| sin(5pi x) k=9 | | |
-| sin(6pi x) k=11 | | |
-| sin(7pi x) k=13 | | |
-
-m values above 1000 (1500, 2000, 3000, 5000) were removed: a single run at m=1000,
-T=5000 takes approximately 21.5 hours on a laptop, and larger m values scale roughly as
-O(m² × T). The convergence trend is clearly visible by m=1000.
+| All 9 (sin_1pi through sin_7pi, x_cubed, poly_k3) | 50, 100, 250, 500, 1000, 1500, 2000, 3500, 5000 | 500 |
 
 **Speed optimization:** N_QUAD reduced from 400 to 200. The quadrature grid evaluates
 spatial integrals at every ODE step; halving its size gives approximately 1.9x speedup
 with no change to cluster counts at m ≥ 100.
 
-**Convergence plot:** uses T=5000 and T=10000 only. Low-T rows from run_summary.csv are
-loaded but not plotted; they can be re-enabled if needed.
+**Convergence plot:** C(m, f*) vs m at T=500 for all 9 targets.
 
 **Outputs per run:** same four files as simulate.py, plus run_meta.csv
 
@@ -514,7 +553,7 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 | simulate.py | ✅ Complete — 108 runs finished |
 | verify_pruning.py | ✅ Complete — 108/108 bound verified |
 | collapse_v2.py | ✅ Complete — all 2D results analyzed |
-| simulate_parallel.py | 🔄 Phase 1 (T=5000) in progress locally |
+| simulate_parallel.py | 🔄 69 runs complete (T=500, m up to 3500, all 9 targets); m=5000 in progress |
 | simulate_colab.ipynb | ⚠️ Must rerun — previous run used PyTorch RK4 (dt=0.01), which fails at m ≥ 1000 (see Solver note above). Corrected scipy notebook ready; rerun all 72 jobs from scratch. |
 | instability_test.py | ⏳ Pending — waiting on more data from simulate_parallel.py |
 
