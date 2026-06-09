@@ -143,7 +143,16 @@ def get_inflection_locations(target_key):
 # =============================================================================
 
 T_FINAL  = 500                                        # fixed integration time
-M_VALUES = [50, 100, 250, 500, 1000, 2000, 3500, 5000]  # flat m sweep
+# ── Commented out to run sin_7pi m=5000 only ──────────────────────────────────
+# M_VALUES = [50, 100, 250, 500, 1000, 2000, 3500, 5000]  # full sweep
+M_VALUES = [5000, 7500, 10000]   # sin_7pi: 5000 skipped (meta exists), 7500+10000 are new
+
+# RUN_TARGETS controls which targets are dispatched as jobs.
+# TARGETS (above) must stay complete — it is used by the convergence plot
+# to look up labels and k values for ALL targets, including prior CSV data.
+# ── Commented out to run sin_7pi m=5000 only ──────────────────────────────────
+# RUN_TARGETS = list(TARGETS.keys())  # full sweep — all 9 targets
+RUN_TARGETS = ['sin_7pi']             # sin_7pi overnight run only
 
 N_SAVE           = 300
 SEED             = 42
@@ -454,7 +463,7 @@ if __name__ == '__main__':
     n_workers     = max(1, cpu_count() - 2)
 
     jobs = sorted(
-        [(t, m) for t in TARGETS for m in M_VALUES],
+        [(t, m) for t in RUN_TARGETS for m in M_VALUES],
         key=lambda x: (x[1], x[0])   # all targets at m=50 before m=100, etc.
     )
 
@@ -462,8 +471,8 @@ if __name__ == '__main__':
     print('simulate_parallel.py — Open Problem 4.1  (ODE gradient flow)')
     print(f'T_FINAL      : {T_FINAL}  (fixed — m is the sweep axis)')
     print(f'M_VALUES     : {M_VALUES}')
-    print(f'Targets      : {list(TARGETS.keys())}')
-    print(f'Total jobs   : {len(jobs)}  ({len(TARGETS)} targets × {len(M_VALUES)} m values)')
+    print(f'Targets      : {RUN_TARGETS}')
+    print(f'Total jobs   : {len(jobs)}  ({len(RUN_TARGETS)} targets × {len(M_VALUES)} m values)')
     print(f'Workers      : {n_workers}  (of {cpu_count()} logical CPUs)')
     print(f'Previous rows: {len(existing_rows)}')
     print(f'Summary  ->  {SUMMARY_CSV}')

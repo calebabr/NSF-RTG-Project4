@@ -717,7 +717,7 @@ def _worker(args):
 if __name__ == '__main__':
     t_start = time.time()
 
-    print(f'Mode: {MODE}  →  {FIG_BASE}')
+    print(f'Mode: {MODE}  ->  {FIG_BASE}')
     if MODE == "flow":
         print(f'Perturbation: ODE   T_PERTURB={T_PERTURB}')
     else:
@@ -834,17 +834,20 @@ if __name__ == '__main__':
                   f'C: {result["initial_n_clusters"]} -> {result["final_n_clusters"]}'
                   f'  k={result["k_true"]}  [{label}]')
 
-    # ── Write results CSV ──────────────────────────────────────────────────────
+    # ── Write results CSV (atomic rename so a crash can't truncate) ───────────
     sorted_results = sorted(
         all_results.values(),
         key=lambda r: (r['run_category'], r['target'],
                        int(r['m']), int(r['T_original']), r['test_type'])
     )
-    with open(RESULTS_CSV, 'w', newline='') as f:
+    _tmp_csv = RESULTS_CSV + '.tmp'
+    with open(_tmp_csv, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=RESULTS_FIELDS)
         writer.writeheader()
         for r in sorted_results:
             writer.writerow({k: r[k] for k in RESULTS_FIELDS})
+    import shutil
+    shutil.move(_tmp_csv, RESULTS_CSV)
     print(f'\nResults CSV -> {RESULTS_CSV}  ({len(sorted_results)} rows)')
 
     if sorted_results:

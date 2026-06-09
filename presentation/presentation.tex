@@ -801,48 +801,51 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Instability Near $k$ \textendash{} Framework and Preliminary Results}
+\begin{frame}{Instability Near $k$ \textendash{} Results (36/36 complete)}
   \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
+    \begin{column}{0.54\textwidth}
       \small
-      \textbf{Setup:} Runs with $|C - k| \leq 2$ qualify.\\
       \textbf{22 qualifying runs:} 8 exact\_k,\;
-      8 above\_k,\; 6 below\_k.\\[6pt]
-      \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{p{1.8cm} p{3.5cm}}
+      8 above\_k,\; 6 below\_k.
+      $T_{\text{perturb}} = 1000$.\\[4pt]
+      \renewcommand{\arraystretch}{1.15}
+      \scriptsize
+      \begin{tabular}{p{1.5cm} p{1.4cm} p{2.8cm}}
         \toprule
-        Category & Test \\
+        Category & Status & Finding \\
         \midrule
-        \textbf{exact\_k} ($C=k$) &
-          Inject one extra neuron. Does it dissolve? \\[3pt]
-        \textbf{above\_k} ($k < C \leq k{+}2$) &
-          Continue flow naturally. Does $C$ fall to $k$? \\[3pt]
-        \textbf{below\_k} ($k{-}2 \leq C < k$) &
-          Inject one neuron. Does $C$ rise to $k$? \\
+        \textbf{above\_k} & 8/8 done &
+          \textbf{No change.} $C$ stays fixed --- ODE fixed points,
+          do not dissolve. \\[3pt]
+        \textbf{below\_k} & 12/12 done &
+          \textbf{No change.} Injected neuron amplitude
+          stays at $0.01$ --- cannot grow. \\[3pt]
+        \textbf{exact\_k} & 16/16 done &
+          \textbf{All returned to $k$.}
+          Exact-$k$ states are stable attractors. \\
         \bottomrule
       \end{tabular}
     \end{column}
-    \begin{column}{0.43\textwidth}
-      \begin{tcolorbox}[slideboxB, title={Preliminary finding}]
-        \small
-        above\_k ``natural dissolution'' tests
-        terminate at $t \approx 0$ --- above-$k$
-        states are already ODE fixed points.
-        They do \textbf{not} spontaneously dissolve.
+    \begin{column}{0.44\textwidth}
+      \begin{tcolorbox}[slideboxB, title={above\_k: stable fixed points}]
+        \footnotesize
+        Continuing ODE for $T=1000$: $C$ does
+        \textbf{not} decrease. Above-$k$ states are
+        \emph{stable} fixed points, not metastable.
       \end{tcolorbox}
-      \vspace{0.4em}
+      \vspace{0.2em}
+      \begin{tcolorbox}[slideboxC, title={below\_k: injection-resistant}]
+        \footnotesize
+        Injected neurons gain \textbf{zero amplitude}.
+        ODE provides no restoring force toward $k$.
+        Supports: below-$k$ states are true fixed points.
+      \end{tcolorbox}
+      \vspace{0.2em}
       \begin{tcolorbox}[slideboxA, title={Implication for OP 4.1.1}]
-        \small
-        A Lyapunov proof that $C \leq k$ requires
-        $C > k$ states to be unstable.
-        These results suggest they are \emph{metastable}
-        --- stable under small perturbations.
-        The injection tests will determine
-        large-perturbation stability.
-
-        \vspace{4pt}
-        \textit{Full results: in progress
-        ($T_{\text{perturb}} = 1000$).}
+        \footnotesize
+        $C \to k$ cannot rely on above-$k$ instability.
+        Proof must use \emph{initialization geometry},
+        not gradient flow instability.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -882,9 +885,10 @@
       {\color{auorange}\textbf{open theoretically}} \\[2pt]
 
     Instability\newline near $k$ &
-      above\_k states are ODE fixed points; no spontaneous
-      dissolution. Injection results pending. &
-      {\color{auorange}\textbf{In progress}} \\
+      above\_k: stable ODE fixed points (8/8, no dissolution).
+      below\_k: injection-resistant (12/12, zero amplitude growth).
+      exact\_k: all 16 returned to $k$ --- stable attractors. &
+      {\color{darkgreen}\textbf{Complete}} \\
     \bottomrule
   \end{tabular}
 \end{frame}
@@ -899,9 +903,9 @@
         \item \textbf{Below-$k$ mystery:} True fixed points
               or initialization-dependent local minima?\\
               \textit{Next:} 6 runs with additional seeds (3 cases)
-        \item \textbf{4.1.1:} above\_k states are metastable
-              --- a Lyapunov proof needs a refined
-              energy function
+        \item \textbf{4.1.1:} above\_k states are \emph{stable}
+              fixed points --- a proof of $C \to k$ must
+              use initialization geometry, not instability
         \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
               to confirm stationarity of $C=13$
       \end{itemize}
@@ -929,10 +933,9 @@
       \vspace{0.4em}
       \begin{tcolorbox}[slideboxA, title={Immediate priorities}]
         \small
-        (1) Multiple seeds for below-$k$ cases\\
-        (2) Instability test final results\\
-        (3) $\delta(T)$ trajectory study\\
-        (4) $\sin(7\pi x)$ at $T = 1000$
+        (1) Multiple seeds for below-$k$ cases (running)\\
+        (2) $\delta(T)$ trajectory study\\
+        (3) $\sin(7\pi x)$ at $T = 1000$
       \end{tcolorbox}
     \end{column}
   \end{columns}
