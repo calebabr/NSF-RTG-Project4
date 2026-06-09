@@ -433,6 +433,8 @@ if __name__ == '__main__':
             if not os.path.isdir(m_path):
                 continue
             for t_dir in os.listdir(m_path):
+                if t_dir != 'T=500':
+                    continue
                 t_path = os.path.join(m_path, t_dir)
                 if os.path.isdir(t_path):
                     run_dirs.append(t_path)
