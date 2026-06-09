@@ -337,12 +337,12 @@
     \begin{column}{0.52\textwidth}
       \begin{block}{Conjecture}
         \[
-          \lim_{m \to \infty} C(m,\fstar)
-          \;=\;
-          \bigl|\{x \in (-1,1) : (\fstar)''(x) = 0
-          \text{ and changes sign}\}\bigr|
-          \;=:\; k
+          \lim_{m \to \infty} C(m,\fstar) \;=\; k
         \]
+        \vspace{-4pt}
+        \small
+        where $k := \#\bigl\{x \in (-1,1) :
+        (\fstar)''(x) = 0 \text{ and changes sign}\bigr\}$
       \end{block}
       \vspace{0.4em}
       \small
@@ -384,6 +384,24 @@
       \end{tcolorbox}
     \end{column}
   \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} $C(m,\fstar)$ Across All 9 Targets}
+  \begin{center}
+    \includegraphics[width=0.86\textwidth, height=0.72\textheight,
+                     keepaspectratio]{convergence_plot_parallel.png}
+  \end{center}
+  \vspace{-0.6em}
+  \begin{center}
+  \parbox{0.86\textwidth}{\small\raggedright
+    $C(m,\fstar)$ vs.\ $m$ at $T=500$ (78 runs, 9 targets).
+    \textbf{Crimson dashed line} $= k$.
+    All panels show rise-then-fall.
+    Low-$k$ trig targets reach $C=k$;
+    $\sin(7\pi x)$ ($k=13$) reaches $C=13$ at $m=5000$
+    for the first time (stationarity unconfirmed).}
+  \end{center}
 \end{frame}
 
 %% ============================================================
@@ -430,24 +448,6 @@
       ($\max|\dot{a}_j| = 0.034$).
     \end{column}
   \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1 \textendash{} $C(m,\fstar)$ Across All 9 Targets}
-  \begin{center}
-    \includegraphics[width=0.86\textwidth, height=0.72\textheight,
-                     keepaspectratio]{convergence_plot_parallel.png}
-  \end{center}
-  \vspace{-0.6em}
-  \begin{center}
-  \parbox{0.86\textwidth}{\small\raggedright
-    $C(m,\fstar)$ vs.\ $m$ at $T=500$ (78 runs, 9 targets).
-    \textbf{Crimson dashed line} $= k$.
-    All panels show rise-then-fall.
-    Low-$k$ trig targets reach $C=k$;
-    $\sin(7\pi x)$ ($k=13$) reaches $C=13$ at $m=5000$
-    for the first time (stationarity unconfirmed).}
-  \end{center}
 \end{frame}
 
 %% ============================================================
