@@ -7,14 +7,15 @@ to determine whether below-k states are:
       regardless of initialization, OR
   (B) Initialization-dependent local minima — only one basin of attraction.
 
-The four cases (all have C < k at seed=42, T=500):
+The three cases (all from simulate_parallel M_VALUES, C < k at seed=42, T=500):
     sin_2pi  m=1000  k=3  C=2
-    sin_3pi  m=1500  k=5  C=2
     sin_4pi  m=2000  k=7  C=2
     poly_k3  m=5000  k=3  C=2
 
-Seeds tested here: 1, 2  (seed=42 is the existing simulate_parallel result)
-Total new runs: 4 cases × 2 seeds = 8 runs
+sin_3pi m=1500 excluded: m=1500 is not in simulate_parallel M_VALUES.
+
+Seeds tested here: 5, 25  (seed=42 is the existing simulate_parallel result)
+Total new runs: 3 cases × 2 seeds = 6 runs
 
 Output
 ------
@@ -59,12 +60,14 @@ SUMMARY_PNG = os.path.join(FIG_BASE, 'multiple_seeds_summary.png')
 SEED_REFERENCE = 42
 
 # Additional seeds to test
-SEEDS = [1, 2]
+SEEDS = [5, 25]
 
-# The four below-k cases to investigate
+# The three below-k cases to investigate (all from simulate_parallel M_VALUES).
+# sin_3pi m=1500 dropped: m=1500 was not in M_VALUES so that run came from a
+# legacy sweep with unclear provenance.  No simulate_parallel run of sin_3pi
+# shows genuine below-k (m=1000 → C=k; m≥2000 → dense-packing artifact).
 CASES = [
     ('sin_2pi', 1000,  3),   # C=2 at seed=42
-    ('sin_3pi', 1500,  5),   # C=2 at seed=42
     ('sin_4pi', 2000,  7),   # C=2 at seed=42
     ('poly_k3', 5000,  3),   # C=2 at seed=42
 ]
