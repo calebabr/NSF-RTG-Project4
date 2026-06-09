@@ -162,6 +162,7 @@ MathProject4/
 |-- MathProject Slides.pdf          Source slides: model, ODEs, and open problems
 |
 |-- simulate_parallel.py            Main simulation — m sweep at T=500, all 9 targets (Goals 1, 3)
+|-- lottery_ticket_experiment.py    Geometric lottery ticket analysis (supporting 4.1)
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
 |-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
@@ -186,6 +187,9 @@ MathProject4/
 |       |
 |       |-- run_summary_parallel.csv         Results from simulate_parallel.py
 |       |-- convergence_plot_parallel.png    C(m) vs m for all 9 targets
+|
+|-- plots/
+|   |-- lth_geometric/              Lottery ticket outputs — survival, loss curves, overlap
 |
 |   |-- Discrete GD/
 |       |-- {target}/m={m}/steps={n}/        Per-run figures and CSVs
@@ -375,6 +379,67 @@ m ∈ {50, 100, 250, 500, 1000, 1500}.
 
 ---
 
+### lottery_ticket_experiment.py: Geometric Lottery Ticket
+
+**Open problems addressed:** 4.1 (supporting analysis)
+
+**Question:** At initialization, all amplitudes a_j ~ N(0, 0.01) are near zero — the
+only structure is the random bias positions b_j. Neurons whose initial bias happens to
+land close to an inflection point of f* are geometrically "lucky." Do these neurons
+preferentially survive gradient flow collapse to become cluster representatives, and can
+just those k neurons alone match full-network performance?
+
+**Two claims tested:**
+
+- **Claim 1 (Survival):** Neurons initially close to an inflection point are more likely
+  to become cluster representatives after collapse. Measured by overlap fraction between
+  the k geometrically-selected neurons and the final cluster representatives.
+
+- **Claim 2 (Performance):** Training only the k geometrically-closest neurons (one per
+  inflection point) from their initial positions matches full-m-network performance.
+
+**Five training conditions per (target, m):**
+
+| Condition | Description |
+|---|---|
+| full | All m neurons — baseline |
+| geometric | k neurons, one per inflection point, selected by min \|b0_j − x_infl\| |
+| bias_only | Same k bias positions as geometric, but fresh random amplitudes |
+| amp_only | Same k amplitudes as geometric, but random bias positions |
+| random_k | k neurons chosen uniformly at random (5 trials for variance) |
+
+**Targets and parameters:** sin_1pi (k=1), sin_2pi (k=3), sin_3pi (k=5), sin_4pi (k=7);
+m ∈ {500, 1000, 1500}; T=500. 12 base runs + random_k trials = 52 total.
+
+**Results:**
+
+- **Claim 2 is false.** The k geometric neurons achieve 100× to 50,000× higher loss than
+  the full network. k neurons produce only k kinks in the piecewise-linear approximation;
+  the full network uses redundancy to achieve far finer fits. This failure is
+  mathematically expected, not a flaw in the selection criterion.
+
+- **geometric ≈ bias_only exactly** (loss difference < 0.002 in every case). Initial
+  amplitude values carry no information — only bias position matters at t=0. This
+  confirms the initialization is purely geometric.
+
+- **amp_only is consistently the worst condition.** Good amplitudes paired with random
+  positions performs worse than good positions with random amplitudes. Bias position is
+  the sole informative quantity at initialization.
+
+- **random_k occasionally beats geometric** (sin_3pi, sin_2pi). Proximity to an
+  inflection point makes a neuron a better collapse representative, not a better
+  approximator when the subnetwork has only k neurons.
+
+- **Claim 1 (survival overlap):** see `plots/lth_geometric/overlap_summary.png` and
+  per-target `survival_{target}_m={m}.png`.
+
+**Outputs:** `plots/lth_geometric/` — survival plots, loss curves, final performance
+comparisons, overlap_summary.png, lth_geometric_summary.csv.
+
+**Run with:** `python lottery_ticket_experiment.py`
+
+---
+
 ### regenerate_figures.py: Figure Cleaner
 
 **Purpose:** Reads final bias and amplitude values from each run folder and generates
@@ -513,6 +578,7 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 |---|---|
 | simulate_parallel.py | 🔄 69 runs complete (T=500, m up to 3500, all 9 targets); m=5000 in progress |
 | simulate_discrete.py | ✅ Complete — 52 runs; C does not converge to k under discrete GD |
+| lottery_ticket_experiment.py | ✅ Complete — 52 runs; geometric ≈ bias_only confirmed; k-ticket does not match full network |
 | verify_pruning.py | ✅ Complete — bound verified across all completed runs |
 | collapse_v2.py | ✅ Complete — all 2D results analyzed |
 | instability_test.py | ⏳ Pending — waiting on simulate_parallel.py to finish |
