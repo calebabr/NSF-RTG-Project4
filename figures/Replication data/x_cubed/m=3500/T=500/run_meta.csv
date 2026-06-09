@@ -1,0 +1,2 @@
+target,m,T,k_true,n_clusters,n_active,loss,max_da,max_db,active_leq_k
+x_cubed,3500,500,1,4,675,3.645852712266897e-05,0.008393414794198351,0.0014006093944391878,0
