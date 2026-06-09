@@ -30,57 +30,44 @@ $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \t
 
 | Specific Goal | Description | Status |
 |---|---|---|
-| 4.1.1 | Prove C(m, f*) ≤ Cmax(f*) independent of m | Numerically supported via simulate scripts and instability_test.py; experiment in process |
+| 4.1.1 | Prove C(m, f*) ≤ Cmax(f*) independent of m | Numerically supported via simulate_parallel.py and instability_test.py; experiment in process |
 | 4.1.2 | Is convergence finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T); not yet explicitly addressed |
 | 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
 
 #### Current Numerical Findings (T=500, m up to 3500; m=5000 in progress)
 
-69 runs across 9 targets (T=500, m ∈ {50,100,250,500,1000,1500,2000,3500}, m=5000 in progress).
-All runs are verified stationary at T=500 (max|da/dt| < 0.01 for all but 3 runs). The stationary cluster count C(m, f*) as a function of m follows
-a consistent non-monotone pattern: C rises at small m (network too narrow to populate all
-k attractor positions), peaks, then falls as m grows.
+69 runs across 9 targets. All runs verified stationary (max|da/dt| < 0.01 for all but 3).
+C(m, f*) follows a non-monotone rise-then-fall pattern universally; the peak shifts to
+larger m as k increases.
 
-**C(m, f*) sequences at T=500 (m = 50, 100, 250, 500, 1000, 1500, 2000, 3500):**
+| Target | k | C(m) at m = 50, 100, 250, 500, 1000, 1500, 2000, 3500 |
+|---|---|---|
+| sin_1pi | 1 | 31, 45, 22, 6, **1, 1, 1, 1** |
+| sin_2pi | 3 | 26, 29, 13, 8, **2**, †, †, † |
+| sin_3pi | 5 | 11, 16, 23, 14, **5**, 2, †, † |
+| sin_4pi | 7 | 9, 11, 21, 26, 17, **7**, 2, † |
+| sin_5pi | 9 | 11, 11, 18, 23, 31, 13, 2, — |
+| sin_6pi | 11 | 13, 14, 14, 15, 31, 40, 13, — |
+| sin_7pi | 13 | 14, 15, 18, 17, 22, 36, 34, — |
+| poly_k3 | 3 | 29, 45, 35, 20, 11, 8, 7, 4 |
+| x_cubed | 1 | 31, 40, 31, 16, 13, 6, 7, 4 |
 
-| Target | k | C(m) sequence | Status |
-|---|---|---|---|
-| sin_1pi | 1 | 31, 45, 22, 6, **1, 1, 1, 1** | ✅ Converges to k — holds from m=1000 through m=3500 |
-| sin_2pi | 3 | 26, 29, 13, 8, **2**, †, †, † | ⚠️ Falls below k at m=1000; artifact† obscures large m |
-| sin_3pi | 5 | 11, 16, 23, 14, **5**, 2, †, † | ⚠️ Passes through k=5 at m=1000, falls to 2 at m=1500 |
-| sin_4pi | 7 | 9, 11, 21, 26, 17, **7**, 2, † | ⚠️ Passes through k=7 at m=1500, falls to 2 at m=2000 |
-| sin_5pi | 9 | 11, 11, 18, 23, 31, 13, **2** | 🔄 Not yet reached; still falling at m=3500 |
-| sin_6pi | 11 | 13, 14, 14, 15, 31, **40**, 13 | 🔄 Still near peak; C rising through m=2000 |
-| sin_7pi | 13 | 14, 15, 18, 17, 22, **36**, 34 | 🔄 Still near peak; not yet falling |
-| poly_k3 | 3 | 29, 45, 35, 20, 11, 8, 7, **4** | 🔄 Slowly decreasing; C=4 at m=3500 |
-| x_cubed | 1 | 31, 40, 31, 16, 13, 6, 7, **4** | 🔄 Slow; C=4 at m=3500; polynomial targets converge much more slowly |
+†**Dense-packing artifact:** gap-based counter collapses to C=1 when biases are too dense
+to detect gaps (> 0.02). Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000, sin_4pi m=3500.
+Excluded from limit conclusions.
 
-†**Dense-packing artifact:** When m is large relative to domain width, consecutive sorted
-biases are spaced < 0.02 apart and the gap-based cluster counter collapses to C=1 regardless
-of actual structure. Affects sin_2pi at m ≥ 1500, sin_3pi at m ≥ 2000, sin_4pi at m=3500.
-These cells are marked † and excluded from limit conclusions.
+**Conclusions and next steps:**
 
-**What we can conclude:**
-
-- The conjecture **lim C(m, f*) = k is supported for sin_1pi (k=1)**: the sequence
-  stabilizes at C=1 and holds there across m=1000–3500.
-
-- For **k=5 and k=7**, the sequence passes through k at an intermediate m value but then
-  falls below k at the next sampled m. This is not convergence to k in the limit sense —
-  the sequence would need to stabilize at or return to k at larger m. Whether this reflects
-  a genuine below-k stationary state or a measurement artifact from the gap threshold is
-  unresolved. m=5000 data will clarify.
-
-- For **k=9, 11, 13**, the sequences have not yet reached k. The peak of the rise shifts
-  right as k increases; these targets need m well beyond 3500 to enter the falling phase.
-
-- **poly_k3 and x_cubed** converge far more slowly than the trigonometric targets with
-  the same k, consistent with the gradient attractor geometry being weaker for polynomial
-  inflection points.
-
-- The dense-packing artifact is the primary measurement blocker at large m. An adaptive
-  cluster threshold (scaling with 1/m rather than fixed at 0.02) is needed to reliably
-  measure C(m, f*) for m ≥ 1500.
+- **Conjecture supported for k=1 (sin_1pi):** C stabilizes at 1 from m=1000 through m=3500.
+- **k=5, 7:** C passes through k then falls below it — not convergence in the limit sense.
+  The critical open question is whether the below-k values are true stationary states or
+  initialization-dependent local minima. Running multiple seeds at the same (m, T) would
+  resolve this.
+- **k=9, 11, 13:** Still in the rise phase; need m well beyond 3500.
+- **Polynomial targets (poly_k3, x_cubed):** Converge far more slowly than trigonometric
+  targets with the same k — inflection point geometry matters beyond just counting k.
+- **Blocking issue:** The fixed gap threshold (0.02) must be replaced with an adaptive
+  threshold before reliable conclusions can be drawn for m ≥ 1500.
 
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
@@ -104,7 +91,7 @@ $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 
 | Aspect | Status |
 |---|---|
-| Numerically verify the bound holds | Fully addressed by verify_pruning.py: 108 of 108 runs confirmed |
+| Numerically verify the bound holds | Confirmed by verify_pruning.py across all completed runs |
 | Bound the key challenge: Σ\|aⱼ\| grows with m | Tracked in summary figure; growth observed but not controlled; remains open |
 
 ---
@@ -115,7 +102,7 @@ $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 
 Numerically confirm that C(m, f*) converges toward k as m grows, and that this convergence
 stabilizes independently of how large m gets once past a threshold. Addressed by
-**simulate.py** and **simulate_parallel.py**.
+**simulate_parallel.py**.
 
 ### Goal 2: Show Configurations Near k Are Unstable Above k and Attracted to k (4.1.1)
 
@@ -128,7 +115,7 @@ from both sides.
 
 At convergence, verify ODE velocities are approximately zero and the integrated residual R_j
 from each bias to 1 is approximately zero for every active neuron. Addressed automatically
-inside **simulate.py** and **simulate_parallel.py**.
+inside **simulate_parallel.py**.
 
 ### Goal 4: Numerically Verify the Pruning Bound (4.3)
 
@@ -157,16 +144,14 @@ MathProject4/
 |
 |-- MathProject Slides.pdf          Source slides: model, ODEs, and open problems
 |
-|-- simulate.py                     Sequential baseline simulation (Goals 1, 3)
-|-- simulate_parallel.py            Parallel extended simulation (Goals 1, 3)
-|-- simulate_colab.ipynb            Colab cloud simulation — m up to 5000, scipy RK45, Drive output
+|-- simulate_parallel.py            Main simulation — m sweep at T=500, all 9 targets (Goals 1, 3)
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
 |-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
 |-- regenerate_figures.py           Helper: regenerates clean final fit figures
 |
-|-- notebooks/
-|   |-- 01_gradient_flow_simulator.ipynb   Early exploratory runs on x^2 target
+|-- archive/                        Superseded scripts (simulate_discrete.py data still used)
+|   |-- simulate_discrete.py        Discrete GD version — 52 runs complete, data in figures/
 |
 |-- figures/
 |   |-- Replication data/
@@ -182,10 +167,12 @@ MathProject4/
 |       |           |-- goal2_near.png                k+1 instability, near injection
 |       |           |-- goal2_isolated.png            k+1 instability, isolated injection
 |       |
-|       |-- run_summary.csv                  Results from simulate.py
 |       |-- run_summary_parallel.csv         Results from simulate_parallel.py
-|       |-- convergence_plot.png             C(m) vs m from simulate.py
-|       |-- convergence_plot_parallel.png    C(m) vs m combining both scripts
+|       |-- convergence_plot_parallel.png    C(m) vs m for all 9 targets
+|
+|   |-- Discrete GD/
+|       |-- {target}/m={m}/steps={n}/        Per-run figures and CSVs
+|       |-- convergence_plot_current.png     C(m) vs m for discrete GD
 |       |-- pruning_bound_results.csv        Pruning bound metrics across all runs
 |       |-- pruning_bound_summary.png        Summary plots for Open Problem 4.3
 |       |-- goal2_results.csv               Instability test results across all runs
@@ -197,87 +184,13 @@ MathProject4/
 |       |-- collapse_v2_ridge.png           Per-target diagnostic plot (ridge)
 |       |-- collapse_v2_separable.png       Per-target diagnostic plot (separable)
 |       |-- collapse_v2_radial.png          Per-target diagnostic plot (radial)
-|
-|-- data/                            Raw trajectory arrays from exploratory notebook
-    |-- sol_t.npy
-    |-- sol_y.npy
-    |-- losses.npy
 ```
 
 ---
 
 ## Scripts
 
-### simulate.py: Sequential Baseline
-
-**Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
-
-**Purpose:** Establishes baseline numerical evidence for the conjecture across six target
-functions with analytically known inflection point counts.
-
-**Targets and parameters:**
-
-| Targets | m values | T values |
-|---|---|---|
-| sin(pi x) k=1, x^3 k=1 | 50, 100, 250 | 200, 500, 1000 |
-| sin(2pi x) k=3, x^5 minus 3x^3 k=3 | 500, 1000, 1500 | |
-| sin(3pi x) k=5, sin(4pi x) k=7 | | |
-
-**Key finding:** sin(pi x) converges to exactly 1 cluster at m ≥ 1000, T=1000. sin(4pi x)
-reaches exactly 7 clusters at m=1500, T=1000. Harder targets are still mid-collapse at T=1000.
-
-**Outputs per run:** slide93_reproduction.png, clusters_vs_inflections.png,
-ode_verification.png, convergence_check.csv, run_meta.csv
-
-**Global outputs:** run_summary.csv, convergence_plot.png
-
-**Run with:** `python simulate.py`
-
----
-
-### simulate_colab.ipynb: Colab Cloud Simulation
-
-**Open problems addressed:** 4.1 (main conjecture), Goal 3
-
-**Purpose:** Extends the cluster count sweep to m up to 5000 using Colab's free-tier CPU
-(no GPU needed). Outputs all per-run figures and CSVs directly to Google Drive so they
-survive session restarts. Designed as a drop-in companion to `simulate_parallel.py` —
-both target the same 9 functions and use the same SEED and scipy RK45 solver.
-
-**Solver:** `scipy.integrate.solve_ivp` with `method='RK45'`, `rtol=1e-4`, `atol=1e-6`,
-`max_step=1.0` — identical to `simulate_parallel.py`. Adaptive step sizing is mandatory:
-at m ≥ 1000 the initial network output is O(√m), creating a fast early transient (t ≈ 0–5)
-where fixed-step RK4 with dt=0.01 fails completely. An earlier version used PyTorch RK4
-(dt=0.01) and produced correct results for m ≤ 500 but wrong results (C ≈ m, loss ≈ 0.25)
-for m ≥ 1000.
-
-**Targets and parameters:**
-
-| Targets | m values | T |
-|---|---|---|
-| All 9 (sin_1pi through sin_7pi, x_cubed, poly_k3) | 50, 100, 250, 500, 1000, 2000, 3500, 5000 | 500 |
-
-72 total jobs (8 m values × 9 targets). Jobs run in m-first order; each completed job writes
-`run_meta.csv` with `solver='scipy_RK45'`. Runs with the old PyTorch RK4 solver are
-automatically re-run on the next execution even without FORCE_RERUN=True.
-
-**Skip logic:** Checks `run_meta.csv` for `solver='scipy_RK45'`. Runs from the old PyTorch
-solver (which lack the `solver` field) are silently rerun with scipy.
-
-**Outputs per run:** slide93_reproduction.png, clusters_vs_inflections.png,
-ode_verification.png, convergence_check.csv, run_meta.csv
-
-**Global outputs:** run_summary_parallel.csv, convergence_plot_parallel.png (written to Drive)
-
-**After the run:** Download `NSF_RTG_ODE/` from Google Drive and copy its contents into
-`figures/Replication data/`.
-
-**Run:** Upload to Colab, set runtime to CPU, run all cells. Restart-safe — re-run the
-job cell to resume from the last completed job.
-
----
-
-### simulate_parallel.py: Parallel Extended Runs
+### simulate_parallel.py: Main Simulation
 
 **Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
 
@@ -297,7 +210,8 @@ with no change to cluster counts at m ≥ 100.
 
 **Convergence plot:** C(m, f*) vs m at T=500 for all 9 targets.
 
-**Outputs per run:** same four files as simulate.py, plus run_meta.csv
+**Outputs per run:** slide93_reproduction.png, clusters_vs_inflections.png,
+ode_verification.png, convergence_check.csv, run_meta.csv
 
 **Global outputs:** run_summary_parallel.csv, convergence_plot_parallel.png
 
@@ -412,6 +326,38 @@ per-target diagnostic plot (collapse_v2_{target}.png) with loss curve, entropy t
 
 ---
 
+### simulate_discrete.py (archived): Discrete Gradient Descent
+
+**Purpose:** Tests whether the cluster collapse phenomenon holds under discrete gradient
+descent (explicit update steps) rather than the continuous ODE gradient flow studied in
+Open Problem 4.1. Uses the same 9 targets and scaled learning rate lr = 0.01/√(m/50)
+with steps ∝ √m to maintain comparable total gradient work across m values.
+
+**Key finding:** C(m, f*) does **not** converge to k under discrete GD for any target
+except sin_1pi (k=1). Most sequences either collapse below k or stall above it:
+
+| Target | k | C at m=1000 (ODE) | C at m=1000 (Discrete GD) |
+|---|---|---|---|
+| sin_1pi | 1 | 1 = k | 1 = k |
+| sin_3pi | 5 | 5 = k | 4 |
+| sin_4pi | 7 | 17 | 1 |
+| sin_5pi | 9 | 31 | 5 |
+| poly_k3 | 3 | 11 | 8 |
+| x_cubed | 1 | 13 | 7 |
+
+All discrete GD runs are verified near-stationary (max gradient < 0.001), so these are
+genuine stationary states, not mid-training snapshots.
+
+**Significance:** Open Problem 4.1 is stated for continuous gradient flow. The discrete GD
+result clarifies that the conjecture is specific to the continuous-time ODE dynamics —
+discretization breaks the convergence. This is not a flaw; it means the ODE structure is
+essential to the phenomenon, not incidental.
+
+**Output data:** `figures/Discrete GD/` — 52 runs across 9 targets,
+m ∈ {50, 100, 250, 500, 1000, 1500}.
+
+---
+
 ### regenerate_figures.py: Figure Cleaner
 
 **Purpose:** Reads final bias and amplitude values from each run folder and generates
@@ -425,8 +371,7 @@ tick marks rather than all m individual bias dots.
 ### plot_convergence_now.py: Live Convergence Plot
 
 **Purpose:** Generates a convergence plot from whatever run_meta.csv files currently exist
-on disk. Safe to run at any point while simulate_parallel.py is still running. Only
-includes T=5000 and T=10000 runs; low-T data is filtered out.
+on disk. Safe to run at any point while simulate_parallel.py is still running.
 
 **Output:** figures/Replication data/convergence_plot_current.png
 
@@ -437,7 +382,6 @@ includes T=5000 and T=10000 runs; low-T data is filtered out.
 ## Run Order
 
 ```
-python simulate.py
 python simulate_parallel.py
 python verify_pruning.py
 python instability_test.py
@@ -445,9 +389,9 @@ python regenerate_figures.py
 python collapse_v2.py          # independent; can be run at any time
 ```
 
-The first four scripts are safe to interrupt and restart. Already completed runs are
-detected via run_meta.csv (simulations) or existing output figures (verify and instability
-scripts) and skipped automatically. collapse_v2.py is fully independent of the 1D pipeline.
+All scripts are safe to interrupt and restart. Already completed runs are detected via
+run_meta.csv (simulations) or existing output figures (verify and instability scripts)
+and skipped automatically. collapse_v2.py is fully independent of the 1D pipeline.
 
 ---
 
@@ -496,17 +440,17 @@ $$\dot{b}_j = a_j \int_{b_j}^{1}(f - f^\ast)\,dx$$
 
 ### 1D Targets
 
-| Key | Function | Inflection pts k | Introduced in |
-|---|---|---|---|
-| sin_1pi | sin(π x) | 1 | simulate.py |
-| x_cubed | x³ | 1 | simulate.py |
-| sin_2pi | sin(2π x) | 3 | simulate.py |
-| poly_k3 | x⁵ − 3x³ | 3 | simulate.py |
-| sin_3pi | sin(3π x) | 5 | simulate.py |
-| sin_4pi | sin(4π x) | 7 | simulate.py |
-| sin_5pi | sin(5π x) | 9 | simulate_parallel.py |
-| sin_6pi | sin(6π x) | 11 | simulate_parallel.py |
-| sin_7pi | sin(7π x) | 13 | simulate_parallel.py |
+| Key | Function | Inflection pts k |
+|---|---|---|
+| sin_1pi | sin(π x) | 1 |
+| x_cubed | x³ | 1 |
+| sin_2pi | sin(2π x) | 3 |
+| poly_k3 | x⁵ − 3x³ | 3 |
+| sin_3pi | sin(3π x) | 5 |
+| sin_4pi | sin(4π x) | 7 |
+| sin_5pi | sin(5π x) | 9 |
+| sin_6pi | sin(6π x) | 11 |
+| sin_7pi | sin(7π x) | 13 |
 
 For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (−1, 1).
 
@@ -522,7 +466,7 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 ## Output Files Per Run
 
-### 1D (simulate.py / simulate_parallel.py)
+### 1D (simulate_parallel.py)
 
 | File | Goal | Contents |
 |---|---|---|
@@ -550,16 +494,8 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 | Script | Status |
 |---|---|
-| simulate.py | ✅ Complete — 108 runs finished |
-| verify_pruning.py | ✅ Complete — 108/108 bound verified |
-| collapse_v2.py | ✅ Complete — all 2D results analyzed |
 | simulate_parallel.py | 🔄 69 runs complete (T=500, m up to 3500, all 9 targets); m=5000 in progress |
-| simulate_colab.ipynb | ⚠️ Must rerun — previous run used PyTorch RK4 (dt=0.01), which fails at m ≥ 1000 (see Solver note above). Corrected scipy notebook ready; rerun all 72 jobs from scratch. |
-| instability_test.py | ⏳ Pending — waiting on more data from simulate_parallel.py |
-
-**Key fix (6/8/2026):** The first Colab run used fixed-step PyTorch RK4 with dt=0.01.
-This works for m ≤ 500 but fails for m ≥ 1000 because at initialization the network
-output E[f(x)] ≈ m × 0.01 × E[relu] = O(√m) × 0.25, producing a fast early transient
-with reversal timescale ∼ 1/m. For m=1000 this is ∼0.001 time units — ten times smaller
-than dt=0.01. All m=1000 losses were ≈0.25 (null loss; biases escaped to one side).
-The corrected notebook uses scipy adaptive RK45, identical to simulate_parallel.py.
+| simulate_discrete.py | ✅ Complete — 52 runs; C does not converge to k under discrete GD |
+| verify_pruning.py | ✅ Complete — bound verified across all completed runs |
+| collapse_v2.py | ✅ Complete — all 2D results analyzed |
+| instability_test.py | ⏳ Pending — waiting on simulate_parallel.py to finish |
