@@ -33,6 +33,7 @@ $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \t
 | 4.1.1 | Prove C(m, f*) ≤ Cmax(f*) independent of m | Numerically supported via simulate_parallel.py and instability_test.py; experiment in process |
 | 4.1.2 | Is convergence finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T); not yet explicitly addressed |
 | 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
+| 4.1.4 | What determines which neurons survive collapse to become cluster representatives? | Addressed by lottery_ticket_experiment.py: bias position at t=0 is the sole informative quantity; neurons geometrically close to inflection points are the "lucky" survivors. Amplitude values at initialization carry no information. |
 
 #### Current Numerical Findings (T=500, m up to 3500; m=5000 in progress)
 
@@ -147,7 +148,15 @@ training. The three targets are chosen to provoke different theoretically predic
 modes: directional collapse (ridge), family splitting (separable), and no collapse (radial).
 Addressed by **higher_dim_collapse.py**.
 
-### Goal 6: Build Intuition Toward a Formal Proof (4.1 and 4.3)
+### Goal 6: Identify Which Neurons Survive Collapse and Why (4.1.4)
+
+Test whether neurons geometrically close to inflection points at initialization
+preferentially survive gradient flow collapse to become cluster representatives, and
+whether selecting just those k neurons reproduces full-network performance. Understanding
+the initialization geometry of surviving neurons constrains what any proof of 4.1 must
+account for. Addressed by **lottery_ticket_experiment.py**.
+
+### Goal 7: Build Intuition Toward a Formal Proof (4.1 and 4.3)
 
 Synthesize numerical evidence from all goals to identify proof strategies. This is an
 interpretive goal informed by all scripts.
@@ -465,10 +474,11 @@ on disk. Safe to run at any point while simulate_parallel.py is still running.
 
 ```
 python simulate_parallel.py
+python lottery_ticket_experiment.py   # depends on simulate_parallel.py output
 python verify_pruning.py
 python instability_test.py
 python regenerate_figures.py
-python collapse_v2.py          # independent; can be run at any time
+python collapse_v2.py                 # independent; can be run at any time
 ```
 
 All scripts are safe to interrupt and restart. Already completed runs are detected via
