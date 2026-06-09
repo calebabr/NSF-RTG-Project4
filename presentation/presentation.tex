@@ -2,9 +2,9 @@
 %%  Bias Collapse in Shallow ReLU Networks
 %%  NSF RTG Project 4 --- Research Workshop Presentation
 %%
-%%  Compile TWICE from the project root:
-%%      pdflatex presentation/presentation.tex
-%%      pdflatex presentation/presentation.tex
+%%  Compile TWICE from the presentation/ directory:
+%%      pdflatex presentation.tex
+%%      pdflatex presentation.tex
 %%
 %%  Requires standard TeX Live / MiKTeX.
 %%  grffile handles spaces in figure directory paths.
@@ -70,7 +70,7 @@
 \usepackage{array}
 \usepackage[most]{tcolorbox}
 
-%% ---- Figure paths (compile from project root) ---------------
+%% ---- Figure paths (compile from presentation/ directory) ----
 \graphicspath{
   {../figures/Replication data/}
   {../figures/collapse_v2_plots_and_results/}
@@ -231,6 +231,9 @@
 \end{frame}
 
 %% ============================================================
+%%  OVERVIEW: The Three Open Problems (titles only — each will
+%%  be restated in full just before its results section)
+%% ============================================================
 \begin{frame}{The Three Open Problems}
   \begin{columns}[T]
     \begin{column}{0.33\textwidth}
@@ -239,50 +242,38 @@
         \[
           \lim_{m \to \infty} C(m,\fstar) \;=\; k
         \]
-        $k$ = number of sign-changing
-        inflection points of $\fstar$
-
-        \vspace{4pt}
-        Sub-problems:\\
-        \textbf{4.1.1:} upper bound on $C$\\
-        \textbf{4.1.4:} which neurons survive?
+        Does the number of bias clusters converge
+        to the number of sign-changing inflection
+        points of $\fstar$?
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
       \begin{block}{OP 4.2 \textendash{} Higher Dimensions}
         \small
-        For $\fstar : [-1,1]^2 \to \mathbb{R}$, does
-        gradient flow concentrate the neuron measure
-        onto a lower-dimensional set in hyperplane
-        parameter space?
-
-        \vspace{4pt}
-        \textbf{2D network:}
-        $f(x) = \sum_j a_j\,\sigma(w_j^\top x + b_j)$
-
-        \vspace{4pt}
-        Collapse modes depend on the structure
-        of $\fstar$ (ridge, separable, radial).
+        For $\fstar : [-1,1]^2 \to \mathbb{R}$,
+        does gradient flow concentrate the neuron
+        measure onto a lower-dimensional set in
+        hyperplane parameter space?
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
       \begin{block}{OP 4.3 \textendash{} Pruning Bound}
         \small
-        After collapse, prune to $k$ neurons
-        with provable $L^2$ error:
+        After collapse, is there a provable $L^2$
+        error bound when pruning to $k$ neurons?
         \[
           \norm{\ftilde - f}_{L^2}
-          \leq \delta \cdot \sum_{j=1}^{m} \abs{a_j}
+          \leq \delta \cdot \sum_{j} \abs{a_j}
         \]
-        $\delta$ = max intra-cluster diameter\\
-        $\ftilde$ = merged $k$-neuron network
-
-        \vspace{4pt}
-        Connects collapse to formal
-        approximation theory.
       \end{block}
     \end{column}
   \end{columns}
+
+  \vspace{0.6em}
+  \begin{center}
+    \small
+    Each open problem is introduced in detail immediately before its results.
+  \end{center}
 \end{frame}
 
 %% ============================================================
@@ -334,6 +325,63 @@
         \texttt{instability\_test.py}        & 22 & Stability near $k$ \\
         \bottomrule
       \end{tabular}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%%  OP 4.1 — INTRO SLIDE (stated in full before results)
+%% ============================================================
+\begin{frame}{Open Problem 4.1 \textendash{} Cluster Count Conjecture}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Conjecture}
+        \[
+          \lim_{m \to \infty} C(m,\fstar)
+          \;=\;
+          \bigl|\{x \in (-1,1) : (\fstar)''(x) = 0
+          \text{ and changes sign}\}\bigr|
+          \;=:\; k
+        \]
+      \end{block}
+      \vspace{0.4em}
+      \small
+      $C(m,\fstar)$ = number of distinct bias clusters
+      at stationarity. \quad $k$ = number of sign-changing
+      inflection points of $\fstar$.
+
+      \vspace{0.5em}
+      \textbf{Sub-problems we address:}
+      \begin{itemize}
+        \item \textbf{4.1.1:} Can we prove $C(m,\fstar) \leq k$
+              independently of $m$?
+        \item \textbf{4.1.4:} Which neurons survive collapse
+              to become cluster representatives?
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Why $k$ is the right target}]
+        \small
+        For $\sin(n\pi x)$, the second derivative
+        $(\fstar)'' = -n^2\pi^2\sin(n\pi x)$
+        has exactly $k = 2n-1$ sign changes in $(-1,1)$.
+
+        \vspace{4pt}
+        At stationarity, each active neuron satisfies
+        \[
+          R_j := \int_{b_j}^{1}(f - \fstar)\,dx = 0.
+        \]
+        A $k$-cluster arrangement satisfies this
+        condition at the inflection locations.
+      \end{tcolorbox}
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={What makes this hard}]
+        \small
+        Above-$k$ and below-$k$ stationary states
+        both exist numerically. The conjecture requires
+        showing gradient flow selects $C = k$
+        \emph{from generic initializations}.
+      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
@@ -672,7 +720,118 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.2 \textendash{} Higher-Dimensional Collapse}
+\begin{frame}{Instability Near $k$ \textendash{} Results (36/36 complete)}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \small
+      \textbf{Question:} Are above-$k$ states unstable?
+      Does gradient flow dissolve extra clusters toward $k$?\\[6pt]
+      \textbf{22 qualifying runs:} 8 exact\_k,\;
+      8 above\_k,\; 6 below\_k.
+      $T_{\text{perturb}} = 1000$.\\[4pt]
+      \renewcommand{\arraystretch}{1.15}
+      \scriptsize
+      \begin{tabular}{p{1.5cm} p{1.4cm} p{2.8cm}}
+        \toprule
+        Category & Status & Finding \\
+        \midrule
+        \textbf{above\_k} & 8/8 done &
+          \textbf{No change.} $C$ stays fixed --- ODE fixed points,
+          do not dissolve. \\[3pt]
+        \textbf{below\_k} & 12/12 done &
+          \textbf{No change.} Injected neuron amplitude
+          stays at $0.01$ --- cannot grow. \\[3pt]
+        \textbf{exact\_k} & 16/16 done &
+          \textbf{All returned to $k$.}
+          Exact-$k$ states are stable attractors. \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{tcolorbox}[slideboxB, title={above\_k: stable fixed points}]
+        \footnotesize
+        Continuing ODE for $T=1000$: $C$ does
+        \textbf{not} decrease. Above-$k$ states are
+        \emph{stable} fixed points, not metastable.
+      \end{tcolorbox}
+      \vspace{0.2em}
+      \begin{tcolorbox}[slideboxC, title={below\_k: injection-resistant}]
+        \footnotesize
+        Injected neurons gain \textbf{zero amplitude}.
+        ODE provides no restoring force toward $k$.
+        Supports: below-$k$ states are true fixed points.
+      \end{tcolorbox}
+      \vspace{0.2em}
+      \begin{tcolorbox}[slideboxA, title={Implication for OP 4.1.1}]
+        \footnotesize
+        $C \to k$ cannot rely on above-$k$ instability.
+        Proof must use \emph{initialization geometry},
+        not gradient flow instability.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%%  OP 4.2 — INTRO SLIDE
+%% ============================================================
+\begin{frame}{Open Problem 4.2 \textendash{} Higher-Dimensional Collapse}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Question}
+        For a structured target $\fstar : [-1,1]^2 \to \mathbb{R}$,
+        does gradient flow concentrate the neuron measure onto
+        a lower-dimensional set in hyperplane parameter space?
+      \end{block}
+
+      \vspace{0.5em}
+      \small
+      \textbf{2D network:}
+      \[
+        f(x) = \sum_{j=1}^{m} a_j\,\sigma(w_j^\top x + b_j),
+        \quad x \in [-1,1]^2
+      \]
+      Each neuron defines an oriented hyperplane (line in 2D).
+      Scale-invariant parameterization:
+      $\theta_j = \angle(w_j)$,\;
+      $\beta_j = b_j / \|w_j\|$.
+
+      \vspace{0.4em}
+      \textbf{Collapse in 2D} means the $(\theta_j, \beta_j)$
+      point cloud concentrates onto a low-dimensional subset
+      of the circle $\times$ $\mathbb{R}$.
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Three target functions}]
+        \small
+        \begin{itemize}
+          \item \textbf{Ridge:}
+                $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$\\
+                \textit{Predicted:} all normals concentrate
+                toward $\theta \approx 53°$
+          \item \textbf{Separable:}
+                $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
+                \textit{Predicted:} two direction families
+                at $\theta \approx 0°$ and $\theta \approx 90°$
+          \item \textbf{Radial:}
+                $\cos(\pi\|x\|)$\\
+                \textit{Predicted:} no collapse;
+                angular entropy stays near uniform
+        \end{itemize}
+      \end{tcolorbox}
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={Diagnostic}]
+        \small
+        Angular entropy $H(\{\theta_j\})$: drops toward 0
+        if directions collapse; near $\log(36) \approx 3.58$
+        if uniform.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.2 \textendash{} Higher-Dimensional Collapse: Results}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \includegraphics[width=\textwidth, height=0.72\textheight,
@@ -680,17 +839,8 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \small
-      \textbf{Three 2D targets ($x \in [-1,1]^2$):}
-      \begin{itemize}
-        \item \textbf{Ridge:} $\sin(2\pi u^\top x)
-              + 0.5\sin(4\pi u^\top x)$\\
-              \textit{Predicted:} collapse to one direction
-        \item \textbf{Separable:}
-              $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
-              \textit{Predicted:} two direction families
-        \item \textbf{Radial:} $\cos(\pi\|x\|)$\\
-              \textit{Predicted:} no collapse (symmetry)
-      \end{itemize}
+      \textbf{Width sweep:} $m \in \{64, 256, 512\}$,
+      6000 epochs, Adam.
 
       \vspace{0.4em}
       \begin{tcolorbox}[slideboxC, title={Key findings}]
@@ -703,6 +853,76 @@
         Collapse \textbf{weakens} as $m$ grows ---
         opposite of the large-$m$ theoretical prediction.
         Large networks fit the target without collapsing.
+      \end{tcolorbox}
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxB, title={Open question}]
+        \small
+        Why does collapse weaken at large $m$?
+        Theory predicts it should strengthen.
+        Collapse appears to be
+        \emph{capacity-constrained}, not asymptotic.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+%%  OP 4.3 — INTRO SLIDE
+%% ============================================================
+\begin{frame}{Open Problem 4.3 \textendash{} Pruning Bound}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Bound (from the slides)}
+        \[
+          \norm{\ftilde - f}_{L^2}
+          \;\leq\;
+          \delta \cdot \sum_{j=1}^{m} \abs{a_j}
+        \]
+      \end{block}
+
+      \vspace{0.4em}
+      \small
+      \textbf{Setup:} After gradient flow, bias clusters
+      have formed. \emph{Prune} by replacing each cluster
+      with a single representative neuron, giving
+      $\ftilde$ with only $k$ neurons.
+
+      \vspace{0.3em}
+      \textbf{$\delta$} = maximum intra-cluster diameter
+      (how spread out the biases are within each cluster).
+
+      \vspace{0.3em}
+      \textbf{$\sum|a_j|$} = total weight mass of the
+      full $m$-neuron network.
+
+      \vspace{0.3em}
+      \textbf{Why it matters:} Provides a formal $L^2$
+      certificate that collapsing from $m$ neurons to
+      $k$ neurons is safe --- a bridge between the
+      collapse phenomenon and approximation theory.
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Why the bound holds}]
+        \small
+        Within a cluster, all $b_j$ differ by at most
+        $\delta$, so $\sigma(x - b_j) \approx
+        \sigma(x - b_{\rm center})$ up to an error $\leq \delta$.
+        Summing over $m$ neurons, errors accumulate
+        at most as $\delta \cdot \sum|a_j|$.
+      \end{tcolorbox}
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={The challenge}]
+        \small
+        For the bound to be \emph{non-vacuous}
+        (goes to 0 as networks grow), we need
+        $\delta \cdot \sum|a_j| \to 0$.
+
+        \vspace{4pt}
+        Our data shows $\sum|a_j| \sim \sqrt{m}$.
+        So we need $\delta \to 0$ fast enough ---
+        and this must come from longer training $T$,
+        not wider networks $m$.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -801,57 +1021,6 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Instability Near $k$ \textendash{} Results (36/36 complete)}
-  \begin{columns}[T]
-    \begin{column}{0.54\textwidth}
-      \small
-      \textbf{22 qualifying runs:} 8 exact\_k,\;
-      8 above\_k,\; 6 below\_k.
-      $T_{\text{perturb}} = 1000$.\\[4pt]
-      \renewcommand{\arraystretch}{1.15}
-      \scriptsize
-      \begin{tabular}{p{1.5cm} p{1.4cm} p{2.8cm}}
-        \toprule
-        Category & Status & Finding \\
-        \midrule
-        \textbf{above\_k} & 8/8 done &
-          \textbf{No change.} $C$ stays fixed --- ODE fixed points,
-          do not dissolve. \\[3pt]
-        \textbf{below\_k} & 12/12 done &
-          \textbf{No change.} Injected neuron amplitude
-          stays at $0.01$ --- cannot grow. \\[3pt]
-        \textbf{exact\_k} & 16/16 done &
-          \textbf{All returned to $k$.}
-          Exact-$k$ states are stable attractors. \\
-        \bottomrule
-      \end{tabular}
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxB, title={above\_k: stable fixed points}]
-        \footnotesize
-        Continuing ODE for $T=1000$: $C$ does
-        \textbf{not} decrease. Above-$k$ states are
-        \emph{stable} fixed points, not metastable.
-      \end{tcolorbox}
-      \vspace{0.2em}
-      \begin{tcolorbox}[slideboxC, title={below\_k: injection-resistant}]
-        \footnotesize
-        Injected neurons gain \textbf{zero amplitude}.
-        ODE provides no restoring force toward $k$.
-        Supports: below-$k$ states are true fixed points.
-      \end{tcolorbox}
-      \vspace{0.2em}
-      \begin{tcolorbox}[slideboxA, title={Implication for OP 4.1.1}]
-        \footnotesize
-        $C \to k$ cannot rely on above-$k$ instability.
-        Proof must use \emph{initialization geometry},
-        not gradient flow instability.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
 \begin{frame}{Summary of Evidence}
   \vspace{0.1em}
   \renewcommand{\arraystretch}{1.25}
@@ -864,14 +1033,15 @@
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
       $\sin(7\pi x)$ reaches $C = 13 = k$ at $m=5000$
       (stationarity unconfirmed).
-      Below-$k$ at 4 targets (genuinely stationary). &
+      Below-$k$ at 3 targets (genuinely stationary). &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
       {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
 
-    OP 4.1.4:\newline Lottery ticket &
-      Bias position at $t=0$ is sole informative quantity.
-      Amplitude values irrelevant. Performance claim false. &
-      {\color{darkgreen}\textbf{Resolved}} \\[2pt]
+    Instability\newline near $k$ &
+      above\_k: stable ODE fixed points (8/8, no dissolution).
+      below\_k: injection-resistant (12/12, zero amplitude growth).
+      exact\_k: all 16 returned to $k$ --- stable attractors. &
+      {\color{darkgreen}\textbf{Complete}} \\[2pt]
 
     OP 4.2:\newline 2D collapse &
       Collapse mode tracks target structure at small $m$.
@@ -884,11 +1054,10 @@
       {\color{darkgreen}\textbf{Verified numerically}};\newline
       {\color{auorange}\textbf{open theoretically}} \\[2pt]
 
-    Instability\newline near $k$ &
-      above\_k: stable ODE fixed points (8/8, no dissolution).
-      below\_k: injection-resistant (12/12, zero amplitude growth).
-      exact\_k: all 16 returned to $k$ --- stable attractors. &
-      {\color{darkgreen}\textbf{Complete}} \\
+    OP 4.1.4:\newline Lottery ticket &
+      Bias position at $t=0$ is sole informative quantity.
+      Amplitude values irrelevant. Performance claim false. &
+      {\color{darkgreen}\textbf{Resolved}} \\
     \bottomrule
   \end{tabular}
 \end{frame}
@@ -954,9 +1123,12 @@
         \item \textbf{Rise-then-fall} is universal:
               peak scales with $k$; inflection geometry
               sets the convergence rate.
-        \item \textbf{Below-$k$:} 4 targets have $C < k$
+        \item \textbf{Below-$k$:} 3 targets have $C < k$
               at genuinely stationary states ---
               open challenge for OP 4.1.
+        \item \textbf{Instability:} Above-$k$ states are
+              stable fixed points. Proof of $C \to k$
+              must use initialization geometry.
         \item \textbf{OP 4.3:} Bound holds 78/78;
               $\delta \to 0$ with $T$ is the path to
               a formal proof.
