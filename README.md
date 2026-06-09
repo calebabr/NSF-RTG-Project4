@@ -69,6 +69,23 @@ Excluded from limit conclusions.
 - **Blocking issue:** The fixed gap threshold (0.02) must be replaced with an adaptive
   threshold before reliable conclusions can be drawn for m ≥ 1500.
 
+**Pending experiment — multiple seeds (9 runs, ~1 hour):**
+
+At three points where C falls below k at a verified stationary state, rerun with 2
+additional random seeds to determine whether the below-k result is consistent across
+initializations or initialization-dependent:
+
+| Target | k | m | Current C | Seeds to run |
+|---|---|---|---|---|
+| sin_2pi | 3 | 1000 | 2 | seeds 1, 2 (seed 42 already done) |
+| sin_3pi | 5 | 1500 | 2 | seeds 1, 2 |
+| sin_4pi | 7 | 2000 | 2 | seeds 1, 2 |
+
+If C=2 across all seeds → below-k is a genuine property of those stationary states;
+conjecture as stated is in question for k ≥ 3.
+If C varies → gradient flow has multiple local minima; conjecture applies to a specific
+basin of attraction, not all initializations.
+
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
 **Conjecture from the slides:** For structured d-dimensional targets, gradient flow
