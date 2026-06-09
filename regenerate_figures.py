@@ -189,7 +189,7 @@ def make_clean_figure(run_dir, run_data):
 if __name__ == '__main__':
     done = 0
     skipped = 0
-    print(f'Mode: {MODE}  →  {FIG_BASE}')
+    print(f'Mode: {MODE}  ->  {FIG_BASE}')
 
     for target_key in os.listdir(FIG_BASE):
         target_path = os.path.join(FIG_BASE, target_key)

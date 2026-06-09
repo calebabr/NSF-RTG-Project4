@@ -1,13 +1,13 @@
 %% ============================================================
 %%  Bias Collapse in Shallow ReLU Networks
-%%  Research Conference Presentation
+%%  NSF RTG Project 4 --- Research Workshop Presentation
 %%
-%%  Compile TWICE with pdflatex:
-%%      pdflatex presentation.tex
-%%      pdflatex presentation.tex
+%%  Compile TWICE from the project root:
+%%      pdflatex presentation/presentation.tex
+%%      pdflatex presentation/presentation.tex
 %%
 %%  Requires standard TeX Live / MiKTeX.
-%%  grffile handles spaces in the figure directory path.
+%%  grffile handles spaces in figure directory paths.
 %% ============================================================
 
 \documentclass[aspectratio=169, 10pt]{beamer}
@@ -70,13 +70,11 @@
 \usepackage{array}
 \usepackage[most]{tcolorbox}
 
-%% ---- Figure paths -------------------------------------------
+%% ---- Figure paths (compile from project root) ---------------
 \graphicspath{
   {figures/Replication data/}
-  {figures/Replication data/sin_1pi/m=1000/T=1000/}
-  {figures/Replication data/sin_4pi/m=1500/T=1000/}
-  {figures/Replication data/sin_1pi/m=1000/T=500/}
-  {figures/Replication data/sin_4pi/m=1000/T=500/}
+  {figures/collapse_v2_plots_and_results/}
+  {plots/lth_geometric/}
 }
 
 %% ---- Macros -------------------------------------------------
@@ -85,25 +83,22 @@
 \newcommand{\norm}[1]{\left\|#1\right\|}
 \newcommand{\abs}[1]{\left|#1\right|}
 
-%% ---- tcolorbox defaults for slides --------------------------
+%% ---- tcolorbox defaults -------------------------------------
 \tcbset{
   slideboxA/.style={
     colback=lightbg, colframe=aunavy,
     fonttitle=\small\bfseries,
-    top=3pt, bottom=3pt, left=4pt, right=4pt,
-    boxsep=0pt
+    top=3pt, bottom=3pt, left=4pt, right=4pt, boxsep=0pt
   },
   slideboxB/.style={
     colback=lightbg, colframe=auorange,
     fonttitle=\small\bfseries,
-    top=3pt, bottom=3pt, left=4pt, right=4pt,
-    boxsep=0pt
+    top=3pt, bottom=3pt, left=4pt, right=4pt, boxsep=0pt
   },
   slideboxC/.style={
     colback=lightbg, colframe=darkgreen,
     fonttitle=\small\bfseries,
-    top=3pt, bottom=3pt, left=4pt, right=4pt,
-    boxsep=0pt
+    top=3pt, bottom=3pt, left=4pt, right=4pt, boxsep=0pt
   },
 }
 
@@ -131,12 +126,12 @@
 }
 
 %% ============================================================
-\title[Bias Collapse in ReLU Networks]{%
+\title[Bias Collapse in Shallow ReLU Networks]{%
   Bias Collapse in Shallow ReLU Networks}
-\subtitle{Numerical Evidence for Open Problems 4.1 and 4.3}
+\subtitle{Numerical Evidence for Open Problems 4.1, 4.2, and 4.3}
 \author[NSF RTG Project 4]{NSF RTG Project 4}
-\institute{Auburn University}
-\date{\today}
+\institute{Auburn University \textendash{} NSF RTG}
+\date{June 2026}
 
 %% ============================================================
 \begin{document}
@@ -151,133 +146,141 @@
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \textbf{The overparameterization puzzle:}
-      \begin{itemize}
-        \item Networks have far more parameters than the problem demands
-        \item Classical theory predicts overfitting;
-              practice shows excellent generalization
-        \item \alert{Why?}
+      \begin{itemize}\small
+        \item Modern networks have far more parameters than
+              the problem demands
+        \item Classical learning theory predicts overfitting;
+              practice shows robust generalization
+        \item \alert{Why does the optimizer self-simplify?}
       \end{itemize}
-      \vspace{0.6em}
-      \textbf{Bias collapse gives a concrete mechanism:}
-      \begin{itemize}
-        \item Gradient descent discovers that most neurons are
-              redundant and \emph{eliminates them automatically}
-        \item $m = 1500$ neurons $\;\longrightarrow\;$
-              effective complexity of $k = 7$ neurons
-        \item No pruning, no regularization — the optimizer acts alone
+      \vspace{0.4em}
+      \textbf{Bias collapse: a concrete mechanism}
+      \begin{itemize}\small
+        \item Gradient flow automatically eliminates redundant
+              neurons --- no regularization required
+        \item $m = 1500$ neurons $\;\longrightarrow\;$ effective
+              complexity of $k = 7$ neurons
+        \item The number of surviving \emph{bias clusters}
+              equals the number of \emph{inflection points}
+              of the target function
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxA, title={This project}]
+      \begin{tcolorbox}[slideboxA, title={This work}]
         \small
-        Build rigorous numerical evidence for:
+        Rigorous numerical investigation of three
+        open problems:
         \vspace{4pt}
         \begin{enumerate}
-          \item \textbf{OP 4.1:} $C(m,\fstar) \to k$ as $m\to\infty$,\\
-                where $k$ = inflection-point count of $\fstar$
-          \vspace{4pt}
-          \item \textbf{OP 4.3:} After collapse, the network
-                can be pruned to $k$ neurons with a
-                provable $L^2$ error bound
+          \item \textbf{OP 4.1:} Does $C(m,\fstar) \to k$
+                as $m \to \infty$?
+          \item \textbf{OP 4.2:} Does collapse generalize
+                to $d \geq 2$ dimensions?
+          \item \textbf{OP 4.3:} Is there a provable
+                $L^2$ pruning bound after collapse?
         \end{enumerate}
+        \vspace{4pt}
+        \textbf{78 runs,} 9 targets, $m$ up to 5000.
       \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Setup}
+\begin{frame}{Model and Gradient Flow}
   \begin{columns}[T]
-    \begin{column}{0.50\textwidth}
-      \textbf{Model:} 1D shallow ReLU network
+    \begin{column}{0.57\textwidth}
+      \textbf{1D shallow ReLU network:}
       \[
         f(x) = \sum_{j=1}^{m} a_j\,\sigma(x - b_j),
-        \quad \sigma(z)=\max(0,z), \quad x\!\in\![-1,1]
+        \quad \sigma = \max(0,\cdot),\quad x \in [-1,1]
       \]
-      Each neuron places a \emph{kink} at $b_j$
+      Each neuron places a \emph{kink} at bias $b_j$
       with slope change $a_j$.
 
-      \vspace{0.5em}
-      \textbf{Training:} Gradient flow on continuous MSE
-      \[
-        \mathcal{L}
-        = \tfrac{1}{2}\int_{-1}^{1}(f - \fstar)^2\,dx
-      \]
-      ODEs $\;\dot{a}_j = -\partial\mathcal{L}/\partial a_j$,\;
-      $\dot{b}_j = -\partial\mathcal{L}/\partial b_j$\;
-      solved numerically from $t = 0$ to $t = T$.
+      \vspace{0.3em}
+      \textbf{Gradient flow on MSE\;} $\mathcal{L}
+        = \tfrac{1}{2}\int_{-1}^{1}(f - \fstar)^2\,dx$\textbf{:}
+      \begin{align*}
+        \dot{a}_j &= -\!\int_{-1}^{1}\!(f-\fstar)\,\sigma(x-b_j)\,dx \\[-2pt]
+        \dot{b}_j &= a_j\!\int_{b_j}^{1}\!(f-\fstar)\,dx
+      \end{align*}
+      \vspace{2pt}
+      \small Solved via \texttt{scipy} RK45, $T=500$,
+      rtol\,$=10^{-4}$. Stationarity criterion:
+      $\max_j|\dot{a}_j|,|\dot{b}_j| < 0.01$.
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Open Problem 4.1}
+    \begin{column}{0.41\textwidth}
+      \textbf{Key measured quantity:}
+      \[
+        C(m,\fstar) \;=\; \#\{\text{bias clusters}\}
+      \]
+      \small at stationarity; gap threshold 0.02.
+
+      \vspace{0.2em}
+      \begin{tcolorbox}[slideboxB, title={Fixed-point condition}]
         \small
-        \[
-          \lim_{m\to\infty} C(m,\fstar)
-          \;=\; k
-          \;:=\;
-          \abs{\set{x \in [-1,1] : (\fstar)''(x)=0,\;\uparrow\!\downarrow}}
-        \]
-        \vspace{-0.3em}
-        \begin{enumerate}\small
-          \item[\textbf{4.1.1}] Prove $C \leq k$ independent of $m$
-          \item[\textbf{4.1.2}] Finite-time vs.\ asymptotic convergence
-          \item[\textbf{4.1.3}] Sign pattern vs.\ curvature amplitude
-        \end{enumerate}
-      \end{block}
-      \vspace{0.35em}
-      \begin{block}{Open Problem 4.3}
-        \small
-        \[
-          \norm{\ftilde - f}_{L^2}
-          \;\leq\; \delta \cdot \sum_{j=1}^{m} \abs{a_j}
-        \]
-        $\delta$ = max intra-cluster diameter;
-        $\ftilde$ = pruned $k$-neuron network.
-      \end{block}
+        Each \emph{active} neuron ($a_j \neq 0$) satisfies
+        $R_j \!:=\! \int_{b_j}^{1}\!(f{-}\fstar)\,dx \approx 0$
+        at stationarity.
+        Verified numerically at every converged run;
+        connects to the theory of OP 4.1.
+      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Contributions}
+\begin{frame}{The Three Open Problems}
   \begin{columns}[T]
-    \begin{column}{0.50\textwidth}
-      \textbf{Numerical evidence for OP 4.1:}
-      \begin{itemize}
-        \item[\color{darkgreen}\checkmark]
-              $C(m,\fstar)=k$ confirmed exactly:
-              $\sin(\pi x)$ at $m\!\geq\!1000$;
-              $\sin(4\pi x)$ at $m\!=\!1500$
-        \item[\color{darkgreen}\checkmark]
-              Non-monotone collapse dynamics characterized
-        \item[\color{darkgreen}\checkmark]
-              ODE stationarity verified:
-              $|\dot{a}_j|,|\dot{b}_j|\approx 0$
-              and $R_j\approx 0$ at convergence
-        \item[\color{darkgreen}\checkmark]
-              Instability framework built for
-              $|C-k|\leq 2$ (3 categories, 37 tests)
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{Numerical evidence for OP 4.3:}
-      \begin{itemize}
-        \item[\color{darkgreen}\checkmark]
-              Pruning bound holds for \textbf{108\,/\,108} runs
-        \item[\color{darkgreen}\checkmark]
-              Tightness $\in[0.001,\,0.15]$:
-              bound satisfied, not saturated
-        \item[\color{auorange}$\circ$]
-              $\sum_j|a_j|$ grows with $m$ —
-              bounding it is the key obstacle
-              to a formal proof
-      \end{itemize}
-      \vspace{0.5em}
-      \begin{tcolorbox}[slideboxA, title={Ongoing}]
+    \begin{column}{0.33\textwidth}
+      \begin{block}{OP 4.1 \textendash{} Cluster Count}
         \small
-        Colab run: $m$ up to 5000, $T\!=\!500$, 72 jobs.\\
-        Local parallel: $m$ up to 1000, $T\!\leq\!10000$.\\
-        New targets: $\sin(n\pi x)$, $k\!\in\!\{9,11,13\}$.
-      \end{tcolorbox}
+        \[
+          \lim_{m \to \infty} C(m,\fstar) \;=\; k
+        \]
+        $k$ = number of sign-changing
+        inflection points of $\fstar$
+
+        \vspace{4pt}
+        Sub-problems:\\
+        \textbf{4.1.1:} upper bound on $C$\\
+        \textbf{4.1.4:} which neurons survive?
+      \end{block}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{OP 4.2 \textendash{} Higher Dimensions}
+        \small
+        For $\fstar : [-1,1]^2 \to \mathbb{R}$, does
+        gradient flow concentrate the neuron measure
+        onto a lower-dimensional set in hyperplane
+        parameter space?
+
+        \vspace{4pt}
+        \textbf{2D network:}
+        $f(x) = \sum_j a_j\,\sigma(w_j^\top x + b_j)$
+
+        \vspace{4pt}
+        Collapse modes depend on the structure
+        of $\fstar$ (ridge, separable, radial).
+      \end{block}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{block}{OP 4.3 \textendash{} Pruning Bound}
+        \small
+        After collapse, prune to $k$ neurons
+        with provable $L^2$ error:
+        \[
+          \norm{\ftilde - f}_{L^2}
+          \leq \delta \cdot \sum_{j=1}^{m} \abs{a_j}
+        \]
+        $\delta$ = max intra-cluster diameter\\
+        $\ftilde$ = merged $k$-neuron network
+
+        \vspace{4pt}
+        Connects collapse to formal
+        approximation theory.
+      \end{block}
     \end{column}
   \end{columns}
 \end{frame}
@@ -285,286 +288,651 @@
 %% ============================================================
 \begin{frame}{Experimental Design}
   \begin{columns}[T]
-    \begin{column}{0.38\textwidth}
-      \textbf{Target functions:}\\[3pt]
+    \begin{column}{0.40\textwidth}
+      \textbf{Nine target functions:}\\[4pt]
       \renewcommand{\arraystretch}{1.1}
       \small
-      \begin{tabular}{lc}
+      \begin{tabular}{lcc}
         \toprule
-        Function & $k$ \\
+        $\fstar(x)$ & $k$ & type \\
         \midrule
-        $\sin(\pi x)$,\; $x^3$ & 1 \\
-        $\sin(2\pi x)$,\; $x^5-3x^3$ & 3 \\
-        $\sin(3\pi x)$ & 5 \\
-        $\sin(4\pi x)$ & 7 \\
-        $\sin(5\pi x)$ & 9 \\
-        $\sin(6\pi x)$ & 11 \\
-        $\sin(7\pi x)$ & 13 \\
+        $\sin(\pi x)$      & 1  & trig \\
+        $x^3$              & 1  & poly \\
+        $\sin(2\pi x)$     & 3  & trig \\
+        $x^5 - 3x^3$       & 3  & poly \\
+        $\sin(3\pi x)$     & 5  & trig \\
+        $\sin(4\pi x)$     & 7  & trig \\
+        $\sin(5\pi x)$     & 9  & trig \\
+        $\sin(6\pi x)$     & 11 & trig \\
+        $\sin(7\pi x)$     & 13 & trig \\
         \bottomrule
-      \end{tabular}\\[5pt]
+      \end{tabular}\\[4pt]
       \normalsize
-      $k$ exact: $(\sin n\pi x)''=0$\\
-      has $2n-1$ sign changes in $(-1,1)$.
+      Trig: $k = 2n-1$.\quad
+      Poly: irregular inflection spacing.
     \end{column}
-    \begin{column}{0.60\textwidth}
-      \textbf{Parameter sweep:}
+    \begin{column}{0.58\textwidth}
+      \small
+      \textbf{Main sweep (\texttt{simulate\_parallel.py}):}
       \begin{itemize}
-        \item \textbf{Baseline (local scipy):}
-              $m\!\in\!\{50,100,250,500,1000,1500\}$,\;
-              $T\!\in\!\{200,500,1000\}$
-              \hfill 108 runs
-        \item \textbf{Wide-$m$ sweep (Colab scipy):}
-              $m\!\in\!\{50,100,250,500,1000,2000,3500,5000\}$,\;
-              $T\!=\!500$
-              \hfill 72 runs
-        \item \textbf{High-$T$ (local parallel scipy):}
-              $m$ up to 1000,\; $T\!\in\!\{5000,10000\}$
-              \hfill in progress
+        \item $m \in \{50,100,250,500,1000,2000,3500,5000\}$,\; $T = 500$
+        \item \textbf{78 completed runs}, 9 targets;
+              76/78 fully stationary ($\max|\dot{a}_j| < 0.01$)
       \end{itemize}
-      \vspace{0.4em}
-      \textbf{Per-run outputs:}
-      bias trajectory plot,
-      cluster vs.\ inflection point overlay,
-      ODE velocity verification,
-      pruning bound check,
-      per-neuron stationarity CSV.
-      All runs restart-safe via per-folder metadata.
+      \vspace{0.35em}
+      \textbf{Supporting experiments:}\\[3pt]
+      \renewcommand{\arraystretch}{1.15}
+      \scriptsize
+      \begin{tabular}{lll}
+        \toprule
+        Experiment & Runs & Purpose \\
+        \midrule
+        \texttt{simulate\_discrete.py}       & 52 & Discrete GD vs.\ ODE \\
+        \texttt{lottery\_ticket\_experiment.py} & 52 & OP 4.1.4 (survival) \\
+        \texttt{verify\_pruning.py}          & 78 & OP 4.3 bound check \\
+        \texttt{collapse\_v2.py}             & 9  & OP 4.2, 2D targets \\
+        \texttt{instability\_test.py}        & 22 & Stability near $k$ \\
+        \bottomrule
+      \end{tabular}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Result 1 — Convergence of $C(m,\fstar) \to k$}
+\begin{frame}{OP 4.1 \textendash{} The Rise-Then-Fall Dynamic}
+  \begin{columns}[T]
+    \begin{column}{0.46\textwidth}
+      \textbf{Universal pattern across all 9 targets:}
+      \vspace{4pt}
+      \begin{enumerate}\small
+        \item \textbf{Rise:} Small $m$ cannot populate all
+              $k$ inflection attractors simultaneously.
+              $C$ grows above $k$.
+        \item \textbf{Peak:} $C$ reaches a maximum scaling
+              with $k$ (up to $C = 40$ for $k = 11$).
+        \item \textbf{Fall:} With sufficient redundancy,
+              collapse proceeds and $C$ decreases toward $k$.
+      \end{enumerate}
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxB, title={Key observation}]
+        \small
+        The peak of $C(m)$ shifts to \textbf{larger $m$}
+        as $k$ grows. High-$k$ targets require much wider
+        networks before the fall phase begins.
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \scriptsize
+      \textbf{Selected $C(m)$ at $T=500$:}\\[3pt]
+      \renewcommand{\arraystretch}{1.15}
+      \begin{tabular}{lc ccc}
+        \toprule
+        Target & $k$ & $m{=}1000$ & $m{=}2000$ & $m{=}5000$ \\
+        \midrule
+        $\sin(\pi x)$  & 1  & \textbf{1} & 1  & 1  \\
+        $\sin(3\pi x)$ & 5  & \textbf{5} & $\dagger$1 & $\dagger$1 \\
+        $\sin(4\pi x)$ & 7  & 17 & 2  & $\dagger$1 \\
+        $\sin(7\pi x)$ & 13 & 22 & 36 & $\ddagger$\textbf{13} \\
+        $x^5{-}3x^3$  & 3  & 11 & 7  & 2  \\
+        $x^3$          & 1  & 13 & 7  & 4  \\
+        \bottomrule
+      \end{tabular}\\[4pt]
+      $\dagger$~Dense-packing artifact (biases uniformly spread).\\
+      $\ddagger$~$C = k$ but not fully stationary
+      ($\max|\dot{a}_j| = 0.034$).
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} $C(m,\fstar)$ Across All 9 Targets}
   \begin{center}
-    %% convergence_plot_parallel.png is produced by simulate_colab.ipynb once
-    %% the Colab run completes and data is copied to figures/Replication data/.
-    %% Until then, use convergence_plot.png (baseline, 108 runs, T<=1000).
     \includegraphics[width=0.86\textwidth, height=0.72\textheight,
                      keepaspectratio]{convergence_plot_parallel.png}
   \end{center}
-  \vspace{-0.3em}
+  \vspace{-0.6em}
   \begin{center}
   \parbox{0.86\textwidth}{\small\raggedright
-    Each panel shows $C(m,\fstar)$ vs.\ $m$ for one target ($T=500$, scipy RK45).
-    \textbf{Crimson dashed line} $=$ analytical $k$.
-    All 9 targets including new $k\!\in\!\{9,11,13\}$.
-    Curves converge toward the dashed line as $m$ grows,
-    directly supporting the conjecture.}
+    $C(m,\fstar)$ vs.\ $m$ at $T=500$ (78 runs, 9 targets).
+    \textbf{Crimson dashed line} $= k$.
+    All panels show rise-then-fall.
+    Low-$k$ trig targets reach $C=k$;
+    $\sin(7\pi x)$ ($k=13$) reaches $C=13$ at $m=5000$
+    for the first time (stationarity unconfirmed).}
   \end{center}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Result 1 — Direct Confirmation: $\sin(\pi x)$, $k=1$}
+\begin{frame}{OP 4.1 \textendash{} Confirmation: $\sin(\pi x)$, $k=1$}
   \begin{columns}[T]
-    \begin{column}{0.62\textwidth}
-      \includegraphics[width=\textwidth, height=0.72\textheight,
-                       keepaspectratio]{slide93_reproduction.png}
-    \end{column}
-    \begin{column}{0.36\textwidth}
-      \small
-      \textbf{$m=1000$,\; $T=1000$,\; $k=1$}
-
-      \vspace{0.5em}
-      \textbf{Left:} All 1000 biases collapse
-      into \alert{a single location}.
-
-      \vspace{0.4em}
-      \textbf{Center:} Pruned 1-neuron network
-      (red) closely matches the target (dashed).
-
-      \vspace{0.4em}
-      \textbf{Right:} Loss decays smoothly
-      on a log scale — no discrete jumps.
-
-      \vspace{0.5em}
-      \begin{tcolorbox}[slideboxC, title={Result}]
-        \small
-        $C = 1 = k$ at $m\!=\!1000$ and $m\!=\!1500$.\\
-        Stable across $T\!\in\!\{200,500,1000\}$.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{Result 1 — Direct Confirmation: $\sin(4\pi x)$, $k=7$}
-  \begin{columns}[T]
-    \begin{column}{0.62\textwidth}
-      \includegraphics[width=\textwidth, height=0.72\textheight,
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
                        keepaspectratio]%
-        {sin_4pi/m=1500/T=1000/slide93_reproduction.png}
+        {sin_1pi/m=1000/T=500/final_fit_clean.png}
+      \vspace{2pt}
+      \includegraphics[width=\textwidth, height=0.34\textheight,
+                       keepaspectratio]%
+        {sin_1pi/m=1000/T=500/slide93_reproduction.png}
     \end{column}
-    \begin{column}{0.36\textwidth}
+    \begin{column}{0.38\textwidth}
       \small
-      \textbf{$m=1500$,\; $T=1000$,\; $k=7$}
-
-      \vspace{0.5em}
-      \textbf{Left:} 1500 biases collapse into
-      \alert{7 tight clusters} aligned with
-      the 7 inflection points.
-
-      \vspace{0.5em}
-      \begin{tcolorbox}[slideboxC, title={Non-monotone collapse}]
-        \small
-        $C$: \; $9 \;(m{=}50)$
-             $\to 24 \;(m{=}500)$
-             $\to \mathbf{7} \;(m{=}1500)$
-
-        \vspace{0.3em}
-        $C$ first \emph{rises} with $m$ before
-        falling to $k$. Small $m$ lacks coverage;
-        intermediate $m$ spreads but cannot
-        collapse; large $m$ has sufficient
-        redundancy for full collapse.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{Result 2 — Stationarity Conditions at Convergence}
-  \begin{columns}[T]
-    \begin{column}{0.62\textwidth}
-      \includegraphics[width=\textwidth, height=0.72\textheight,
-                       keepaspectratio]{ode_verification.png}
-    \end{column}
-    \begin{column}{0.36\textwidth}
-      \small
-      \textbf{$\sin(\pi x)$,\; $m=1000$,\; $T=1000$}
+      \textbf{$\sin(\pi x)$,\quad $m=1000$,\quad $k=1$}
 
       \vspace{0.4em}
-      Final $(a_j, b_j)$ plugged back into the ODEs.
+      \textbf{Top:} Clean final fit vs.\ target.
+      Blue ticks = single cluster center.
+
+      \vspace{0.3em}
+      \textbf{Bottom:} Bias trajectories (all 1000
+      collapse to \alert{one location}), final fit,
+      and MSE loss on log scale.
 
       \vspace{0.4em}
-      \textbf{L:} $|\dot{a}_j| \approx 10^{-3}$–$10^{-5}$
-
-      \vspace{0.3em}
-      \textbf{C:} $|\dot{b}_j| \approx 10^{-4}$–$10^{-5}$
-
-      \vspace{0.3em}
-      \textbf{R:} $R_j = \!\int_{b_j}^1\!(f\!-\!\fstar)\,dx
-                  \approx 0$ for active neurons (red circles)
-
-      \vspace{0.5em}
-      \begin{tcolorbox}[slideboxA, title={Significance}]
+      \begin{tcolorbox}[slideboxC, title={Strongest confirmation}]
         \small
-        The necessary fixed-point conditions
-        of OP 4.1 are satisfied numerically,
-        connecting simulation to theory.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{Result 3 — Pruning Bound Verification (OP 4.3)}
-  \begin{center}
-    \includegraphics[width=0.86\textwidth, height=0.70\textheight,
-                     keepaspectratio]{pruning_bound_summary.png}
-  \end{center}
-  \vspace{-0.3em}
-  \begin{center}
-  \parbox{0.86\textwidth}{\small\raggedright
-    \textbf{Top-L:} All 108 points below the $y{=}x$ line —
-    bound holds universally.
-    \textbf{Top-R:} Tightness $<0.15$, decreasing with $m$.
-    \textbf{Bot-L:} $\sum|a_j|$ grows with $m$ —
-    the central open challenge for a formal proof.
-    \textbf{Bot-R:} $\delta$ shrinks with $m$, confirming tighter merging.}
-  \end{center}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{Result 4 — Instability Near $k$}
-  \vspace{-0.1em}
-  \textbf{Setup:} Runs with $|C - k| \leq 2$ qualify.
-  Test whether gradient flow drives configurations back toward $k$.
-
-  \vspace{0.4em}
-  \begin{columns}[T]
-    \begin{column}{0.31\textwidth}
-      \begin{tcolorbox}[slideboxA, title={exact\_k \; ($C = k$)}]
-        \small
-        Inject one neuron $\to$ $k{+}1$.
-        Does it dissolve?
+        $C = 1 = k$ for \emph{all} $m \geq 1000$
+        through $m = 5000$, fully stationary
+        ($\max|\dot{a}_j| < 3.6 \times 10^{-3}$).
 
         \vspace{3pt}
-        \textit{near}: close to a cluster.\\
-        \textit{isolated}: maximally distant.
-      \end{tcolorbox}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      \begin{tcolorbox}[slideboxB, title={above\_k \; ($k < C \leq k{+}2$)}]
-        \small
-        Natural overcomplete state.
-        No injection.
-        Does $C$ decrease toward $k$ under
-        continued gradient flow?
-      \end{tcolorbox}
-    \end{column}
-    \begin{column}{0.31\textwidth}
-      \begin{tcolorbox}[slideboxC, title={below\_k \; ($k{-}2 \leq C < k$)}]
-        \small
-        Under-merged state.
-        Inject one neuron.
-        Does $C$ move toward $k$?
+        Only target with $C = k$ confirmed
+        robustly across the full $m$ sweep.
       \end{tcolorbox}
     \end{column}
   \end{columns}
-
-  \vspace{0.5em}
-  \small
-  \textbf{Current data:} 20 qualifying runs
-  (10 exact\_k,\; 3 above\_k,\; 7 below\_k),\; 37 total tests.
-  More runs will qualify as \texttt{simulate\_parallel.py} completes.
-
-  \vspace{0.3em}
-  \textbf{Relevance to OP 4.1.1:}
-  If overcomplete configurations always dissolve,
-  that supports a Lyapunov-style proof that $C$ cannot remain above $k$.
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Open Problems and Research Directions}
+\begin{frame}{OP 4.1 \textendash{} Confirmation: $\sin(3\pi x)$, $k=5$}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
+                       keepaspectratio]%
+        {sin_3pi/m=1000/T=500/final_fit_clean.png}
+      \vspace{2pt}
+      \includegraphics[width=\textwidth, height=0.34\textheight,
+                       keepaspectratio]%
+        {sin_3pi/m=1000/T=500/slide93_reproduction.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(3\pi x)$,\quad $m=1000$,\quad $k=5$}
+
+      \vspace{0.3em}
+      \textbf{Top:} Clean final fit. Five blue ticks
+      mark the \alert{5 bias clusters}, one per
+      inflection point.
+
+      \vspace{0.3em}
+      \textbf{Bottom:} Bias trajectories, final fit,
+      MSE loss on log scale.
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxC, title={Non-monotone path to $k$}]
+        \small
+        \centering
+        $\underbrace{8}_{m=50}
+         \;\to\;
+         \underbrace{14}_{\text{peak},\;m=500}
+         \;\to\;
+         \underbrace{\mathbf{5}}_{k,\;m=1000}
+         \;\to\;
+         \underbrace{\dagger 1}_{m=2000}$
+
+        \vspace{3pt}
+        Rises above $k$, falls through $k=5$,
+        then $\dagger$dense-packing artifact.
+      \end{tcolorbox}
+
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={Opens a question}]
+        \small
+        Why does $C$ overshoot and fall
+        below $k$ at larger $m$? (next slide)
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} New at $m=5000$: $\sin(7\pi x)$, $k=13$}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
+                       keepaspectratio]%
+        {sin_7pi/m=5000/T=500/final_fit_clean.png}
+      \vspace{2pt}
+      \includegraphics[width=\textwidth, height=0.34\textheight,
+                       keepaspectratio]%
+        {sin_7pi/m=5000/T=500/slide93_reproduction.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(7\pi x)$,\quad $m=5000$,\quad $k=13$}
+
+      \vspace{0.3em}
+      \textbf{Top:} Clean final fit. Thirteen blue ticks
+      align with all \alert{13 inflection points}.
+
+      \vspace{0.3em}
+      Most complex target tested.
+      First time $C = k = 13$ is reached.
+
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxC, title={Result}]
+        \small
+        $C = 13 = k$ at $m = 5000$.\\[2pt]
+        Path:\;
+        $14\!\to\!22\!\to\!36\!\to\!34\!\to\!\mathbf{13}$\\
+        {\scriptsize ($m = 50, 1000, 2000, 3500, 5000$)}
+      \end{tcolorbox}
+
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={Caveat}]
+        \small
+        $\max|\dot{a}_j| = 0.034 > 0.01$.
+        May be \textbf{transient} ---
+        longer $T$ needed to confirm.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} The Below-$k$ Phenomenon}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \textbf{Four targets reach $C < k$ at verified stationary states:}
+      \vspace{4pt}
+
+      \footnotesize
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{lcccc}
+        \toprule
+        Target & $k$ & $m$ & $C$ & $\max|\dot{b}_j|$ \\
+        \midrule
+        $\sin(2\pi x)$ & 3 & 1000 & 2 & $1.8\!\times\!10^{-4}$ \\
+        $\sin(3\pi x)$ & 5 & 1500 & 2 & $1.4\!\times\!10^{-4}$ \\
+        $\sin(4\pi x)$ & 7 & 2000 & 2 & $4.5\!\times\!10^{-4}$ \\
+        $x^5{-}3x^3$  & 3 & 5000 & 2 & $1.2\!\times\!10^{-3}$ \\
+        \bottomrule
+      \end{tabular}
+      \vspace{4pt}
+
+      \small
+      All four are \textbf{genuinely stationary}.
+      All report $C = 2$ regardless of $k$.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{tcolorbox}[slideboxB, title={Interpretation A: True fixed points}]
+        \small
+        Below-$k$ states are genuine fixed points of
+        the ODE at large $m$. The conjecture as stated
+        is \emph{false} for $k \geq 3$.
+      \end{tcolorbox}
+      \vspace{0.35em}
+      \begin{tcolorbox}[slideboxC, title={Interpretation B: Local minima}]
+        \small
+        Gradient flow has multiple basins.
+        Below-$k$ states are initialization-dependent.
+        The conjecture holds from the ``right'' initial condition.
+      \end{tcolorbox}
+      \vspace{0.35em}
+      \begin{tcolorbox}[slideboxA, title={Resolution (pending)}]
+        \small
+        Re-run with 2 additional seeds per case.
+        $C=2$ across all seeds $\Rightarrow$ A.\;
+        $C$ varies $\Rightarrow$ B.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} Polynomial vs.\ Trigonometric Targets}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{Same $k$, very different convergence speed:}
+      \vspace{4pt}
+
+      \scriptsize
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{lc ccc}
+        \toprule
+        Target & $k$ & $m{=}1000$ & $m{=}2000$ & $m{=}5000$ \\
+        \midrule
+        $\sin(\pi x)$  & 1 & \textbf{1} & 1 & 1 \\
+        $x^3$          & 1 & 13 & 7  & 4 \\[2pt]
+        $\sin(2\pi x)$ & 3 & 2  & $\dagger$1 & $\dagger$1 \\
+        $x^5{-}3x^3$  & 3 & 11 & 7  & 2 \\
+        \bottomrule
+      \end{tabular}
+      \vspace{4pt}
+
+      \small
+      $x^3$ reaches only $C = 4$ at $m = 5000$,
+      despite $k = 1$.
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[slideboxA,
+                        title={Why inflection geometry matters}]
+        \small\raggedright
+        For $\sin(n\pi x)$, the $k$ inflection points
+        are \emph{evenly spaced} across $[-1,1]$ ---
+        strong, symmetric attractors that neurons
+        organize around early in training.
+
+        \vspace{4pt}
+        Polynomial targets have \emph{irregular} spacing:
+        weaker, asymmetric attractors.
+        Neurons take far longer to find them.
+
+        \vspace{4pt}
+        \textbf{Implication:} a proof of OP 4.1 must
+        account for attractor geometry, not just count.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 \textendash{} Stationarity and Fixed-Point Verification}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.70\textheight,
+                       keepaspectratio]%
+        {sin_1pi/m=1000/T=500/ode_verification.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(\pi x)$,\; $m=1000$,\; $T=500$}\\[3pt]
+      Final $(a_j, b_j)$ substituted back into the ODEs.
+
+      \vspace{0.4em}
+      \textbf{Left:} $|\dot{a}_j| \approx 10^{-3}$--$10^{-5}$
+
+      \vspace{0.3em}
+      \textbf{Center:} $|\dot{b}_j| \approx 10^{-4}$--$10^{-5}$
+
+      \vspace{0.3em}
+      \textbf{Right:} $R_j \approx 0$ for active neurons
+      {\color{auorange}(red)} --- the theoretical
+      fixed-point condition, satisfied numerically.
+
+      \vspace{0.5em}
+      \begin{tcolorbox}[slideboxA, title={Discrete GD comparison}]
+        \small
+        Discrete GD does \emph{not} produce
+        $C \to k$ for any target except $\sin(\pi x)$.
+        The conjecture is specific to continuous
+        ODE gradient flow dynamics.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.2 \textendash{} Higher-Dimensional Collapse}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \includegraphics[width=\textwidth, height=0.72\textheight,
+                       keepaspectratio]{collapse_v2_summary.png}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \small
+      \textbf{Three 2D targets ($x \in [-1,1]^2$):}
+      \begin{itemize}
+        \item \textbf{Ridge:} $\sin(2\pi u^\top x)
+              + 0.5\sin(4\pi u^\top x)$\\
+              \textit{Predicted:} collapse to one direction
+        \item \textbf{Separable:}
+              $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
+              \textit{Predicted:} two direction families
+        \item \textbf{Radial:} $\cos(\pi\|x\|)$\\
+              \textit{Predicted:} no collapse (symmetry)
+      \end{itemize}
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxC, title={Key findings}]
+        \small
+        Collapse \textbf{mode} tracks target structure at
+        small $m$: ridge concentrates, separable splits,
+        radial stays near uniform (entropy $3.54$ vs.\ max $3.58$).
+
+        \vspace{4pt}
+        Collapse \textbf{weakens} as $m$ grows ---
+        opposite of the large-$m$ theoretical prediction.
+        Large networks fit the target without collapsing.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.3 \textendash{} Pruning Bound Verification}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \includegraphics[width=\textwidth, height=0.72\textheight,
+                       keepaspectratio]{pruning_bound_summary.png}
+    \end{column}
+    \begin{column}{0.42\textwidth}
+      \small
+      \textbf{Bound:}
+      $\;\norm{\ftilde - f}_{L^2} \leq \delta \cdot \sum_j |a_j|$
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxC, title={78\,/\,78 runs: bound holds}]
+        \small
+        Tightness (actual\,/\,bound):
+        $0.0002$ to $0.148$.
+        Substantial slack in all cases.
+      \end{tcolorbox}
+
+      \vspace{0.4em}
+      \textbf{Key obstacle:}
+      \begin{itemize}
+        \item $\sum_j|a_j| \sim \sqrt{m}$ empirically
+        \item $\delta$ does not shrink with $m$ at $T=500$
+        \item Bound loosens $\sim\!\sqrt{m}$ while actual
+              error plateaus
+      \end{itemize}
+
+      \vspace{0.35em}
+      \begin{tcolorbox}[slideboxB, title={Path to non-vacuousness}]
+        \small
+        $\delta \to 0$ requires $T \to \infty$,
+        \emph{not} $m \to \infty$.
+        Study $\delta(T)$ at fixed $m$ to
+        make the bound formally useful.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1.4 \textendash{} Lottery Ticket: Which Neurons Survive?}
+  \begin{columns}[T]
+    \begin{column}{0.50\textwidth}
+      \small
+      \textbf{Setup:} At $t=0$, amplitudes
+      $a_j \sim \mathcal{N}(0,0.01)$ are random.
+      Only the bias placement $b_j$ is structured.
+      Neurons near an inflection point are
+      \emph{geometrically lucky}.
+
+      \vspace{0.4em}
+      \textbf{Five conditions per (target, $m$):}
+      \texttt{full}, \texttt{geometric}, \texttt{bias\_only},
+      \texttt{amp\_only}, \texttt{random\_k}\\[3pt]
+      52 runs; 4 targets, $m \in \{500, 1000, 1500\}$.
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxB, title={Claim 2 (performance): FALSE}]
+        \small
+        Lucky $k$ neurons alone achieve
+        $100\times$--$50{,}000\times$ higher loss
+        than the full network.
+        $k$ kinks cannot approximate a smooth target;
+        full redundancy is necessary.
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{tcolorbox}[slideboxC,
+                        title={Claim 1 (survival): bias position is key}]
+        \small
+        \textbf{geometric} $\approx$ \textbf{bias\_only}
+        in every case (loss diff $< 0.002$).
+        Initial amplitudes carry \emph{no information}.
+
+        \vspace{4pt}
+        \textbf{amp\_only} is the worst condition:
+        good amplitudes with random biases performs
+        worse than good biases with random amplitudes.
+
+        \vspace{4pt}
+        \textbf{Conclusion:}\\
+        Bias position at $t=0$ is the sole
+        informative quantity for collapse.
+        The ``winning ticket'' is a good bias placement,
+        not a good amplitude.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{Instability Near $k$ \textendash{} Framework and Preliminary Results}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \small
+      \textbf{Setup:} Runs with $|C - k| \leq 2$ qualify.\\
+      \textbf{22 qualifying runs:} 8 exact\_k,\;
+      8 above\_k,\; 6 below\_k.\\[6pt]
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{p{1.8cm} p{3.5cm}}
+        \toprule
+        Category & Test \\
+        \midrule
+        \textbf{exact\_k} ($C=k$) &
+          Inject one extra neuron. Does it dissolve? \\[3pt]
+        \textbf{above\_k} ($k < C \leq k{+}2$) &
+          Continue flow naturally. Does $C$ fall to $k$? \\[3pt]
+        \textbf{below\_k} ($k{-}2 \leq C < k$) &
+          Inject one neuron. Does $C$ rise to $k$? \\
+        \bottomrule
+      \end{tabular}
+    \end{column}
+    \begin{column}{0.43\textwidth}
+      \begin{tcolorbox}[slideboxB, title={Preliminary finding}]
+        \small
+        above\_k ``natural dissolution'' tests
+        terminate at $t \approx 0$ --- above-$k$
+        states are already ODE fixed points.
+        They do \textbf{not} spontaneously dissolve.
+      \end{tcolorbox}
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxA, title={Implication for OP 4.1.1}]
+        \small
+        A Lyapunov proof that $C \leq k$ requires
+        $C > k$ states to be unstable.
+        These results suggest they are \emph{metastable}
+        --- stable under small perturbations.
+        The injection tests will determine
+        large-perturbation stability.
+
+        \vspace{4pt}
+        \textit{Full results: in progress
+        ($T_{\text{perturb}} = 1000$).}
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{Summary of Evidence}
+  \vspace{0.1em}
+  \renewcommand{\arraystretch}{1.25}
+  \footnotesize
+  \begin{tabular}{p{2.2cm} p{5.4cm} p{3.8cm}}
+    \toprule
+    \textbf{Problem} & \textbf{Main finding} & \textbf{Status} \\
+    \midrule
+    OP 4.1:\newline $C \to k$ &
+      Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
+      $\sin(7\pi x)$ reaches $C = 13 = k$ at $m=5000$
+      (stationarity unconfirmed).
+      Below-$k$ at 4 targets (genuinely stationary). &
+      {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
+      {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
+
+    OP 4.1.4:\newline Lottery ticket &
+      Bias position at $t=0$ is sole informative quantity.
+      Amplitude values irrelevant. Performance claim false. &
+      {\color{darkgreen}\textbf{Resolved}} \\[2pt]
+
+    OP 4.2:\newline 2D collapse &
+      Collapse mode tracks target structure at small $m$.
+      Weakens at large $m$ (unexpected). &
+      {\color{auorange}\textbf{Partial}} \\[2pt]
+
+    OP 4.3:\newline Pruning bound &
+      78\,/\,78 hold. $\sum|a_j| \sim \sqrt{m}$.
+      Non-vacuousness requires $\delta \to 0$ as $T \to \infty$. &
+      {\color{darkgreen}\textbf{Verified numerically}};\newline
+      {\color{auorange}\textbf{open theoretically}} \\[2pt]
+
+    Instability\newline near $k$ &
+      above\_k states are ODE fixed points; no spontaneous
+      dissolution. Injection results pending. &
+      {\color{auorange}\textbf{In progress}} \\
+    \bottomrule
+  \end{tabular}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{Open Questions and Next Steps}
   \begin{columns}[T]
     \begin{column}{0.49\textwidth}
       \small
-      \textbf{OP 4.1 — remaining goals:}
+      \textbf{OP 4.1 --- open:}
       \begin{itemize}
-        \item \textbf{4.1.1:} Formal proof $C \leq k$.
-              Instability evidence points toward a
-              Lyapunov argument: any $C>k$ state is
-              linearly unstable $\Rightarrow$ $C$
-              cannot remain above $k$.
-        \item \textbf{4.1.2:} Finite-time vs.\
-              asymptotic. The $T\in\{200,\ldots,10000\}$
-              progression tests whether $C$ stabilizes
-              at a finite $T^\ast$.
-        \item \textbf{4.1.3:} Sign pattern vs.\
-              amplitude: compare $\sin(2\pi x)$ with
-              $c\sin(2\pi x)$ for varying $c$.
+        \item \textbf{Below-$k$ mystery:} True fixed points
+              or initialization-dependent local minima?\\
+              \textit{Next:} 12 runs with additional seeds
+        \item \textbf{4.1.1:} above\_k states are metastable
+              --- a Lyapunov proof needs a refined
+              energy function
+        \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
+              to confirm stationarity of $C=13$
+      \end{itemize}
+
+      \vspace{0.4em}
+      \textbf{OP 4.2 --- open:}
+      \begin{itemize}
+        \item Why does collapse weaken at large $m$?
+              Theory predicts the opposite.
       \end{itemize}
     \end{column}
     \begin{column}{0.49\textwidth}
       \small
-      \textbf{OP 4.3 — remaining challenge:}
+      \textbf{OP 4.3 --- path to a formal proof:}
       \begin{itemize}
-        \item Elementary estimate
-              $\norm{\ftilde-f}\leq\delta\cdot\sum_j|a_j|$
-              follows from Lipschitz-$\sigma$.
-        \item Hard part: bounding $\sum_j|a_j|$.
-              If $\sum_j|a_j|=O(m^\alpha)$ and
-              $\delta=O(m^{-\beta})$ with $\beta>\alpha$,
-              the bound is non-vacuous.
-        \item Data suggests sublinear growth;
-              quantifying $\alpha$ is the next step.
+        \item Study $\delta(T)$ at fixed $m$:
+              does $\delta \to 0$ as $T \to \infty$?
+        \item Exponent $\alpha$ in
+              $\sum_j|a_j| = O(m^\alpha)$;
+              data suggests $\alpha \approx 1/2$
+        \item If $\delta = O(T^{-\gamma})$ the bound
+              becomes non-vacuous as $T \to \infty$
       \end{itemize}
+
       \vspace{0.4em}
-      \begin{tcolorbox}[slideboxA, title={OP 4.2 (future)}]
+      \begin{tcolorbox}[slideboxA, title={Immediate priorities}]
         \small
-        Higher dimensions $d\geq 2$: does collapse
-        generalize to hyperplane configurations?
-        Natural extension once 1D is settled.
+        (1) Multiple seeds for below-$k$ cases\\
+        (2) Instability test final results\\
+        (3) $\delta(T)$ trajectory study\\
+        (4) $\sin(7\pi x)$ at $T = 1000$
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -574,43 +942,48 @@
 \begin{frame}{Conclusion}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
-      \small
-      \textbf{Summary:}
-      \begin{itemize}
-        \item $C(m,\fstar)=k$ confirmed for $\sin(\pi x)$
-              and $\sin(4\pi x)$; convergence trend across
-              all 9 targets including $k\!\in\!\{9,11,13\}$
-        \item Non-monotone collapse dynamics explained
-              by the redundancy threshold of gradient flow
-        \item ODE fixed-point conditions verified at
-              convergence across all 108 baseline runs
-        \item Pruning bound (OP 4.3): 108/108 holds;
-              amplitude sum growth identified as the
-              key obstacle to a formal proof
-        \item Instability framework operational;
-              results expand as high-$T$ runs complete
+      \footnotesize
+      \textbf{What we showed:}
+      \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item $C \to k$ confirmed for $\sin(\pi x)$ ($k=1$),
+              $m \geq 1000$. First high-$k$ evidence:
+              $\sin(7\pi x)$ reaches $C = 13$ at $m=5000$.
+        \item \textbf{Rise-then-fall} is universal:
+              peak scales with $k$; inflection geometry
+              sets the convergence rate.
+        \item \textbf{Below-$k$:} 4 targets have $C < k$
+              at genuinely stationary states ---
+              open challenge for OP 4.1.
+        \item \textbf{OP 4.3:} Bound holds 78/78;
+              $\delta \to 0$ with $T$ is the path to
+              a formal proof.
+        \item \textbf{Lottery ticket:} bias position at $t=0$
+              is the sole informative quantity.
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{tcolorbox}[colback=aunavy!8, colframe=aunavy,
-                        title={\normalsize\textbf{Broader implication}},
-                        top=5pt, bottom=5pt, left=5pt, right=5pt]
-        \small
-        Gradient descent is not only an optimizer —
+                        title={\small\textbf{Broader implication}},
+                        top=2pt, bottom=2pt, left=4pt, right=4pt]
+        \footnotesize
+        Gradient flow is not only an optimizer ---
         it is a \textbf{compression algorithm} that
-        finds the minimum-complexity solution
-        matching the target's intrinsic structure.
+        discovers the minimum-complexity representation
+        of the target's intrinsic structure.
 
-        \vspace{0.4em}
-        Proving this rigorously provides a
-        mechanistic explanation for generalization
-        in overparameterized networks — one of the
-        central open problems in deep learning theory.
+        \vspace{2pt}
+        Inflection points of $\fstar$ act as
+        \textbf{fixed-point attractors}: neurons near
+        one survive; the rest dissolve.
+
+        \vspace{2pt}
+        A rigorous proof would explain generalization
+        in overparameterized networks.
       \end{tcolorbox}
-      \vspace{0.7em}
+      \vspace{0.1em}
       \begin{center}
         \large\textbf{Thank you}\\
-        \vspace{0.3em}
+        \vspace{0.1em}
         \small\textit{Supported by NSF RTG}
       \end{center}
     \end{column}
