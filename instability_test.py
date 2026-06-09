@@ -84,7 +84,7 @@ SUMMARY_PNG = os.path.join(FIG_BASE, 'goal2_summary.png')
 # =============================================================================
 # Constants
 # =============================================================================
-N_QUAD           = 400
+N_QUAD           = 200   # matches simulate_parallel.py; halves ODE cost vs 400
 X_QUAD           = np.linspace(-1.0, 1.0, N_QUAD)
 DX               = X_QUAD[1] - X_QUAD[0]
 CLUSTER_TOL      = 0.02
@@ -802,6 +802,11 @@ if __name__ == '__main__':
     all_results = dict(existing)
     new_count   = 0
 
+    # Incremental CSV write: persist each result immediately so an interrupted
+    # run can be safely restarted.  The final bulk write below sorts and
+    # deduplicates; this append just ensures rows survive a crash.
+    _csv_has_header = os.path.exists(RESULTS_CSV) and os.path.getsize(RESULTS_CSV) > 0
+
     with Pool(processes=n_workers) as pool:
         for result in pool.imap_unordered(_worker, jobs):
             if result is None:
@@ -810,6 +815,14 @@ if __name__ == '__main__':
                    int(result['T_original']), result['test_type'])
             all_results[key] = result
             new_count += 1
+
+            # Append this row immediately ─ safe to interrupt after this point
+            with open(RESULTS_CSV, 'a', newline='') as _f:
+                _w = csv.DictWriter(_f, fieldnames=RESULTS_FIELDS)
+                if not _csv_has_header:
+                    _w.writeheader()
+                    _csv_has_header = True
+                _w.writerow({k: result[k] for k in RESULTS_FIELDS})
 
             success = (int(result['returned_to_k']) if result['returned_to_k'] != NA
                        else int(result['approached_k']))

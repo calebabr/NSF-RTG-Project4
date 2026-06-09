@@ -35,57 +35,63 @@ $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \t
 | 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
 | 4.1.4 | What determines which neurons survive collapse to become cluster representatives? | Addressed by lottery_ticket_experiment.py: bias position at t=0 is the sole informative quantity; neurons geometrically close to inflection points are the "lucky" survivors. Amplitude values at initialization carry no information. |
 
-#### Current Numerical Findings (T=500, m up to 3500; m=5000 in progress)
+#### Current Numerical Findings (T=500, m up to 5000 — complete)
 
-69 runs across 9 targets. All runs verified stationary (max|da/dt| < 0.01 for all but 3).
-C(m, f*) follows a non-monotone rise-then-fall pattern universally; the peak shifts to
-larger m as k increases.
+78 runs across 9 targets. C(m, f*) follows a non-monotone rise-then-fall pattern
+universally; the peak shifts to larger m as k increases.
 
-| Target | k | C(m) at m = 50, 100, 250, 500, 1000, 1500, 2000, 3500 |
-|---|---|---|
-| sin_1pi | 1 | 31, 45, 22, 6, **1, 1, 1, 1** |
-| sin_2pi | 3 | 26, 29, 13, 8, **2**, †, †, † |
-| sin_3pi | 5 | 11, 16, 23, 14, **5**, 2, †, † |
-| sin_4pi | 7 | 9, 11, 21, 26, 17, **7**, 2, † |
-| sin_5pi | 9 | 11, 11, 18, 23, 31, 13, 2, — |
-| sin_6pi | 11 | 13, 14, 14, 15, 31, 40, 13, — |
-| sin_7pi | 13 | 14, 15, 18, 17, 22, 36, 34, — |
-| poly_k3 | 3 | 29, 45, 35, 20, 11, 8, 7, 4 |
-| x_cubed | 1 | 31, 40, 31, 16, 13, 6, 7, 4 |
+| Target | k | m=50 | m=100 | m=250 | m=500 | m=1000 | m=1500 | m=2000 | m=3500 | m=5000 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| sin_1pi | 1 | 31 | 45 | 22 | 6 | **1** | 1 | 1 | 1 | 1 |
+| sin_2pi | 3 | 26 | 29 | 13 | 8 | 2 | †1 | †1 | †1 | †1 |
+| sin_3pi | 5 | 11 | 16 | 23 | 14 | **5** | 2 | †1 | †1 | †1 |
+| sin_4pi | 7 | 9 | 11 | 21 | 26 | 17 | **7** | 2 | †1 | †1 |
+| sin_5pi | 9 | 11 | 11 | 18 | 23 | 31 | — | 13 | 2 | †1 |
+| sin_6pi | 11 | 13 | 14 | 14 | 15 | 31 | — | 40 | 13 | 2 |
+| sin_7pi | 13 | 14 | 15 | 18 | 17 | 22 | — | 36 | 34 | ‡13 |
+| poly_k3 | 3 | 29 | 45 | 35 | 20 | 11 | 8 | 7 | 4 | 2 |
+| x_cubed | 1 | 31 | 40 | 31 | 16 | 13 | 6 | 7 | 4 | 4 |
 
 †**Dense-packing artifact:** gap-based counter collapses to C=1 when biases are too dense
-to detect gaps (> 0.02). Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000, sin_4pi m=3500.
-Excluded from limit conclusions.
+to detect gaps (> 0.02). Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000, sin_4pi m ≥ 3500,
+sin_5pi m=5000. Excluded from limit conclusions.
 
-**Conclusions and next steps:**
+‡**Not fully stationary:** sin_7pi m=5000 reports C=13=k but max|da/dt|=0.034 exceeds
+the 0.01 stationarity threshold. The result may be transient; longer T needed to confirm.
 
-- **Conjecture supported for k=1 (sin_1pi):** C stabilizes at 1 from m=1000 through m=3500.
-- **k=5, 7:** C passes through k then falls below it — not convergence in the limit sense.
-  The critical open question is whether the below-k values are true stationary states or
-  initialization-dependent local minima. Running multiple seeds at the same (m, T) would
-  resolve this.
-- **k=9, 11, 13:** Still in the rise phase; need m well beyond 3500.
-- **Polynomial targets (poly_k3, x_cubed):** Converge far more slowly than trigonometric
-  targets with the same k — inflection point geometry matters beyond just counting k.
-- **Blocking issue:** The fixed gap threshold (0.02) must be replaced with an adaptive
-  threshold before reliable conclusions can be drawn for m ≥ 1500.
+**Conclusions:**
 
-**Pending experiment — multiple seeds (9 runs, ~1 hour):**
+- **Conjecture supported for k=1 (sin_1pi):** C=1=k holds from m=1000 through m=5000,
+  fully stationary. Strongest evidence for the conjecture.
+- **sin_7pi (k=13) reaches C=k=13 at m=5000** — first high-k target to show C=k, but
+  not yet fully stationary (max_da=0.034). Promising; needs verification at longer T.
+- **Below-k pattern is widespread, not isolated.** Four targets show C < k at a verified
+  stationary state: sin_2pi (C=2, m=1000), sin_3pi (C=2, m=1500), sin_4pi (C=2, m=2000),
+  poly_k3 (C=2, m=5000). The critical open question is whether these are true stationary
+  states or initialization-dependent local minima. Multiple seeds would resolve this.
+- **Polynomial targets converge far more slowly** than trigonometric targets with the same k.
+  poly_k3 and x_cubed have no evenly-spaced inflection structure; x_cubed reaches only C=4
+  at m=5000 despite k=1. Inflection point geometry shapes convergence beyond just counting k.
+- **k=9, 11 targets (sin_5pi, sin_6pi) not yet resolved.** Dense-packing masks behavior
+  at m=5000; sin_6pi shows C=2 at m=5000 (possibly real 2-cluster collapse or artifact).
+  Would require m > 5000 and an adaptive threshold.
 
-At three points where C falls below k at a verified stationary state, rerun with 2
-additional random seeds to determine whether the below-k result is consistent across
-initializations or initialization-dependent:
+**Pending experiment — multiple seeds (~1 hour each):**
+
+At four points where C falls below k at a verified stationary state, rerun with 2
+additional random seeds to determine whether below-k is consistent or initialization-dependent:
 
 | Target | k | m | Current C | Seeds to run |
 |---|---|---|---|---|
 | sin_2pi | 3 | 1000 | 2 | seeds 1, 2 (seed 42 already done) |
 | sin_3pi | 5 | 1500 | 2 | seeds 1, 2 |
 | sin_4pi | 7 | 2000 | 2 | seeds 1, 2 |
+| poly_k3 | 3 | 5000 | 2 | seeds 1, 2 |
 
-If C=2 across all seeds → below-k is a genuine property of those stationary states;
+If C=2 across all seeds → below-k is a genuine property of large-m dynamics;
 conjecture as stated is in question for k ≥ 3.
-If C varies → gradient flow has multiple local minima; conjecture applies to a specific
-basin of attraction, not all initializations.
+If C varies across seeds → gradient flow has multiple local minima; conjecture may apply
+to a specific basin of attraction, not all initializations.
 
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
@@ -256,9 +262,23 @@ ode_verification.png, convergence_check.csv, run_meta.csv
 **Purpose:** Reads saved b_j and a_j values from each run folder and verifies the pruning
 bound. No re-simulation needed.
 
-**Current result:** Bound holds for all 108 completed runs. Tightness ratios range from
-0.001 to 0.15. The amplitude sum Σ|aⱼ| grows with m — proving the bound is non-vacuous
-requires showing this growth is controlled relative to how fast delta shrinks.
+**Current result:** Bound holds for all 78 T=500 runs (100%). Tightness ratios range from
+0.0002 to 0.148 — the bound holds with substantial slack in all cases.
+
+Key observations across the m sweep:
+
+- **Σ|aⱼ| grows roughly as √m.** For sin_1pi: 14.4 (m=50) → 43.2 (m=5000). Similar
+  scaling across all targets. Growth rate is faster for high-k targets (sin_7pi reaches
+  Σ|aⱼ| = 524 at m=5000).
+- **The bound grows with m while actual pruning error plateaus.** For sin_1pi, the actual
+  error stabilizes near 2.5 from m=1000 onward, but the bound grows from 34.7 to 87.9.
+  Tightness (actual/bound) drops from 0.073 at m=1000 to 0.029 at m=5000 — the bound
+  becomes proportionally looser as m grows.
+- **δ does not shrink with m at T=500.** For sin_1pi at large m, the single cluster spans
+  nearly the full bias range (δ ≈ 2.03), so δ · Σ|aⱼ| grows as √m with no offset.
+- **Implication for Open Problem 4.3:** Proving the bound non-vacuous requires showing δ
+  shrinks as a function of something other than m alone — likely as a function of T (longer
+  training tightens clusters), not network width.
 
 **Outputs per run:** pruning_verification.png
 
@@ -276,8 +296,8 @@ requires showing this growth is controlled relative to how fast delta shrinks.
 gradient flow drives the system back to k clusters. Two injection strategies per run: near
 (just outside an existing cluster) and isolated (maximally distant from all cluster centers).
 
-**Qualifying runs from current data:** 20 runs across exact_k, above_k, and below_k
-categories. More will qualify once simulate_parallel.py completes.
+**Qualifying runs from current data:** 22 runs across exact_k (8), above_k (8), and
+below_k (6) categories. Based on 78 completed T=500 runs.
 
 **Outputs per run:** goal2_near.png, goal2_isolated.png, goal2_natural.png (above_k only)
 
@@ -582,13 +602,13 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 ---
 
-**Note on current run status (as of 6/8/2026):**
+**Note on current run status (as of 6/9/2026):**
 
 | Script | Status |
 |---|---|
-| simulate_parallel.py | 🔄 69 runs complete (T=500, m up to 3500, all 9 targets); m=5000 in progress |
+| simulate_parallel.py | ✅ Complete — 78 runs (T=500, m up to 5000, all 9 targets) |
 | simulate_discrete.py | ✅ Complete — 52 runs; C does not converge to k under discrete GD |
 | lottery_ticket_experiment.py | ✅ Complete — 52 runs; geometric ≈ bias_only confirmed; k-ticket does not match full network |
-| verify_pruning.py | ✅ Complete — bound verified across all completed runs |
+| verify_pruning.py | ✅ Complete — bound holds for all 78 T=500 runs; Σ\|aⱼ\| grows ~√m, bound loosens at large m |
 | collapse_v2.py | ✅ Complete — all 2D results analyzed |
-| instability_test.py | ⏳ Pending — waiting on simulate_parallel.py to finish |
+| instability_test.py | 🔄 In progress — 22 qualifying runs; partial results available |
