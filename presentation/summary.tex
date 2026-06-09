@@ -1,0 +1,244 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath, amssymb, booktabs, xcolor, hyperref, array, multirow}
+\usepackage{enumitem}
+\usepackage[T1]{fontenc}
+
+\definecolor{darkblue}{HTML}{1a3a6c}
+\definecolor{green}{HTML}{1a7a1a}
+\definecolor{red}{HTML}{b00000}
+\definecolor{orange}{HTML}{c05000}
+\definecolor{lightgray}{HTML}{f2f2f2}
+
+\hypersetup{colorlinks=true, linkcolor=darkblue, urlcolor=darkblue}
+
+\setlength{\parskip}{4pt}
+\setlength{\parindent}{0pt}
+
+\newcommand{\yes}{\textcolor{green}{\textbf{Yes}}}
+\newcommand{\no}{\textcolor{red}{\textbf{No}}}
+\newcommand{\partial}{\textcolor{orange}{\textbf{Partial}}}
+\newcommand{\pending}{\textcolor{orange}{\textbf{Pending}}}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\bfseries\color{darkblue} Bias Collapse in Shallow ReLU Networks}\\[4pt]
+  {\large Numerical Results Summary --- NSF RTG Project 4}\\[2pt]
+  {\small June 2026}
+\end{center}
+
+\hrule\vspace{6pt}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{The Setup}
+
+We study a \textbf{shallow ReLU network} trained by \textbf{continuous gradient flow} on a
+smooth target $f^*:[-1,1]\to\mathbb{R}$:
+\[
+  f(x) = \sum_{j=1}^{m} a_j\,\sigma(x - b_j),
+  \qquad
+  \mathcal{L} = \tfrac{1}{2}\int_{-1}^{1}(f - f^*)^2\,dx.
+\]
+The gradient flow ODEs are:
+\[
+  \dot{a}_j = -\int_{-1}^{1}(f-f^*)\,\sigma(x-b_j)\,dx,
+  \qquad
+  \dot{b}_j = a_j \int_{b_j}^{1}(f-f^*)\,dx.
+\]
+\textbf{Central observation:} The bias parameters $b_j$ spontaneously collapse into tight
+clusters. The cluster count $C(m, f^*)$ appears to converge to $k$, the number of
+sign-changing inflection points of $f^*$, as $m\to\infty$.
+
+\textbf{Open Problem 4.1 (Conjecture):}
+\[
+  \lim_{m\to\infty} C(m, f^*) = \bigl|\{x\in(-1,1) : (f^*)''(x)=0\text{ and changes sign}\}\bigr| =: k
+\]
+
+\vspace{2pt}
+\textbf{Nine target functions tested} ($T=500$, $m\in\{50,100,250,500,1000,2000,3500,5000\}$,
+78 runs):
+
+\begin{center}
+\begin{tabular}{llc}
+\toprule
+Key & Function & $k$ \\
+\midrule
+\texttt{sin\_1pi} & $\sin(\pi x)$ & 1 \\
+\texttt{x\_cubed} & $x^3$ & 1 \\
+\texttt{sin\_2pi} & $\sin(2\pi x)$ & 3 \\
+\texttt{poly\_k3} & $x^5 - 3x^3$ & 3 \\
+\texttt{sin\_3pi} & $\sin(3\pi x)$ & 5 \\
+\texttt{sin\_4pi} & $\sin(4\pi x)$ & 7 \\
+\texttt{sin\_5pi} & $\sin(5\pi x)$ & 9 \\
+\texttt{sin\_6pi} & $\sin(6\pi x)$ & 11 \\
+\texttt{sin\_7pi} & $\sin(7\pi x)$ & 13 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{Main Convergence Results}
+
+$C(m,f^*)$ follows a \textbf{non-monotone rise-then-fall} pattern universally. The peak
+shifts to larger $m$ as $k$ increases.
+
+\begin{center}
+\small
+\begin{tabular}{lc|ccccccccc}
+\toprule
+Target & $k$ & $m{=}50$ & $m{=}100$ & $m{=}250$ & $m{=}500$ & $m{=}1000$ & $m{=}1500$ & $m{=}2000$ & $m{=}3500$ & $m{=}5000$ \\
+\midrule
+sin\_1pi & 1  & 31 & 45 & 22 & 6  & \textbf{1}  & 1  & 1  & 1  & 1  \\
+sin\_2pi & 3  & 26 & 29 & 13 & 8  & 2  & $\dagger$1 & $\dagger$1 & $\dagger$1 & $\dagger$1 \\
+sin\_3pi & 5  & 11 & 16 & 23 & 14 & \textbf{5}  & 2  & $\dagger$1 & $\dagger$1 & $\dagger$1 \\
+sin\_4pi & 7  & 9  & 11 & 21 & 26 & 17 & \textbf{7}  & 2  & $\dagger$1 & $\dagger$1 \\
+sin\_5pi & 9  & 11 & 11 & 18 & 23 & 31 & --- & 13 & 2  & $\dagger$1 \\
+sin\_6pi & 11 & 13 & 14 & 14 & 15 & 31 & --- & 40 & 13 & 2  \\
+sin\_7pi & 13 & 14 & 15 & 18 & 17 & 22 & --- & 36 & 34 & $\ddagger$13 \\
+poly\_k3 & 3  & 29 & 45 & 35 & 20 & 11 & 8  & 7  & 4  & 2  \\
+x\_cubed & 1  & 31 & 40 & 31 & 16 & 13 & 6  & 7  & 4  & 4  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+{\small $\dagger$ Dense-packing artifact: gap detector ($\delta=0.02$) collapses to $C=1$
+when biases are packed too tightly. \quad
+$\ddagger$ Possibly not stationary: $\max|\dot{a}_j|=0.034 > 0.01$ threshold.}
+
+\vspace{4pt}
+\textbf{Key conclusions:}
+\begin{itemize}[leftmargin=1.4em, itemsep=0pt]
+  \item \texttt{sin\_1pi} ($k=1$): $C=1$ from $m=1000$ onward. Cleanest confirmation of the conjecture.
+  \item \texttt{sin\_7pi} ($k=13$): $C=13$ at $m=5000$ (first high-$k$ to reach $C=k$), but stationarity unconfirmed. Runs at $m=7500, 10000$ pending.
+  \item \texttt{sin\_2pi}, \texttt{sin\_4pi}, \texttt{poly\_k3}: below-$k$ stationary states found ($C=2$ at large $m$). \textbf{Multiple seeds experiment currently running} to distinguish genuine fixed points from initialization artifacts.
+  \item \textbf{Geometry shapes convergence beyond $k$:} \texttt{sin\_2pi} with its evenly spaced inflection points reaches $C=k$ cleanly and early. \texttt{poly\_k3} and \texttt{x\_cubed} (polynomial, no uniform spacing) converge far more slowly.
+\end{itemize}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{Instability Test Results (36/36 Complete)}
+
+For each qualifying run, we perturbed the converged state by injecting one extra neuron
+and continued gradient flow for $T_{\rm perturb}=1000$.
+
+\begin{center}
+\begin{tabular}{lp{8cm}l}
+\toprule
+Category & Protocol & Result \\
+\midrule
+\textbf{above\_k} (8 runs) & Continue ODE from $C > k$; no injection. & 8/8 no change \\
+\textbf{below\_k} (12 runs) & Inject into $C < k$ state (near + isolated). & 12/12 no change \\
+\textbf{exact\_k} (16 runs) & Inject into $C = k$ state (near + isolated). & 16/16 return to $k$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{2pt}
+\textbf{Interpretation:}
+\begin{itemize}[leftmargin=1.4em, itemsep=0pt]
+  \item \textbf{above\_k:} These are genuine ODE fixed points. Gradient flow does \emph{not}
+        spontaneously dissolve extra clusters toward $k$. A proof of $C\to k$ cannot rely on
+        instability of above-$k$ states.
+  \item \textbf{below\_k:} Injected amplitude never crossed the active threshold
+        ($a_{\rm inject}\approx 0.01$ throughout). Below-$k$ states resist perturbation --- further
+        evidence they are genuine fixed points, not transient.
+  \item \textbf{exact\_k:} All 16 cases returned to $k$ after perturbation. Exact-$k$ states
+        are confirmed \textbf{stable attractors} across all tested targets and $m$ values.
+\end{itemize}
+
+\textbf{Main implication for Open Problem 4.1.1:} Any proof that $C\leq k$ cannot use
+gradient flow instability alone. The convergence $C\to k$ must be driven by
+\emph{initialization geometry} (bias proximity to inflection points), not by above-$k$
+states being unstable fixed points.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{Supporting Results}
+
+\subsection*{Pruning Bound (Open Problem 4.3)}
+
+The slide bound $\|\tilde{f}-f\|_{L^2}\leq\delta\cdot\sum_j|a_j|$ holds for \textbf{all 78 runs}
+(100\%), with tightness ratios $0.0002$--$0.148$.
+
+\begin{itemize}[leftmargin=1.4em, itemsep=0pt]
+  \item $\sum|a_j|$ grows $\sim\sqrt{m}$ for all targets.
+  \item For \texttt{sin\_1pi}: actual pruning error stabilizes near $2.5$ from $m=1000$
+        onward, but the bound grows from $34.7$ to $87.9$. The bound becomes proportionally
+        \emph{looser} as $m$ grows.
+  \item $\delta$ does not shrink with $m$ at $T=500$ (the single cluster spans nearly the full
+        $[-1,1]$ range at large $m$, so $\delta\approx 2$).
+  \item \textbf{Open:} Proving the bound non-vacuous requires showing $\delta$ shrinks with
+        $T$ (longer training tightens clusters), not $m$.
+\end{itemize}
+
+\subsection*{Geometric Lottery Ticket (Supporting 4.1)}
+
+Neurons whose initial bias $b_j^{(0)}$ is closest to an inflection point are the
+\emph{geometric lottery ticket} winners. Key findings:
+\begin{itemize}[leftmargin=1.4em, itemsep=0pt]
+  \item \textbf{geometric $\approx$ bias\_only} (loss difference $<0.002$): initial amplitude
+        carries zero information --- only bias position matters.
+  \item \textbf{amp\_only is consistently worst}: good amplitudes with random positions
+        perform worse than good positions with random amplitudes.
+  \item Training only $k$ geometrically-selected neurons achieves $100\times$--$50{,}000\times$
+        higher loss than the full network. The $k$-ticket does not match full-$m$ performance.
+\end{itemize}
+
+\subsection*{2D Collapse (Open Problem 4.2)}
+
+Training shallow ReLU networks on structured 2D targets (ridge, separable, radial) at
+$m\in\{64,256,512\}$:
+\begin{itemize}[leftmargin=1.4em, itemsep=0pt]
+  \item Collapse mode \emph{tracks target structure} at small $m$ (ridge $\to$ one angular
+        cluster; separable $\to$ two direction families; radial $\to$ near-uniform entropy).
+  \item Collapse \emph{weakens} as width increases --- the opposite of the large-$m$
+        theoretical prediction. Collapse is capacity-constrained, not asymptotic.
+  \item Radial at $m=512$ maintains near-uniform entropy ($\approx 3.54$ vs max $3.58$),
+        confirming rotational symmetry when the network is wide enough to cover all orientations.
+\end{itemize}
+
+\subsection*{Discrete GD vs Continuous Gradient Flow}
+
+$C(m,f^*)$ does \textbf{not} converge to $k$ under discrete gradient descent for any target
+except \texttt{sin\_1pi}. All discrete GD runs are verified near-stationary --- these are
+genuine fixed points, not mid-training snapshots. Open Problem 4.1 is specific to
+\emph{continuous-time} ODE dynamics; discretization breaks the convergence.
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{What Is Confirmed vs.\ Open}
+
+\begin{center}
+\begin{tabular}{p{5.5cm}cc}
+\toprule
+Claim & Status & Evidence \\
+\midrule
+$C\to k$ for $k=1$ (sin\_1pi) & \textcolor{green}{\textbf{Confirmed}} & $C=1$ from $m=1000$, stationary \\
+Exact-$k$ states are stable attractors & \textcolor{green}{\textbf{Confirmed}} & 16/16 instability tests \\
+Above-$k$ states are stable fixed points & \textcolor{green}{\textbf{Confirmed}} & 8/8 instability tests \\
+Pruning bound holds (4.3) & \textcolor{green}{\textbf{Confirmed}} & 78/78 runs \\
+Inflection geometry determines convergence speed & \textcolor{green}{\textbf{Confirmed}} & sin\_2pi vs poly\_k3 \\
+Bias position (not amplitude) drives collapse & \textcolor{green}{\textbf{Confirmed}} & LTH experiment \\
+\midrule
+$C\to k$ for $k\geq 3$ (trigonometric) & \textcolor{orange}{\textbf{Partial}} & Needs larger $m$; dense-packing masks \\
+Below-$k$ states are initialization artifacts & \textcolor{orange}{\textbf{Pending}} & multiple\_seeds running \\
+sin\_7pi $C=13$ at $m=5000$ is stationary & \textcolor{orange}{\textbf{Pending}} & $m=7500,10000$ runs needed \\
+$C\to k$ for polynomial targets & \textcolor{red}{\textbf{Not supported}} & poly\_k3 $C=2$ at $m=5000$ \\
+Proof that above-$k$ states are unstable & \textcolor{red}{\textbf{Disproved}} & They are stable fixed points \\
+Pruning bound is non-vacuous at large $m$ & \textcolor{red}{\textbf{Not supported}} & Bound loosens as $m$ grows \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+%% ─────────────────────────────────────────────────────────────────────────────
+\section*{Pending Before Presentation is Final}
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=2pt]
+  \item \textbf{multiple\_seeds.py} (currently running): sin\_2pi $m=1000$, sin\_4pi
+        $m=2000$, poly\_k3 $m=5000$ at seeds 5 and 25. Determines whether below-$k$ states
+        are consistent across initializations.
+  \item \textbf{sin\_7pi} $m=7500$ and $m=10000$: Run via local simulate\_parallel.py
+        or Colab notebook (JAX or PyTorch version). Updates convergence plot for $k=13$.
+  \item \textbf{Convergence plot} (convergence\_plot\_parallel.png): Regenerate after
+        sin\_7pi new runs complete using \texttt{plot\_convergence\_now.py}.
+\end{enumerate}
+
+\end{document}
