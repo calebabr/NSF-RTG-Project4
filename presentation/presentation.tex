@@ -542,7 +542,8 @@
 \begin{frame}{OP 4.1 \textendash{} The Below-$k$ Phenomenon}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
-      \textbf{Four targets reach $C < k$ at verified stationary states:}
+      \textbf{Three simulate\_parallel runs reach $C < k$
+              at verified stationary states:}
       \vspace{4pt}
 
       \footnotesize
@@ -552,7 +553,6 @@
         Target & $k$ & $m$ & $C$ & $\max|\dot{b}_j|$ \\
         \midrule
         $\sin(2\pi x)$ & 3 & 1000 & 2 & $1.8\!\times\!10^{-4}$ \\
-        $\sin(3\pi x)$ & 5 & 1500 & 2 & $1.4\!\times\!10^{-4}$ \\
         $\sin(4\pi x)$ & 7 & 2000 & 2 & $4.5\!\times\!10^{-4}$ \\
         $x^5{-}3x^3$  & 3 & 5000 & 2 & $1.2\!\times\!10^{-3}$ \\
         \bottomrule
@@ -560,7 +560,7 @@
       \vspace{4pt}
 
       \small
-      All four are \textbf{genuinely stationary}.
+      All three are \textbf{genuinely stationary}.
       All report $C = 2$ regardless of $k$.
     \end{column}
     \begin{column}{0.44\textwidth}
@@ -580,7 +580,7 @@
       \vspace{0.35em}
       \begin{tcolorbox}[slideboxA, title={Resolution (pending)}]
         \small
-        Re-run with 2 additional seeds per case.
+        Re-run 3 cases with 2 additional seeds.
         $C=2$ across all seeds $\Rightarrow$ A.\;
         $C$ varies $\Rightarrow$ B.
       \end{tcolorbox}
@@ -898,7 +898,7 @@
       \begin{itemize}
         \item \textbf{Below-$k$ mystery:} True fixed points
               or initialization-dependent local minima?\\
-              \textit{Next:} 12 runs with additional seeds
+              \textit{Next:} 6 runs with additional seeds (3 cases)
         \item \textbf{4.1.1:} above\_k states are metastable
               --- a Lyapunov proof needs a refined
               energy function
