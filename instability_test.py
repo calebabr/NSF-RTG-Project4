@@ -429,7 +429,7 @@ def test_one(args):
             ax.set_xlabel(f'{AXIS_LABEL} after test start')
             ax.set_ylabel('Bias location')
             ax.set_title(f'Bias Trajectories\n(green = original cluster centers)')
-            ax.set_xlim([0, t_arr[-1]])
+            ax.set_xlim([0, max(t_arr[-1], 1.0)])
 
             ax = axes[1]
             ax.plot(t_arr, cluster_counts, color='purple', lw=1.8)
@@ -441,7 +441,7 @@ def test_one(args):
             ax.set_ylabel('Cluster count $C(t)$')
             ax.set_title(f'Cluster Count\nfinal={final_n},  returned to k: {bool(returned_to_k)}')
             ax.legend(fontsize=8)
-            ax.set_xlim([0, t_arr[-1]])
+            ax.set_xlim([0, max(t_arr[-1], 1.0)])
             ax.grid(True, alpha=0.3)
 
             ax = axes[2]
@@ -553,7 +553,7 @@ def test_one(args):
         ax.set_ylabel('Bias location')
         ax.set_title('Bias Trajectories\n(red=injected, green=original clusters)')
         ax.legend(fontsize=8)
-        ax.set_xlim([0, t_arr[-1]])
+        ax.set_xlim([0, max(t_arr[-1], 1.0)])
 
         ax = axes[1]
         ax.plot(t_arr, np.abs(a_inj_traj), color='darkorange', lw=1.8)
@@ -564,7 +564,7 @@ def test_one(args):
         ax.set_title(f'Injected Amplitude\ninitial={a_inject_initial:.3f},  '
                      f'final={abs(a_inject_final):.3f},  decayed: {bool(a_decayed)}')
         ax.legend(fontsize=8)
-        ax.set_xlim([0, t_arr[-1]])
+        ax.set_xlim([0, max(t_arr[-1], 1.0)])
         ax.grid(True, alpha=0.3)
 
         ax = axes[2]
@@ -577,7 +577,7 @@ def test_one(args):
         ax.set_ylabel('Cluster count $C(t)$')
         ax.set_title(f'Cluster Count\nfinal={final_n},  returned to k: {bool(returned_to_k)}')
         ax.legend(fontsize=8)
-        ax.set_xlim([0, t_arr[-1]])
+        ax.set_xlim([0, max(t_arr[-1], 1.0)])
         ax.set_ylim([max(0, k_true - 1), initial_n + 3])
         ax.grid(True, alpha=0.3)
 
