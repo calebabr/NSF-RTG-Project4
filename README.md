@@ -76,23 +76,23 @@ the 0.01 stationarity threshold. The result may be transient; longer T needed to
   at m=5000; sin_6pi shows C=2 at m=5000 (possibly real 2-cluster collapse or artifact).
   Would require m > 5000 and an adaptive threshold.
 
-**multiple_seeds experiment — currently running:**
+**multiple_seeds experiment — complete:**
 
 At three points where C falls below k at a verified stationary state, rerun with 2
 additional random seeds to determine whether below-k is consistent or initialization-dependent.
 (sin_3pi m=1500 was excluded: m=1500 is not in M_VALUES and dense-packing makes C
 ambiguous at that m.)
 
-| Target | k | m | Current C (seed=42) | Seeds running |
-|---|---|---|---|---|
-| sin_2pi | 3 | 1000 | 2 | seeds 5, 25 |
-| sin_4pi | 7 | 2000 | 2 | seeds 5, 25 |
-| poly_k3 | 3 | 5000 | 2 | seeds 5, 25 |
+| Target | k | m | seed=42 | seed=5 | seed=25 |
+|---|---|---|---|---|---|
+| sin_2pi | 3 | 1000 | 2 | 1 | 1 |
+| sin_4pi | 7 | 2000 | 2 | 3 | 5 |
+| poly_k3 | 3 | 5000 | 2 | 2 | **3** (=k) |
 
-If C=2 across all seeds → below-k is a genuine property of large-m dynamics;
-conjecture as stated is in question for k ≥ 3.
-If C varies across seeds → gradient flow has multiple local minima; conjecture may apply
-to a specific basin of attraction, not all initializations.
+**Verdict: Interpretation B confirmed.** C varies across seeds for all three targets —
+below-k states are initialization-dependent local minima, not universal fixed points.
+The k-cluster attractor exists (poly_k3 seed=25 reaches C=k=3), but has a narrow basin
+of attraction. A proof of C→k must account for initialization geometry.
 
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
@@ -105,7 +105,7 @@ families.
 |---|---|---|
 | 4.2.1 | Does directional collapse occur for structured targets? | Partially confirmed: angular entropy drops for ridge and separable targets, especially at small width |
 | 4.2.2 | Does collapse mode track target structure? | Confirmed at m=64: ridge shows mild directional concentration, separable shows family splitting, radial resists collapse |
-| 4.2.3 | Does collapse generalize to larger width? | Inverted: collapse is strongest at small m and weakens as m grows; large-m behavior differs from theoretical prediction |
+| 4.2.3 | Does collapse generalize to larger width? | **Collapse weakens monotonically** as m grows across all 3 targets (m∈{64,256,512,1024}). Radial m=1024: H=3.53≈H_max, 1 cluster — near-perfect uniform distribution, confirming rotational symmetry. Ridge and separable entropy increases with m but collapse persists. Large-m behavior is opposite of theoretical prediction. |
 | 4.2.4 | Are collapsed neurons functionally redundant (prunable)? | Not confirmed; pruning diagnostic is unreliable due to sign-cancellation in output weights |
 
 ### Open Problem 4.3: Provable Pruning
@@ -340,9 +340,10 @@ active threshold (0.05), so C never increased. Both near and isolated injection 
 failed to raise C toward k.
 
 This confirms below_k stationary states are genuine ODE fixed points — the gradient
-provides zero net force on the injected neuron's amplitude. Combined with the
-multiple_seeds analysis (currently running), this strongly supports Interpretation A
-(true fixed points) over Interpretation B (initialization-dependent local minima).
+provides zero net force on the injected neuron's amplitude. However, the multiple_seeds
+analysis shows C varies across seeds for all 3 targets, supporting Interpretation B
+(initialization-dependent local minima). Below-k states are stable once reached but
+whether they are reached depends on initialization.
 
 **exact_k — 16/16 complete. All returned to k.**
 
@@ -660,4 +661,4 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 | collapse_v2.py | ✅ Complete — all 2D results analyzed |
 | instability_test.py | ✅ Complete — 36/36 jobs done; above_k stable fixed points, below_k injection-resistant, exact_k all returned to k |
 | regenerate_figures.py | ✅ Complete — final_fit_clean.png generated for all targets × M_VALUES at T=500 |
-| multiple_seeds.py | 🔄 Running — 6 jobs (sin_2pi m=1000, sin_4pi m=2000, poly_k3 m=5000 × seeds 5, 25); results pending |
+| multiple_seeds.py | ✅ Complete — 6 jobs done; Interpretation B confirmed (below-k states are initialization-dependent local minima; C varies across seeds for all 3 targets) |

@@ -73,6 +73,7 @@
 %% ---- Figure paths (compile from presentation/ directory) ----
 \graphicspath{
   {../figures/Replication data/}
+  {../collapse_v2_plots/}
   {../figures/collapse_v2_plots_and_results/}
   {../plots/lth_geometric/}
 }
@@ -590,47 +591,44 @@
 \begin{frame}{OP 4.1 \textendash{} The Below-$k$ Phenomenon}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
-      \textbf{Three simulate\_parallel runs reach $C < k$
-              at verified stationary states:}
+      \textbf{Three cases at verified stationary states with $C < k$.
+              Re-run with 2 additional seeds each:}
       \vspace{4pt}
 
-      \footnotesize
+      \scriptsize
       \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{lcccc}
+      \begin{tabular}{lcc ccc}
         \toprule
-        Target & $k$ & $m$ & $C$ & $\max|\dot{b}_j|$ \\
+        Target & $k$ & $m$ & seed 42 & seed 5 & seed 25 \\
         \midrule
-        $\sin(2\pi x)$ & 3 & 1000 & 2 & $1.8\!\times\!10^{-4}$ \\
-        $\sin(4\pi x)$ & 7 & 2000 & 2 & $4.5\!\times\!10^{-4}$ \\
-        $x^5{-}3x^3$  & 3 & 5000 & 2 & $1.2\!\times\!10^{-3}$ \\
+        $\sin(2\pi x)$ & 3 & 1000 & 2 & 1 & 1 \\
+        $\sin(4\pi x)$ & 7 & 2000 & 2 & 3 & 5 \\
+        $x^5{-}3x^3$  & 3 & 5000 & 2 & 2 & \textbf{3}$=k$ \\
         \bottomrule
       \end{tabular}
       \vspace{4pt}
 
       \small
-      All three are \textbf{genuinely stationary}.
-      All report $C = 2$ regardless of $k$.
+      $C$ \textbf{varies across seeds} in all three cases.
+      No single below-$k$ value is consistent.
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxB, title={Interpretation A: True fixed points}]
+      \begin{tcolorbox}[slideboxC, title={Verdict: Interpretation B}]
         \small
-        Below-$k$ states are genuine fixed points of
-        the ODE at large $m$. The conjecture as stated
-        is \emph{false} for $k \geq 3$.
+        $C$ varies across seeds $\Rightarrow$ below-$k$ states
+        are \textbf{initialization-dependent local minima},
+        not universal fixed points.
+
+        \vspace{4pt}
+        Gradient flow has multiple basins of attraction.
+        The $k$-cluster basin exists but is not the only one.
       \end{tcolorbox}
-      \vspace{0.35em}
-      \begin{tcolorbox}[slideboxC, title={Interpretation B: Local minima}]
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxA, title={$x^5{-}3x^3$ seed 25: $C = k = 3$}]
         \small
-        Gradient flow has multiple basins.
-        Below-$k$ states are initialization-dependent.
-        The conjecture holds from the ``right'' initial condition.
-      \end{tcolorbox}
-      \vspace{0.35em}
-      \begin{tcolorbox}[slideboxA, title={Resolution (pending)}]
-        \small
-        Re-run 3 cases with 2 additional seeds.
-        $C=2$ across all seeds $\Rightarrow$ A.\;
-        $C$ varies $\Rightarrow$ B.
+        First time $x^5{-}3x^3$ reaches $C = k$.
+        Shows the $k$-cluster attractor exists for
+        polynomial targets --- just harder to find.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -826,6 +824,13 @@
         if directions collapse; near $\log(36) \approx 3.58$
         if uniform.
       \end{tcolorbox}
+      \vspace{0.2em}
+      \begin{tcolorbox}[slideboxA, title={Width sweep}]
+        \small
+        $m \in \{64, 256, 512, 1024\}$,\; 6000 epochs, Adam.
+        Tests whether collapse is a small-$m$ or large-$m$
+        phenomenon.
+      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
@@ -839,29 +844,43 @@
     \end{column}
     \begin{column}{0.42\textwidth}
       \small
-      \textbf{Width sweep:} $m \in \{64, 256, 512\}$,
-      6000 epochs, Adam.
+      \textbf{Final entropy $H$ at epoch 6000:}\\[3pt]
+      \scriptsize
+      \renewcommand{\arraystretch}{1.15}
+      \begin{tabular}{lcccc}
+        \toprule
+        Target & $m{=}64$ & $m{=}256$ & $m{=}512$ & $m{=}1024$ \\
+        \midrule
+        Ridge     & 0.94 & 1.46 & 1.74 & 1.95 \\
+        Separable & 1.55 & 1.84 & 2.31 & 2.83 \\
+        Radial    & 2.78 & 3.31 & 3.42 & \textbf{3.53} \\
+        \bottomrule
+      \end{tabular}\\[2pt]
+      {\scriptsize Max entropy $= \log(36) \approx 3.58$}
 
-      \vspace{0.4em}
+      \vspace{0.3em}
       \begin{tcolorbox}[slideboxC, title={Key findings}]
         \small
         Collapse \textbf{mode} tracks target structure at
-        small $m$: ridge concentrates, separable splits,
-        radial stays near uniform (entropy $3.54$ vs.\ max $3.58$).
+        small $m$.
 
-        \vspace{4pt}
-        Collapse \textbf{weakens} as $m$ grows ---
-        opposite of the large-$m$ theoretical prediction.
-        Large networks fit the target without collapsing.
+        \vspace{3pt}
+        Collapse \textbf{weakens monotonically} as $m$ grows
+        for all three targets ---
+        opposite of the large-$m$ prediction.
+
+        \vspace{3pt}
+        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster ---
+        near-perfect uniform, confirming rotational symmetry.
       \end{tcolorbox}
 
-      \vspace{0.4em}
+      \vspace{0.2em}
       \begin{tcolorbox}[slideboxB, title={Open question}]
         \small
         Why does collapse weaken at large $m$?
-        Theory predicts it should strengthen.
-        Collapse appears to be
-        \emph{capacity-constrained}, not asymptotic.
+        Collapse is \emph{capacity-constrained}:
+        wide networks fit the target without
+        needing to collapse directions.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -1033,7 +1052,8 @@
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
       $\sin(7\pi x)$ reaches $C = 13 = k$ at $m=5000$
       (stationarity unconfirmed).
-      Below-$k$ at 3 targets (genuinely stationary). &
+      Below-$k$ states are \textbf{initialization-dependent local minima}
+      (Interp.\ B): $C$ varies across seeds for all 3 targets. &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
       {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
 
@@ -1045,7 +1065,9 @@
 
     OP 4.2:\newline 2D collapse &
       Collapse mode tracks target structure at small $m$.
-      Weakens at large $m$ (unexpected). &
+      Weakens \textbf{monotonically} as $m$ grows (all 3 targets,
+      $m \in \{64,256,512,1024\}$).
+      Radial $m{=}1024$: $H = 3.53 \approx H_{\max}$, 1 cluster. &
       {\color{auorange}\textbf{Partial}} \\[2pt]
 
     OP 4.3:\newline Pruning bound &
@@ -1069,12 +1091,11 @@
       \small
       \textbf{OP 4.1 --- open:}
       \begin{itemize}
-        \item \textbf{Below-$k$ mystery:} True fixed points
-              or initialization-dependent local minima?\\
-              \textit{Next:} 6 runs with additional seeds (3 cases)
+        \item \textbf{Below-$k$ resolved:} Initialization-dependent
+              local minima (Interp.\ B confirmed by multiple seeds).
+              A proof of $C \to k$ must address basin geometry.
         \item \textbf{4.1.1:} above\_k states are \emph{stable}
-              fixed points --- a proof of $C \to k$ must
-              use initialization geometry, not instability
+              fixed points --- instability cannot drive $C \to k$
         \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
               to confirm stationarity of $C=13$
       \end{itemize}
@@ -1084,6 +1105,7 @@
       \begin{itemize}
         \item Why does collapse weaken at large $m$?
               Theory predicts the opposite.
+              Collapse appears \emph{capacity-constrained}.
       \end{itemize}
     \end{column}
     \begin{column}{0.49\textwidth}
@@ -1102,9 +1124,9 @@
       \vspace{0.4em}
       \begin{tcolorbox}[slideboxA, title={Immediate priorities}]
         \small
-        (1) Multiple seeds for below-$k$ cases (running)\\
+        (1) $\sin(7\pi x)$ at $T = 1000$ (confirm $C=13$)\\
         (2) $\delta(T)$ trajectory study\\
-        (3) $\sin(7\pi x)$ at $T = 1000$
+        (3) Theory for capacity-constrained collapse
       \end{tcolorbox}
     \end{column}
   \end{columns}
