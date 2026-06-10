@@ -9,3 +9,9 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# Personal speaker notes
+speaker_notes/
+
+presentation/group_script.tex
+presentation/group_script.pdf
