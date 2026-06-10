@@ -52,9 +52,14 @@ universally; the peak shifts to larger m as k increases.
 | poly_k3 | 3 | 29 | 45 | 35 | 20 | 11 | 8 | 7 | 4 | 2 |
 | x_cubed | 1 | 31 | 40 | 31 | 16 | 13 | 6 | 7 | 4 | 4 |
 
-†**Dense-packing artifact:** gap-based counter collapses to C=1 when biases are too dense
-to detect gaps (> 0.02). Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000, sin_4pi m ≥ 3500,
-sin_5pi m=5000. Excluded from limit conclusions.
+†**Cluster structure dissolves:** at large m, the network switches to a near-uniform bias
+distribution across the full domain. Direct inspection of the saved b_j and a_j values for
+sin_3pi m=2000 confirms this: 1893 active neurons span [-1.04, 1.00] with only 1 gap
+exceeding 0.02, and amplitude weighting near each of the 5 inflection points is equal
+(~15.5 each) with no peaks. The cluster structure is genuinely absent, not merely
+undetectable. Whether this represents a failure of the conjecture or a different
+representational regime is an open question. Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000,
+sin_4pi m ≥ 3500, sin_5pi m=5000. Excluded from limit conclusions.
 
 ‡**Not fully stationary:** sin_7pi m=5000 reports C=13=k but max|da/dt|=0.034 exceeds
 the 0.01 stationarity threshold. The result may be transient; longer T needed to confirm.
@@ -72,16 +77,17 @@ the 0.01 stationarity threshold. The result may be transient; longer T needed to
 - **Polynomial targets converge far more slowly** than trigonometric targets with the same k.
   poly_k3 and x_cubed have no evenly-spaced inflection structure; x_cubed reaches only C=4
   at m=5000 despite k=1. Inflection point geometry shapes convergence beyond just counting k.
-- **k=9, 11 targets (sin_5pi, sin_6pi) not yet resolved.** Dense-packing masks behavior
-  at m=5000; sin_6pi shows C=2 at m=5000 (possibly real 2-cluster collapse or artifact).
-  Would require m > 5000 and an adaptive threshold.
+- **k=9, 11 targets (sin_5pi, sin_6pi) not yet resolved.** At m=5000 the cluster structure
+  dissolves (uniform bias spread, no amplitude peaks); sin_6pi shows C=2 at m=5000 which
+  may be a genuine 2-cluster state or an early stage of dissolution. Resolving this requires
+  m > 5000 or analysis at intermediate m before dissolution occurs.
 
 **multiple_seeds experiment (complete):**
 
 At three points where C falls below k at a verified stationary state, rerun with 2
 additional random seeds to determine whether below-k is consistent or initialization-dependent.
-(sin_3pi m=1500 was excluded: m=1500 is not in M_VALUES and dense-packing makes C
-ambiguous at that m.)
+(sin_3pi m=1500 was excluded: m=1500 is not in M_VALUES, and cluster structure begins
+dissolving at m=2000, making C ambiguous in that range.)
 
 | Target | k | m | seed=42 | seed=5 | seed=25 |
 |---|---|---|---|---|---|
