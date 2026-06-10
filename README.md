@@ -35,7 +35,7 @@ $$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \t
 | 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
 | 4.1.4 | What determines which neurons survive collapse to become cluster representatives? | Addressed by lottery_ticket_experiment.py: bias position at t=0 is the sole informative quantity; neurons geometrically close to inflection points are the "lucky" survivors. Amplitude values at initialization carry no information. |
 
-#### Current Numerical Findings (T=500, m up to 5000 — complete)
+#### Current Numerical Findings (T=500, m up to 5000, complete)
 
 78 runs across 9 targets. C(m, f*) follows a non-monotone rise-then-fall pattern
 universally; the peak shifts to larger m as k increases.
@@ -63,7 +63,7 @@ the 0.01 stationarity threshold. The result may be transient; longer T needed to
 
 - **Conjecture supported for k=1 (sin_1pi):** C=1=k holds from m=1000 through m=5000,
   fully stationary. Strongest evidence for the conjecture.
-- **sin_7pi (k=13) reaches C=k=13 at m=5000** — first high-k target to show C=k, but
+- **sin_7pi (k=13) reaches C=k=13 at m=5000**, the first high-k target to show C=k, but
   not yet fully stationary (max_da=0.034). Promising; needs verification at longer T.
 - **Below-k pattern is widespread, not isolated.** Four targets show C < k at a verified
   stationary state: sin_2pi (C=2, m=1000), sin_3pi (C=2, m=1500), sin_4pi (C=2, m=2000),
@@ -76,7 +76,7 @@ the 0.01 stationarity threshold. The result may be transient; longer T needed to
   at m=5000; sin_6pi shows C=2 at m=5000 (possibly real 2-cluster collapse or artifact).
   Would require m > 5000 and an adaptive threshold.
 
-**multiple_seeds experiment — complete:**
+**multiple_seeds experiment (complete):**
 
 At three points where C falls below k at a verified stationary state, rerun with 2
 additional random seeds to determine whether below-k is consistent or initialization-dependent.
@@ -89,8 +89,7 @@ ambiguous at that m.)
 | sin_4pi | 7 | 2000 | 2 | 3 | 5 |
 | poly_k3 | 3 | 5000 | 2 | 2 | **3** (=k) |
 
-**Verdict: Interpretation B confirmed.** C varies across seeds for all three targets —
-below-k states are initialization-dependent local minima, not universal fixed points.
+**Finding:** C varies across seeds for all three targets, so below-k states are initialization-dependent local minima, not universal fixed points.
 The k-cluster attractor exists (poly_k3 seed=25 reaches C=k=3), but has a narrow basin
 of attraction. A proof of C→k must account for initialization geometry.
 
@@ -105,7 +104,7 @@ families.
 |---|---|---|
 | 4.2.1 | Does directional collapse occur for structured targets? | Partially confirmed: angular entropy drops for ridge and separable targets, especially at small width |
 | 4.2.2 | Does collapse mode track target structure? | Confirmed at m=64: ridge shows mild directional concentration, separable shows family splitting, radial resists collapse |
-| 4.2.3 | Does collapse generalize to larger width? | **Collapse weakens monotonically** as m grows across all 3 targets (m∈{64,256,512,1024}). Radial m=1024: H=3.53≈H_max, 1 cluster — near-perfect uniform distribution, confirming rotational symmetry. Ridge and separable entropy increases with m but collapse persists. Large-m behavior is opposite of theoretical prediction. |
+| 4.2.3 | Does collapse generalize to larger width? | **Collapse weakens monotonically** as m grows across all 3 targets (m∈{64,256,512,1024}). Radial m=1024: H=3.53≈H_max, 1 cluster, near-perfect uniform distribution, confirming rotational symmetry. Ridge and separable entropy increases with m but collapse persists. Large-m behavior is opposite of theoretical prediction. |
 | 4.2.4 | Are collapsed neurons functionally redundant (prunable)? | Not confirmed; pruning diagnostic is unreliable due to sign-cancellation in output weights |
 
 ### Open Problem 4.3: Provable Pruning
@@ -177,7 +176,7 @@ MathProject4/
 |
 |-- MathProject Slides.pdf          Source slides: model, ODEs, and open problems
 |
-|-- simulate_parallel.py            Main simulation — m sweep at T=500, all 9 targets (Goals 1, 3)
+|-- simulate_parallel.py            Main simulation: m sweep at T=500, all 9 targets (Goals 1, 3)
 |-- lottery_ticket_experiment.py    Geometric lottery ticket analysis (supporting 4.1)
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
@@ -185,7 +184,7 @@ MathProject4/
 |-- regenerate_figures.py           Helper: regenerates clean final fit figures
 |
 |-- archive/                        Superseded scripts (simulate_discrete.py data still used)
-|   |-- simulate_discrete.py        Discrete GD version — 52 runs complete, data in figures/
+|   |-- simulate_discrete.py        Discrete GD version: 52 runs complete, data in figures/
 |
 |-- figures/
 |   |-- Replication data/
@@ -205,7 +204,7 @@ MathProject4/
 |       |-- convergence_plot_parallel.png    C(m) vs m for all 9 targets
 |
 |-- plots/
-|   |-- lth_geometric/              Lottery ticket outputs — survival, loss curves, overlap
+|   |-- lth_geometric/              Lottery ticket outputs: survival, loss curves, overlap
 |
 |   |-- Discrete GD/
 |       |-- {target}/m={m}/steps={n}/        Per-run figures and CSVs
@@ -232,7 +231,7 @@ MathProject4/
 **Open problems addressed:** 4.1 (main conjecture), 4.1.1 (partial), Goal 3
 
 **Purpose:** Extends the m sweep to m=5000 at T=500, across all 9 targets including the
-three new high-k targets (k=9, 11, 13). All runs use T=500 — long enough to reach
+three new high-k targets (k=9, 11, 13). All runs use T=500, long enough to reach
 stationarity at all tested m values (verified: max|da/dt| < 0.01 for nearly all runs).
 
 **Targets and parameters:**
@@ -264,7 +263,7 @@ ode_verification.png, convergence_check.csv, run_meta.csv
 bound. No re-simulation needed.
 
 **Current result:** Bound holds for all 78 T=500 runs (100%). Tightness ratios range from
-0.0002 to 0.148 — the bound holds with substantial slack in all cases.
+0.0002 to 0.148; the bound holds with substantial slack in all cases.
 
 Key observations across the m sweep:
 
@@ -273,12 +272,12 @@ Key observations across the m sweep:
   Σ|aⱼ| = 524 at m=5000).
 - **The bound grows with m while actual pruning error plateaus.** For sin_1pi, the actual
   error stabilizes near 2.5 from m=1000 onward, but the bound grows from 34.7 to 87.9.
-  Tightness (actual/bound) drops from 0.073 at m=1000 to 0.029 at m=5000 — the bound
+  Tightness (actual/bound) drops from 0.073 at m=1000 to 0.029 at m=5000; the bound
   becomes proportionally looser as m grows.
 - **δ does not shrink with m at T=500.** For sin_1pi at large m, the single cluster spans
   nearly the full bias range (δ ≈ 2.03), so δ · Σ|aⱼ| grows as √m with no offset.
 - **Implication for Open Problem 4.3:** Proving the bound non-vacuous requires showing δ
-  shrinks as a function of something other than m alone — likely as a function of T (longer
+  shrinks as a function of something other than m alone, likely as a function of T (longer
   training tightens clusters), not network width.
 
 **Outputs per run:** pruning_verification.png
@@ -309,11 +308,11 @@ below_k (6) categories. 36 total jobs (above_k: 1 test each; exact_k and below_k
 
 **Results (36/36 complete):**
 
-**above_k — 8/8 complete. All no change.**
+**above_k: 8/8 complete. All no change.**
 
 Every above_k run continued for T_perturb=1000 with zero cluster count change.
 C stays fixed at its above-k value across all 8 runs spanning sin_4pi, sin_5pi,
-sin_6pi, sin_7pi, and poly_k3 at various m. These states are confirmed ODE fixed points —
+sin_6pi, sin_7pi, and poly_k3 at various m. These states are confirmed ODE fixed points;
 they do not spontaneously dissolve toward k even with substantial continued integration.
 
 | Target | m | k | initial C | final C | result |
@@ -332,30 +331,30 @@ These results show they are instead stable fixed points, meaning gradient flow a
 cannot reduce C from above-k to k. The conjecture C → k as m → ∞ must rely on
 initialization geometry, not on instability of above-k states.
 
-**below_k — 12/12 complete. All no change.**
+**below_k: 12/12 complete. All no change.**
 
 In every tested below_k case, the injected neuron's amplitude remained at its initial
 value (a_inject = 0.01 throughout T_perturb=1000). The amplitude never crossed the
 active threshold (0.05), so C never increased. Both near and isolated injection strategies
 failed to raise C toward k.
 
-This confirms below_k stationary states are genuine ODE fixed points — the gradient
+This confirms below_k stationary states are genuine ODE fixed points; the gradient
 provides zero net force on the injected neuron's amplitude. However, the multiple_seeds
-analysis shows C varies across seeds for all 3 targets, supporting Interpretation B
-(initialization-dependent local minima). Below-k states are stable once reached but
-whether they are reached depends on initialization.
+analysis shows C varies across seeds for all 3 targets, so below-k states are
+initialization-dependent local minima. They are stable once reached, but whether they
+are reached depends on initialization.
 
-**exact_k — 16/16 complete. All returned to k.**
+**exact_k: 16/16 complete. All returned to k.**
 
 All 16 tested cases returned to k after perturbation (returned_to_k=1 in every run).
-Injected neurons stay below the active threshold for the duration of T_perturb=1000 —
-they do not grow into new clusters. Exact-k states are confirmed stable attractors:
+Injected neurons stay below the active threshold for the duration of T_perturb=1000 and
+do not grow into new clusters. Exact-k states are confirmed stable attractors:
 the ODE restores the k-cluster configuration after small perturbations across all
 tested targets and m values (sin_1pi, sin_3pi, sin_4pi, sin_7pi).
 
 ---
 
-### collapse_v2.py: Open Problem 4.2 — 2D Collapse Experiment
+### collapse_v2.py: Open Problem 4.2, 2D Collapse Experiment
 
 **Open problems addressed:** 4.2 (higher-dimensional collapse)
 
@@ -408,7 +407,7 @@ Pruning results are excluded from the analysis.
    a maximum of 3.58), confirming the rotational symmetry prediction only when the network
    is wide enough to cover all orientations.
 
-4. Separable at m=512 stabilizes at 3 DBSCAN clusters from epoch 2700 onward — consistent
+4. Separable at m=512 stabilizes at 3 DBSCAN clusters from epoch 2700 onward, consistent
    with two direction families plus a noise cluster, the clearest structural result in the
    dataset.
 
@@ -447,11 +446,11 @@ All discrete GD runs are verified near-stationary (max gradient < 0.001), so the
 genuine stationary states, not mid-training snapshots.
 
 **Significance:** Open Problem 4.1 is stated for continuous gradient flow. The discrete GD
-result clarifies that the conjecture is specific to the continuous-time ODE dynamics —
+result clarifies that the conjecture is specific to the continuous-time ODE dynamics;
 discretization breaks the convergence. This is not a flaw; it means the ODE structure is
 essential to the phenomenon, not incidental.
 
-**Output data:** `figures/Discrete GD/` — 52 runs across 9 targets,
+**Output data:** `figures/Discrete GD/`, 52 runs across 9 targets,
 m ∈ {50, 100, 250, 500, 1000, 1500}.
 
 ---
@@ -460,7 +459,7 @@ m ∈ {50, 100, 250, 500, 1000, 1500}.
 
 **Open problems addressed:** 4.1 (supporting analysis)
 
-**Question:** At initialization, all amplitudes a_j ~ N(0, 0.01) are near zero — the
+**Question:** At initialization, all amplitudes a_j ~ N(0, 0.01) are near zero; the
 only structure is the random bias positions b_j. Neurons whose initial bias happens to
 land close to an inflection point of f* are geometrically "lucky." Do these neurons
 preferentially survive gradient flow collapse to become cluster representatives, and can
@@ -479,7 +478,7 @@ just those k neurons alone match full-network performance?
 
 | Condition | Description |
 |---|---|
-| full | All m neurons — baseline |
+| full | All m neurons (baseline) |
 | geometric | k neurons, one per inflection point, selected by min \|b0_j − x_infl\| |
 | bias_only | Same k bias positions as geometric, but fresh random amplitudes |
 | amp_only | Same k amplitudes as geometric, but random bias positions |
@@ -496,7 +495,7 @@ m ∈ {500, 1000, 1500}; T=500. 12 base runs + random_k trials = 52 total.
   mathematically expected, not a flaw in the selection criterion.
 
 - **geometric ≈ bias_only exactly** (loss difference < 0.002 in every case). Initial
-  amplitude values carry no information — only bias position matters at t=0. This
+  amplitude values carry no information; only bias position matters at t=0. This
   confirms the initialization is purely geometric.
 
 - **amp_only is consistently the worst condition.** Good amplitudes paired with random
@@ -510,7 +509,7 @@ m ∈ {500, 1000, 1500}; T=500. 12 base runs + random_k trials = 52 total.
 - **Claim 1 (survival overlap):** see `plots/lth_geometric/overlap_summary.png` and
   per-target `survival_{target}_m={m}.png`.
 
-**Outputs:** `plots/lth_geometric/` — survival plots, loss curves, final performance
+**Outputs:** `plots/lth_geometric/`, including survival plots, loss curves, final performance
 comparisons, overlap_summary.png, lth_geometric_summary.csv.
 
 **Run with:** `python lottery_ticket_experiment.py`
@@ -520,7 +519,7 @@ comparisons, overlap_summary.png, lth_geometric_summary.csv.
 ### regenerate_figures.py: Figure Cleaner
 
 **Purpose:** Reads final bias and amplitude values from each run folder and generates
-final_fit_clean.png — a cleaner version of the final fit figure showing cluster centers as
+final_fit_clean.png, a cleaner version of the final fit figure showing cluster centers as
 tick marks rather than all m individual bias dots.
 
 **Run with:** `python regenerate_figures.py`
@@ -654,11 +653,11 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 | Script | Status |
 |---|---|
-| simulate_parallel.py | ✅ Complete — 78 runs (T=500, m up to 5000, all 9 targets) |
-| simulate_discrete.py | ✅ Complete — 52 runs; C does not converge to k under discrete GD |
-| lottery_ticket_experiment.py | ✅ Complete — 52 runs; geometric ≈ bias_only confirmed; k-ticket does not match full network |
-| verify_pruning.py | ✅ Complete — bound holds for all 78 T=500 runs; Σ\|aⱼ\| grows ~√m, bound loosens at large m |
-| collapse_v2.py | ✅ Complete — all 2D results analyzed |
-| instability_test.py | ✅ Complete — 36/36 jobs done; above_k stable fixed points, below_k injection-resistant, exact_k all returned to k |
-| regenerate_figures.py | ✅ Complete — final_fit_clean.png generated for all targets × M_VALUES at T=500 |
-| multiple_seeds.py | ✅ Complete — 6 jobs done; Interpretation B confirmed (below-k states are initialization-dependent local minima; C varies across seeds for all 3 targets) |
+| simulate_parallel.py | ✅ Complete: 78 runs (T=500, m up to 5000, all 9 targets) |
+| simulate_discrete.py | ✅ Complete: 52 runs; C does not converge to k under discrete GD |
+| lottery_ticket_experiment.py | ✅ Complete: 52 runs; geometric ≈ bias_only confirmed; k-ticket does not match full network |
+| verify_pruning.py | ✅ Complete: bound holds for all 78 T=500 runs; Σ\|aⱼ\| grows ~√m, bound loosens at large m |
+| collapse_v2.py | ✅ Complete: all 2D results analyzed |
+| instability_test.py | ✅ Complete: 36/36 jobs done; above_k stable fixed points, below_k injection-resistant, exact_k all returned to k |
+| regenerate_figures.py | ✅ Complete: final_fit_clean.png generated for all targets × M_VALUES at T=500 |
+| multiple_seeds.py | ✅ Complete: 6 jobs done; below-k states are initialization-dependent local minima; C varies across seeds for all 3 targets |

@@ -131,7 +131,7 @@
   Bias Collapse in Shallow ReLU Networks}
 \subtitle{Numerical Evidence for Open Problems 4.1, 4.2, and 4.3}
 \author[NSF RTG Project 4]{NSF RTG Project 4}
-\institute{Auburn University \textendash{} NSF RTG}
+\institute{Auburn University, NSF RTG}
 \date{June 2026}
 
 %% ============================================================
@@ -158,7 +158,7 @@
       \textbf{Bias collapse: a concrete mechanism}
       \begin{itemize}\small
         \item Gradient flow automatically eliminates redundant
-              neurons --- no regularization required
+              neurons, with no regularization required
         \item $m = 1500$ neurons $\;\longrightarrow\;$ effective
               complexity of $k = 7$ neurons
         \item The number of surviving \emph{bias clusters}
@@ -238,7 +238,7 @@
 \begin{frame}{The Three Open Problems}
   \begin{columns}[T]
     \begin{column}{0.33\textwidth}
-      \begin{block}{OP 4.1 \textendash{} Cluster Count}
+      \begin{block}{OP 4.1:Cluster Count}
         \small
         \[
           \lim_{m \to \infty} C(m,\fstar) \;=\; k
@@ -249,7 +249,7 @@
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
-      \begin{block}{OP 4.2 \textendash{} Higher Dimensions}
+      \begin{block}{OP 4.2:Higher Dimensions}
         \small
         For $\fstar : [-1,1]^2 \to \mathbb{R}$,
         does gradient flow concentrate the neuron
@@ -258,7 +258,7 @@
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
-      \begin{block}{OP 4.3 \textendash{} Pruning Bound}
+      \begin{block}{OP 4.3:Pruning Bound}
         \small
         After collapse, is there a provable $L^2$
         error bound when pruning to $k$ neurons?
@@ -333,12 +333,12 @@
 %% ============================================================
 %%  OP 4.1 — INTRO SLIDE (stated in full before results)
 %% ============================================================
-\begin{frame}{Open Problem 4.1 \textendash{} Cluster Count Conjecture}
+\begin{frame}{Open Problem 4.1:Cluster Count Conjecture}
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
       \begin{block}{Conjecture}
         \[
-          \lim_{m \to \infty} C(m,\fstar) \;=\; k
+          \lim_{m \to \infty} C(m,\fstar) \;=\; k,
         \]
         \vspace{-4pt}
         \small
@@ -387,7 +387,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} $C(m,\fstar)$ Across All 9 Targets}
+\begin{frame}{OP 4.1:$C(m,\fstar)$ Across All 9 Targets}
   \begin{center}
     \includegraphics[width=0.86\textwidth, height=0.72\textheight,
                      keepaspectratio]{convergence_plot_parallel.png}
@@ -405,7 +405,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} The Rise-Then-Fall Dynamic}
+\begin{frame}{OP 4.1:The Rise-Then-Fall Dynamic}
   \begin{columns}[T]
     \begin{column}{0.46\textwidth}
       \textbf{Universal pattern across all 9 targets:}
@@ -451,7 +451,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} Confirmation: $\sin(\pi x)$, $k=1$}
+\begin{frame}{OP 4.1:Confirmation: $\sin(\pi x)$, $k=1$}
   \begin{columns}[T]
     \begin{column}{0.60\textwidth}
       \includegraphics[width=\textwidth, height=0.44\textheight,
@@ -491,7 +491,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} Confirmation: $\sin(3\pi x)$, $k=5$}
+\begin{frame}{OP 4.1:Confirmation: $\sin(3\pi x)$, $k=5$}
   \begin{columns}[T]
     \begin{column}{0.60\textwidth}
       \includegraphics[width=\textwidth, height=0.44\textheight,
@@ -543,7 +543,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} New at $m=5000$: $\sin(7\pi x)$, $k=13$}
+\begin{frame}{OP 4.1:New at $m=5000$: $\sin(7\pi x)$, $k=13$}
   \begin{columns}[T]
     \begin{column}{0.60\textwidth}
       \includegraphics[width=\textwidth, height=0.44\textheight,
@@ -579,15 +579,14 @@
       \begin{tcolorbox}[slideboxB, title={Caveat}]
         \small
         $\max|\dot{a}_j| = 0.034 > 0.01$.
-        May be \textbf{transient} ---
-        longer $T$ needed to confirm.
+        May be \textbf{transient}; longer $T$ needed to confirm.
       \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} The Below-$k$ Phenomenon}
+\begin{frame}{OP 4.1:The Below-$k$ Phenomenon}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \textbf{Three cases at verified stationary states with $C < k$.
@@ -612,7 +611,7 @@
       No single below-$k$ value is consistent.
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxC, title={Verdict: Interpretation B}]
+      \begin{tcolorbox}[slideboxC, title={Interpretation}]
         \small
         $C$ varies across seeds $\Rightarrow$ below-$k$ states
         are \textbf{initialization-dependent local minima},
@@ -627,14 +626,14 @@
         \small
         First time $x^5{-}3x^3$ reaches $C = k$.
         Shows the $k$-cluster attractor exists for
-        polynomial targets --- just harder to find.
+        polynomial targets, though harder to find.
       \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} Polynomial vs.\ Trigonometric Targets}
+\begin{frame}{OP 4.1:Polynomial vs.\ Trigonometric Targets}
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
       \textbf{Same $k$, very different convergence speed:}
@@ -663,8 +662,8 @@
                         title={Why inflection geometry matters}]
         \small\raggedright
         For $\sin(n\pi x)$, the $k$ inflection points
-        are \emph{evenly spaced} across $[-1,1]$ ---
-        strong, symmetric attractors that neurons
+        are \emph{evenly spaced} across $[-1,1]$,
+        forming strong, symmetric attractors that neurons
         organize around early in training.
 
         \vspace{4pt}
@@ -681,7 +680,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 \textendash{} Stationarity and Fixed-Point Verification}
+\begin{frame}{OP 4.1:Stationarity and Fixed-Point Verification}
   \begin{columns}[T]
     \begin{column}{0.60\textwidth}
       \includegraphics[width=\textwidth, height=0.70\textheight,
@@ -701,8 +700,8 @@
 
       \vspace{0.3em}
       \textbf{Right:} $R_j \approx 0$ for active neurons
-      {\color{auorange}(red)} --- the theoretical
-      fixed-point condition, satisfied numerically.
+      {\color{auorange}(red)}, confirming the theoretical
+      fixed-point condition numerically.
 
       \vspace{0.5em}
       \begin{tcolorbox}[slideboxA, title={Discrete GD comparison}]
@@ -717,7 +716,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Instability Near $k$ \textendash{} Results (36/36 complete)}
+\begin{frame}{Instability Near $k$:Results (36/36 complete)}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \small
@@ -733,11 +732,11 @@
         Category & Status & Finding \\
         \midrule
         \textbf{above\_k} & 8/8 done &
-          \textbf{No change.} $C$ stays fixed --- ODE fixed points,
+          \textbf{No change.} $C$ stays fixed; ODE fixed points
           do not dissolve. \\[3pt]
         \textbf{below\_k} & 12/12 done &
           \textbf{No change.} Injected neuron amplitude
-          stays at $0.01$ --- cannot grow. \\[3pt]
+          stays at $0.01$ and cannot grow. \\[3pt]
         \textbf{exact\_k} & 16/16 done &
           \textbf{All returned to $k$.}
           Exact-$k$ states are stable attractors. \\
@@ -772,7 +771,7 @@
 %% ============================================================
 %%  OP 4.2 — INTRO SLIDE
 %% ============================================================
-\begin{frame}{Open Problem 4.2 \textendash{} Higher-Dimensional Collapse}
+\begin{frame}{Open Problem 4.2:Higher-Dimensional Collapse}
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
       \begin{block}{Question}
@@ -823,7 +822,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.2 \textendash{} Higher-Dimensional Collapse: Results}
+\begin{frame}{OP 4.2:Higher-Dimensional Collapse: Results}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \includegraphics[width=\textwidth, height=0.72\textheight,
@@ -849,9 +848,9 @@
       \begin{tcolorbox}[slideboxC, title={Key findings}]
         \footnotesize
         Collapse \textbf{mode} tracks target structure at small $m$.\\[2pt]
-        Collapse \textbf{weakens monotonically} as $m$ grows ---
+        Collapse \textbf{weakens monotonically} as $m$ grows,
         opposite of the large-$m$ prediction.\\[2pt]
-        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster ---
+        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster,
         near-perfect uniform.
       \end{tcolorbox}
 
@@ -869,7 +868,7 @@
 %% ============================================================
 %%  OP 4.3 — INTRO SLIDE
 %% ============================================================
-\begin{frame}{Open Problem 4.3 \textendash{} Pruning Bound}
+\begin{frame}{Open Problem 4.3:Pruning Bound}
   \begin{columns}[T]
     \begin{column}{0.52\textwidth}
       \begin{block}{Bound (from the slides)}
@@ -898,7 +897,7 @@
       \vspace{0.3em}
       \textbf{Why it matters:} Provides a formal $L^2$
       certificate that collapsing from $m$ neurons to
-      $k$ neurons is safe --- a bridge between the
+      $k$ neurons is safe, bridging the
       collapse phenomenon and approximation theory.
     \end{column}
     \begin{column}{0.46\textwidth}
@@ -919,8 +918,8 @@
 
         \vspace{4pt}
         Our data shows $\sum|a_j| \sim \sqrt{m}$.
-        So we need $\delta \to 0$ fast enough ---
-        and this must come from longer training $T$,
+        So we need $\delta \to 0$ fast enough,
+        which must come from longer training $T$,
         not wider networks $m$.
       \end{tcolorbox}
     \end{column}
@@ -928,7 +927,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.3 \textendash{} Pruning Bound Verification}
+\begin{frame}{OP 4.3:Pruning Bound Verification}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \includegraphics[width=\textwidth, height=0.72\textheight,
@@ -969,7 +968,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1.4 \textendash{} Lottery Ticket: Which Neurons Survive?}
+\begin{frame}{OP 4.1.4:Lottery Ticket: Which Neurons Survive?}
   \begin{columns}[T]
     \begin{column}{0.50\textwidth}
       \small
@@ -1031,14 +1030,14 @@
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
       $\sin(7\pi x)$: $C = 13 = k$ at $m=5000$ (stationarity unconfirmed).
       Below-$k$: \textbf{init-dependent local minima}
-      (Interp.\ B, multiple seeds). &
+      (multiple seeds confirm). &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
       {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
 
     Instability\newline near $k$ &
       above\_k: stable ODE fixed points (8/8, no dissolution).
       below\_k: injection-resistant (12/12, zero amplitude growth).
-      exact\_k: all 16 returned to $k$ --- stable attractors. &
+      exact\_k: all 16 returned to $k$ (stable attractors). &
       {\color{darkgreen}\textbf{Complete}} \\[2pt]
 
     OP 4.2:\newline 2D collapse &
@@ -1067,19 +1066,20 @@
   \begin{columns}[T]
     \begin{column}{0.49\textwidth}
       \small
-      \textbf{OP 4.1 --- open:}
+      \textbf{OP 4.1 (open):}
       \begin{itemize}
-        \item \textbf{Below-$k$ resolved:} Initialization-dependent
-              local minima (Interp.\ B confirmed by multiple seeds).
-              A proof of $C \to k$ must address basin geometry.
+        \item A proof of $C \to k$ must account for
+              initialization geometry. Below-$k$ local minima
+              exist, so the $k$-cluster basin must be shown
+              to dominate at large $m$
         \item \textbf{4.1.1:} above\_k states are \emph{stable}
-              fixed points --- instability cannot drive $C \to k$
+              fixed points, so instability alone cannot drive $C \to k$
         \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
               to confirm stationarity of $C=13$
       \end{itemize}
 
       \vspace{0.4em}
-      \textbf{OP 4.2 --- open:}
+      \textbf{OP 4.2 (open):}
       \begin{itemize}
         \item Why does collapse weaken at large $m$?
               Theory predicts the opposite.
@@ -1088,7 +1088,7 @@
     \end{column}
     \begin{column}{0.49\textwidth}
       \small
-      \textbf{OP 4.3 --- path to a formal proof:}
+      \textbf{OP 4.3, path to a formal proof:}
       \begin{itemize}
         \item Study $\delta(T)$ at fixed $m$:
               does $\delta \to 0$ as $T \to \infty$?
@@ -1124,8 +1124,8 @@
               peak scales with $k$; inflection geometry
               sets the convergence rate.
         \item \textbf{Below-$k$:} 3 targets have $C < k$
-              at genuinely stationary states ---
-              open challenge for OP 4.1.
+              at genuinely stationary states,
+              an open challenge for OP 4.1.
         \item \textbf{Instability:} Above-$k$ states are
               stable fixed points. Proof of $C \to k$
               must use initialization geometry.
@@ -1141,7 +1141,7 @@
                         title={\small\textbf{Broader implication}},
                         top=2pt, bottom=2pt, left=4pt, right=4pt]
         \footnotesize
-        Gradient flow is not only an optimizer ---
+        Gradient flow is not only an optimizer;
         it is a \textbf{compression algorithm} that
         discovers the minimum-complexity representation
         of the target's intrinsic structure.
