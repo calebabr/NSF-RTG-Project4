@@ -37,7 +37,7 @@ np.random.seed(42)
 
 # ─── Config ───────────────────────────────────────────────────────────────────
 
-WIDTHS         = [64, 256, 512]
+WIDTHS         = [64, 256, 512, 1024]
 N_TRAIN        = 4096
 N_TEST         = 1024
 N_EPOCHS       = 6000
@@ -78,7 +78,10 @@ class ShallowReLU(nn.Module):
             n     = self.W / norms.unsqueeze(1)
             beta  = self.b / norms
             alpha = self.a * norms
-            theta = torch.atan2(n[:, 1], n[:, 0])
+            theta = torch.remainder(
+                torch.atan2(n[:, 1], n[:, 0]),
+                np.pi
+            )
         return theta.numpy(), beta.numpy(), alpha.numpy()
 
 # ─── Targets ──────────────────────────────────────────────────────────────────
@@ -117,16 +120,33 @@ TARGETS = {
 
 # ─── Diagnostics ──────────────────────────────────────────────────────────────
 
-def angular_entropy(theta):
+def angular_entropy(theta, alpha):
     """
     Shannon entropy of binned angular distribution.
     H=0: all neurons same direction (full collapse).
     H≈3.58: uniform (no collapse).
     """
-    counts, _ = np.histogram(theta, bins=N_BINS, range=(-np.pi, np.pi))
+    weights = np.abs(alpha)
+
+    counts, _ = np.histogram(
+    theta,
+    bins=N_BINS,
+    range=(0, np.pi),
+    weights=weights
+    )
+
     p = counts.astype(float) + 1e-10
     p /= p.sum()
+
     return float(-np.sum(p * np.log(p)))
+
+def effective_neuron_count(alpha):
+    w = np.abs(alpha)
+
+    if np.sum(w) < 1e-12:
+        return 0.0
+
+    return float((np.sum(w) ** 2) / np.sum(w ** 2))
 
 def offset_clustering(theta, beta):
     """DBSCAN on normalized (theta, beta). Returns (n_clusters, labels)."""
@@ -211,8 +231,13 @@ def train(target_fn, target_name, m):
 
         if epoch % SNAPSHOT_EVERY == 0:
             theta, beta, alpha = model.canonical()
-            ang_ent            = angular_entropy(theta)
-            n_clusters, labels = offset_clustering(theta, beta)
+            ang_ent = angular_entropy(theta, alpha)
+            eff_neurons = effective_neuron_count(alpha)
+            active = np.abs(alpha) > 0.01 * np.max(np.abs(alpha))
+            n_clusters, labels = offset_clustering(
+                theta[active],
+                beta[active]
+            )
             orig_loss, pruned_loss, orig_w, pruned_w = effective_width(
                 model, x_train, y_train, x_test, y_test)
 
@@ -229,15 +254,16 @@ def train(target_fn, target_name, m):
                 "theta":           theta.tolist(),
                 "beta":            beta.tolist(),
                 "alpha":           alpha.tolist(),
+                "effective_neurons": eff_neurons,
             })
 
             print(
                 f"  [{target_name} m={m}] epoch {epoch:5d} | "
                 f"loss={loss.item():.4f} | "
                 f"H={ang_ent:.3f} | "
+                f"eff={eff_neurons:.1f} | "
                 f"clusters={n_clusters} | "
-                f"pruned={pruned_w}/{orig_w} | "
-                f"prune_ratio={pruned_loss/max(orig_loss,1e-10):.2f}"
+                f"pruned={pruned_w}/{orig_w}"
             )
 
     return snapshots
@@ -250,7 +276,7 @@ def plot_target_width(name, label, snaps_by_width, out_dir):
     with one line per width (64 / 256 / 512).
     """
     os.makedirs(out_dir, exist_ok=True)
-    colors = {64: "#2563eb", 256: "#16a34a", 512: "#dc2626"}
+    colors = {64: "#2563eb", 256: "#16a34a", 512: "#dc2626", 1024: "#000000"}
 
     fig = plt.figure(figsize=(18, 10))
     fig.suptitle(f"Parameter Collapse — {label}", fontsize=13, fontweight="bold")
@@ -282,26 +308,34 @@ def plot_target_width(name, label, snaps_by_width, out_dir):
 
     # final-epoch (theta, beta) scatter for largest width
     # use a 5th inset panel on top of prune ratio
-    final = snaps_by_width[512][-1]
-    ax_s  = fig.add_axes([0.55, 0.08, 0.18, 0.30])  # inset
+    # final-epoch (theta, beta) scatter for largest width
+    largest_m = max(snaps_by_width.keys())
+
+    final = snaps_by_width[largest_m][-1]
+
+    ax_s = fig.add_axes([0.55, 0.08, 0.18, 0.30])
+
     theta_f = np.array(final["theta"])
     beta_f  = np.array(final["beta"])
-    _, lbl  = offset_clustering(theta_f, beta_f)
-    unique  = sorted(set(lbl))
-    cmap    = plt.cm.tab10(np.linspace(0, 1, max(len(unique), 1)))
+
+    _, lbl = offset_clustering(theta_f, beta_f)
+
+    unique = sorted(set(lbl))
+    cmap   = plt.cm.tab10(np.linspace(0, 1, max(len(unique), 1)))
+
     for i, l in enumerate(unique):
         mask = lbl == l
-        c    = "lightgray" if l == -1 else cmap[i % len(cmap)]
+        c = "lightgray" if l == -1 else cmap[i % len(cmap)]
         ax_s.scatter(theta_f[mask], beta_f[mask], c=[c], s=8, alpha=0.6)
-    ax_s.set_title(f"(θ,β) m=512 ep={final['epoch']}", fontsize=8)
-    ax_s.set_xticks([-np.pi, 0, np.pi])
-    ax_s.set_xticklabels(["-π","0","π"], fontsize=7)
-    ax_s.tick_params(labelsize=7)
 
-    path = os.path.join(out_dir, f"collapse_v2_{name}.png")
-    fig.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(fig)
-    print(f"  Saved {path}")
+    ax_s.set_title(
+        f"(θ,β) m={largest_m} ep={final['epoch']}",
+        fontsize=8
+    )
+
+    ax_s.set_xticks([0, np.pi/2, np.pi])
+    ax_s.set_xticklabels(["0", "π/2", "π"], fontsize=7)
+    ax_s.tick_params(labelsize=7)
 
 
 def plot_summary(all_results, out_dir):
@@ -313,7 +347,7 @@ def plot_summary(all_results, out_dir):
     targets = list(all_results.keys())
     diag_keys   = ["angular_entropy", "n_clusters", "prune_ratio"]
     diag_labels = ["Angular Entropy", "Cluster Count", "Prune Ratio"]
-    colors = {64: "#2563eb", 256: "#16a34a", 512: "#dc2626"}
+    colors = {64: "#2563eb", 256: "#16a34a", 512: "#dc2626", 1024: "#000000"}
 
     fig, axes = plt.subplots(3, 3, figsize=(18, 12))
     fig.suptitle("Parameter Collapse v2 — Full Summary (d=2)", fontsize=14, fontweight="bold")
