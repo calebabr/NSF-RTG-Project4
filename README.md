@@ -1,6 +1,7 @@
 # NSF RTG Project 4: Bias Collapse in Shallow ReLU Networks
 
 ## Overview
+Worked on by: Bobby Chen, Caleb Abrantes, Om Kannan, Rayshawn Holscher, Shari Pinckney
 
 This project numerically investigates three open problems from the course slides:
 **Open Problem 4.1** (cluster count conjecture), **Open Problem 4.2** (higher-dimensional
