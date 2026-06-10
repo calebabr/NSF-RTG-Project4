@@ -782,7 +782,7 @@
         a lower-dimensional set in hyperplane parameter space?
       \end{block}
 
-      \vspace{0.5em}
+      \vspace{0.3em}
       \small
       \textbf{2D network:}
       \[
@@ -790,46 +790,34 @@
         \quad x \in [-1,1]^2
       \]
       Each neuron defines an oriented hyperplane (line in 2D).
-      Scale-invariant parameterization:
-      $\theta_j = \angle(w_j)$,\;
-      $\beta_j = b_j / \|w_j\|$.
+      Scale-invariant: $\theta_j = \angle(w_j)$,\; $\beta_j = b_j / \|w_j\|$.
 
-      \vspace{0.4em}
-      \textbf{Collapse in 2D} means the $(\theta_j, \beta_j)$
-      point cloud concentrates onto a low-dimensional subset
-      of the circle $\times$ $\mathbb{R}$.
+      \vspace{0.2em}
+      \textbf{Collapse in 2D:} the $(\theta_j, \beta_j)$ cloud
+      concentrates onto a low-dimensional subset.
     \end{column}
     \begin{column}{0.46\textwidth}
       \begin{tcolorbox}[slideboxA, title={Three target functions}]
-        \small
-        \begin{itemize}
-          \item \textbf{Ridge:}
-                $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$\\
-                \textit{Predicted:} all normals concentrate
-                toward $\theta \approx 53°$
-          \item \textbf{Separable:}
-                $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
-                \textit{Predicted:} two direction families
-                at $\theta \approx 0°$ and $\theta \approx 90°$
-          \item \textbf{Radial:}
-                $\cos(\pi\|x\|)$\\
-                \textit{Predicted:} no collapse;
-                angular entropy stays near uniform
+        \footnotesize
+        \begin{itemize}\setlength{\itemsep}{1pt}
+          \item \textbf{Ridge:} $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$\\
+                \textit{Predicted:} normals concentrate at $\theta \approx 53°$
+          \item \textbf{Separable:} $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
+                \textit{Predicted:} two families at $0°$ and $90°$
+          \item \textbf{Radial:} $\cos(\pi\|x\|)$\\
+                \textit{Predicted:} no collapse; entropy near uniform
         \end{itemize}
       \end{tcolorbox}
-      \vspace{0.3em}
+      \vspace{0.15em}
       \begin{tcolorbox}[slideboxB, title={Diagnostic}]
-        \small
-        Angular entropy $H(\{\theta_j\})$: drops toward 0
-        if directions collapse; near $\log(36) \approx 3.58$
-        if uniform.
+        \footnotesize
+        Angular entropy $H(\{\theta_j\})$: near 0 if collapsed;
+        near $\log(36) \approx 3.58$ if uniform.
       \end{tcolorbox}
-      \vspace{0.2em}
+      \vspace{0.15em}
       \begin{tcolorbox}[slideboxA, title={Width sweep}]
-        \small
+        \footnotesize
         $m \in \{64, 256, 512, 1024\}$,\; 6000 epochs, Adam.
-        Tests whether collapse is a small-$m$ or large-$m$
-        phenomenon.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -842,11 +830,11 @@
       \includegraphics[width=\textwidth, height=0.72\textheight,
                        keepaspectratio]{collapse_v2_summary.png}
     \end{column}
-    \begin{column}{0.42\textwidth}
-      \small
-      \textbf{Final entropy $H$ at epoch 6000:}\\[3pt]
+    \begin{column}{0.43\textwidth}
       \scriptsize
-      \renewcommand{\arraystretch}{1.15}
+      \textbf{Final entropy $H$ at epoch 6000:}\\[2pt]
+      \tiny
+      \renewcommand{\arraystretch}{1.1}
       \begin{tabular}{lcccc}
         \toprule
         Target & $m{=}64$ & $m{=}256$ & $m{=}512$ & $m{=}1024$ \\
@@ -855,32 +843,25 @@
         Separable & 1.55 & 1.84 & 2.31 & 2.83 \\
         Radial    & 2.78 & 3.31 & 3.42 & \textbf{3.53} \\
         \bottomrule
-      \end{tabular}\\[2pt]
-      {\scriptsize Max entropy $= \log(36) \approx 3.58$}
-
-      \vspace{0.3em}
-      \begin{tcolorbox}[slideboxC, title={Key findings}]
-        \small
-        Collapse \textbf{mode} tracks target structure at
-        small $m$.
-
-        \vspace{3pt}
-        Collapse \textbf{weakens monotonically} as $m$ grows
-        for all three targets ---
-        opposite of the large-$m$ prediction.
-
-        \vspace{3pt}
-        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster ---
-        near-perfect uniform, confirming rotational symmetry.
-      \end{tcolorbox}
+      \end{tabular}\\[1pt]
+      {\tiny Max entropy $= \log(36) \approx 3.58$}
 
       \vspace{0.2em}
+      \begin{tcolorbox}[slideboxC, title={Key findings}]
+        \footnotesize
+        Collapse \textbf{mode} tracks target structure at small $m$.\\[2pt]
+        Collapse \textbf{weakens monotonically} as $m$ grows ---
+        opposite of the large-$m$ prediction.\\[2pt]
+        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster ---
+        near-perfect uniform.
+      \end{tcolorbox}
+
+      \vspace{0.15em}
       \begin{tcolorbox}[slideboxB, title={Open question}]
-        \small
+        \footnotesize
         Why does collapse weaken at large $m$?
         Collapse is \emph{capacity-constrained}:
-        wide networks fit the target without
-        needing to collapse directions.
+        wide nets fit without collapsing directions.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -1041,8 +1022,7 @@
 
 %% ============================================================
 \begin{frame}{Summary of Evidence}
-  \vspace{0.1em}
-  \renewcommand{\arraystretch}{1.25}
+  \renewcommand{\arraystretch}{1.15}
   \footnotesize
   \begin{tabular}{p{2.2cm} p{5.4cm} p{3.8cm}}
     \toprule
@@ -1050,10 +1030,9 @@
     \midrule
     OP 4.1:\newline $C \to k$ &
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
-      $\sin(7\pi x)$ reaches $C = 13 = k$ at $m=5000$
-      (stationarity unconfirmed).
-      Below-$k$ states are \textbf{initialization-dependent local minima}
-      (Interp.\ B): $C$ varies across seeds for all 3 targets. &
+      $\sin(7\pi x)$: $C = 13 = k$ at $m=5000$ (stationarity unconfirmed).
+      Below-$k$: \textbf{init-dependent local minima}
+      (Interp.\ B, multiple seeds). &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
       {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
 
