@@ -1,0 +1,359 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+\definecolor{slidecolor}{RGB}{12,35,64}
+\definecolor{caleb}{RGB}{0,100,60}
+
+\titleformat{\section}{\large\bfseries\color{slidecolor}}{}{0em}{}[\vspace{-4pt}\rule{\linewidth}{0.6pt}]
+\titlespacing{\section}{0pt}{16pt}{6pt}
+
+\title{\textbf{Group Script --- Bias Collapse in Shallow ReLU Networks}\\
+       \large NSF RTG Project 4 $\,\cdot\,$ Research Workshop $\,\cdot\,$ June 2026}
+\author{NSF RTG Project 4}
+\date{}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+{\small\textit{Note: Slides 6--15 cover Open Problem 4.1.}}
+
+% ================================================================
+\section*{Slide 1 \quad Title}
+
+Welcome. This talk presents numerical results for three open problems on bias collapse in shallow ReLU networks.
+The central phenomenon is that gradient flow causes the bias parameters of an overparameterized network to spontaneously organize into a small number of clusters, with no regularization required.
+We will describe the theoretical setting, then walk through what we found numerically for each open problem.
+
+% ================================================================
+\section*{Slide 2 \quad Motivation}
+
+The starting point is the overparameterization puzzle.
+Modern neural networks have far more parameters than the problem they are solving would seem to require, and classical learning theory predicts this should cause overfitting.
+In practice, it does not.
+Gradient flow appears to self-simplify: it discards redundant parameters and finds low-complexity solutions.
+
+Bias collapse is one concrete mechanism for this.
+As an illustrative example: a network with $m = 1500$ neurons trained on $\sin(4\pi x)$ ends up with an effective complexity of $k = 7$ neurons --- the rest cluster together and act redundantly.
+The number of surviving bias clusters equals the number of inflection points of the target function, which is a property of the target's structure, not the network's size.
+
+This talk addresses three open problems that ask whether this phenomenon can be characterized precisely.
+Does $C(m, f^*) \to k$ as $m \to \infty$?
+Does the same collapse occur in higher dimensions?
+And after collapse, is there a provable $L^2$ pruning bound?
+
+% ================================================================
+\section*{Slide 3 \quad Model and Gradient Flow}
+
+The model is a 1D shallow ReLU network:
+\[
+  f(x) = \sum_{j=1}^m a_j\,\sigma(x - b_j), \qquad \sigma = \max(0,\cdot), \qquad x \in [-1,1].
+\]
+Each neuron places a kink at bias $b_j$ with slope change $a_j$.
+We train by minimizing the $L^2$ loss $\mathcal{L} = \frac{1}{2}\int_{-1}^1 (f - f^*)^2\,dx$ under continuous gradient flow, which gives the ODEs
+\[
+  \dot{a}_j = -\int_{-1}^1 (f - f^*)\,\sigma(x - b_j)\,dx, \qquad
+  \dot{b}_j = a_j \int_{b_j}^1 (f - f^*)\,dx.
+\]
+We solve these numerically via \texttt{scipy} RK45 up to time $T = 500$, with stationarity criterion $\max_j |\dot{a}_j|, |\dot{b}_j| < 0.01$.
+
+The key quantity on the right is the integrated residual $R_j := \int_{b_j}^1(f - f^*)\,dx$, which appears in the bias ODE.
+At a stationary point, every active neuron must satisfy $R_j = 0$.
+This connects to the theory of Open Problem 4.1: a $k$-cluster arrangement centered at the inflection points of $f^*$ satisfies this condition exactly, because each inflection point is where the signed curvature of $f^*$ changes, which is where the residual integral changes sign.
+
+% ================================================================
+\section*{Slide 4 \quad The Three Open Problems}
+
+We investigate three open problems.
+
+OP 4.1 asks whether $C(m, f^*) \to k$ as $m \to \infty$, where $k$ is the number of sign-changing inflection points of $f^*$.
+OP 4.2 asks whether an analogous collapse occurs for higher-dimensional targets, where the relevant structure is the angular distribution of neuron normals rather than bias positions on the real line.
+OP 4.3 asks whether collapse provides a provable $L^2$ pruning guarantee: after the biases have clustered, can you replace each cluster with a single representative neuron and bound the resulting approximation error?
+
+Each problem is introduced in detail immediately before its results.
+
+% ================================================================
+\section*{Slide 5 \quad Experimental Design}
+
+For OP 4.1 we chose nine target functions: $\sin(n\pi x)$ for $n = 1$ through $7$, giving $k = 1, 3, 5, 7, 9, 11, 13$, plus two polynomial targets $x^3$ and $x^5 - 3x^3$ with $k = 1$ and $k = 3$ respectively.
+The trigonometric family provides a clean closed form for the inflection locations and a wide range of $k$ values.
+The polynomial targets are deliberate controls: they have the same $k$ as two trig targets but irregular inflection spacing, letting us isolate the effect of geometry.
+
+The main sweep ran each target at $m \in \{50, 100, 250, 500, 1000, 2000, 3500, 5000\}$ at $T = 500$, for 72 completed runs, 70 of which are fully stationary.
+
+Supporting experiments include a discrete gradient descent comparison, a lottery ticket survival analysis, pruning bound verification across all 72 runs, a 2D collapse experiment, and a 36-job instability test near $k$.
+
+% ================================================================
+\section*{Slide 6 \quad Open Problem 4.1: Cluster Count Conjecture}
+
+Open Problem 4.1 is the cluster count conjecture.
+The conjecture states that $\lim_{m\to\infty} C(m, f^*) = k$, where $k$ counts the sign-changing zeros of $(f^*)''$ in $(-1,1)$ and $C(m, f^*)$ is the number of distinct bias clusters at stationarity.
+
+The reason we focus on bias clusters comes directly from the ODE structure.
+The fixed-point condition $R_j = 0$ is satisfied exactly by a $k$-cluster arrangement at the inflection locations of $f^*$, so $k$ is not an arbitrary target --- it is the natural fixed-point count baked into the dynamics.
+
+We chose continuous gradient flow rather than discrete gradient descent deliberately.
+The ODE setting gives us exact stationarity conditions to verify and lets us distinguish genuine fixed points from slowly drifting trajectories.
+As a sanity check we also ran discrete GD on the same targets, and $C$ does not converge to $k$ under discrete GD for any target except $\sin(\pi x)$, confirming the continuous-time structure is essential.
+
+The difficulty that makes this an open problem is that both above-$k$ and below-$k$ stationary states exist.
+The conjecture requires showing gradient flow selects $C = k$ from generic initializations --- not merely that a $k$-cluster fixed point exists, but that it has a large enough basin to be reached reliably.
+
+% ================================================================
+\section*{Slide 7 \quad $C(m,f^*)$ Across All 9 Targets}
+
+This is the main experimental result: 72 simulations across nine targets and eight values of $m$, all at $T = 500$.
+
+The choice of targets was deliberate.
+The trig family gives a wide range of $k$ with known inflection locations for direct comparison.
+The two polynomial targets test whether $k$ alone determines convergence, or whether the geometry of the inflection points matters independently.
+
+Every target exhibits the same qualitative non-monotone behavior: $C$ rises above $k$, peaks, then falls.
+For low-$k$ trigonometric targets the fall reaches $C = k$ within our $m$ range, confirming the conjecture in those cases.
+Polynomial targets and high-$k$ targets lag considerably.
+The fact that rise-then-fall is universal across all nine function classes suggests it reflects something structural about the ODE, not a coincidence of any particular target.
+
+$\sin(7\pi x)$ with $k = 13$ reaches $C = 13$ for the first time at $m = 5000$, with a stationarity caveat to come.
+
+% ================================================================
+\section*{Slide 8 \quad The Rise-Then-Fall Dynamic}
+
+The pattern follows from what the plot shows.
+At small $m$, insufficient neurons to populate all $k$ attractors simultaneously --- $C$ overshoots.
+As $m$ grows, redundancy enables collapse and $C$ falls back.
+The peak shifts to larger $m$ as $k$ grows, and the next slides illustrate this concretely.
+
+% ================================================================
+\section*{Slide 9 \quad Confirmation: $\sin(\pi x)$, $k = 1$}
+
+The cleanest case.
+All 1000 bias trajectories collapse to $x = 0$.
+$C = 1 = k$ holds for every $m$ from 1000 to 5000, fully stationary throughout.
+This is the only target confirmed robustly across the full $m$ sweep.
+
+% ================================================================
+\section*{Slide 10 \quad Confirmation: $\sin(3\pi x)$, $k = 5$}
+
+For $k = 5$, five clusters align on the five inflection points at $m = 1000$.
+Path: $C = 8 \to 14 \to 5$.
+The apparent collapse to $C = 1$ at larger $m$ is a dense-packing artifact, not a structural change.
+
+% ================================================================
+\section*{Slide 11 \quad New at $m=5000$: $\sin(7\pi x)$, $k = 13$}
+
+First instance of $C = 13 = k$ for the highest-$k$ target tested.
+Path: $14 \to 36 \to 13$.
+Caveat: $\max|\dot{a}_j| = 0.034 > 0.01$, so stationarity is unconfirmed and the result may be transient.
+We are re-running at $T = 1000$ to confirm.
+
+% ================================================================
+\section*{Slide 12 \quad The Below-$k$ Phenomenon}
+
+In several runs we found fully stationary states with $C$ strictly below $k$.
+This is the primary challenge to the conjecture: if gradient flow rests at a below-$k$ fixed point, the limit cannot be $k$ in general.
+
+The critical question is whether these states are universal or initialization-dependent.
+A single run cannot distinguish the two cases, so we selected the three clearest below-$k$ instances and re-ran each with two additional random seeds.
+
+$C$ varies across seeds in every case.
+$\sin(4\pi x)$ at $m = 2000$ gives $C \in \{2, 3, 5\}$ depending on the seed.
+$x^5 - 3x^3$ at $m = 5000$ gives $\{2, 2, 3\}$ --- seed 25 reaches $C = k = 3$, confirming the $k$-cluster attractor exists for polynomial targets, just with a narrow basin.
+
+Below-$k$ states are initialization-dependent local minima, not universal attractors.
+This is a concrete constraint on any future proof: it cannot argue $C \to k$ unconditionally without accounting for the basin structure.
+
+% ================================================================
+\section*{Slide 13 \quad Polynomial vs.\ Trigonometric Targets}
+
+The polynomial targets were included to test whether $k$ alone determines convergence, or whether the geometry of the inflection points matters independently.
+The answer is clear.
+$x^3$ and $\sin(\pi x)$ both have $k = 1$, yet $x^3$ reaches only $C = 4$ at $m = 5000$ while $\sin(\pi x)$ confirms $C = 1$ by $m = 1000$.
+
+For $\sin(n\pi x)$ the inflection points are evenly spaced across $[-1,1]$, creating symmetric, balanced gradient attractors that neurons localize around early in training.
+For $x^3$ there is one inflection point at the origin but the curvature is shallow --- far more redundancy is needed before collapse concentrates neurons there.
+
+Any proof of OP 4.1 that treats inflection points as interchangeable --- depending only on $k$ and not on their spacing or the curvature profile --- will not account for the polynomial behavior.
+
+% ================================================================
+\section*{Slide 14 \quad Stationarity and Fixed-Point Verification}
+
+A key methodological concern is whether runs that appear converged are genuine fixed points or simply moving slowly.
+We addressed this by substituting the final $(a_j, b_j)$ back into the ODEs and checking the velocities directly.
+
+For $\sin(\pi x)$ at $m = 1000$, amplitude and bias velocities are in the range $10^{-5}$ to $10^{-3}$ --- negligible.
+The right panel shows $R_j \approx 0$ for every active neuron, which is not just a smallness check but the theoretical fixed-point condition from the ODE, verified to hold numerically.
+The stationarity threshold $\max|\dot{a}_j| < 0.01$ used throughout the sweep therefore corresponds to the regime where $R_j \approx 0$ is already well-satisfied --- it is a principled criterion, not an arbitrary cutoff.
+
+The discrete GD comparison reinforces why we used gradient flow.
+Under discrete GD with a comparable training budget, $C$ does not converge to $k$ for any target except $\sin(\pi x)$.
+The fixed-point structure that drives collapse is a feature of the continuous-time limit and breaks down under discretization.
+
+% ================================================================
+\section*{Slide 15 \quad Instability Near $k$: Results (36/36 complete)}
+
+This experiment was designed to test the mechanism by which $C$ could approach $k$.
+There are two natural ways gradient flow could drive $C$ toward $k$: above-$k$ states could be unstable and dissolve, or below-$k$ states could be unstable and grow.
+We tested both, and the results rule out both mechanisms.
+
+For the eight above-$k$ runs we continued the ODE for $T_{\text{perturb}} = 1000$ additional time units.
+$C$ did not change in any case.
+Above-$k$ states are stable ODE fixed points; they do not spontaneously dissolve toward $k$.
+
+For below-$k$ runs we injected one extra neuron with amplitude $0.01$, placed either near an existing cluster or maximally distant from all clusters.
+In all twelve cases the injected neuron's amplitude remained at $0.01$ throughout --- the ODE provides zero net driving force for a new cluster to form.
+
+For exact-$k$ runs, the system returned to $C = k$ in all sixteen cases after perturbation, confirming exact-$k$ configurations are stable attractors.
+
+The three-category design characterizes the full local stability picture around $k$.
+The consequence for OP 4.1.1, which asks for a proof that $C(m, f^*) \leq k$ independently of $m$, is direct: the natural proof strategy would be to show above-$k$ states are unstable, but they are not.
+A proof of the upper bound cannot come from the dynamics alone; it must come from initialization geometry --- showing that generic initializations cannot reach above-$k$ fixed points at large $m$.
+
+% ================================================================
+\section*{Slide 16 \quad Open Problem 4.2: Higher-Dimensional Collapse}
+
+Open Problem 4.2 asks whether an analogous collapse occurs for higher-dimensional targets.
+In $d = 2$, each neuron defines an oriented hyperplane parameterized by an angle $\theta_j = \angle(w_j)$ and a normalized offset $\beta_j = b_j / \|w_j\|$.
+Collapse in this setting means the $(\theta_j, \beta_j)$ cloud concentrates onto a low-dimensional subset of the hyperplane parameter space.
+
+We chose three targets to provoke structurally distinct collapse modes.
+The ridge target $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$ with $u = (3/5, 4/5)$ varies only along one oblique direction --- all normals should concentrate toward $\theta \approx 53°$.
+The separable target $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$ has two active directions with unequal weights, predicted to produce two direction families of unequal size.
+The radial target $\cos(\pi\|x\|)$ is rotationally symmetric --- no preferred direction, so entropy should stay near uniform.
+
+The main diagnostic is angular entropy $H(\{\theta_j\})$: it is near zero if all normals align, and near $\log(36) \approx 3.58$ if directions are uniformly spread.
+We swept $m \in \{64, 256, 512, 1024\}$ over 6000 epochs with Adam.
+
+% ================================================================
+\section*{Slide 17 \quad OP 4.2: Results}
+
+The summary grid shows entropy, cluster count, and prune ratio for all three targets across widths.
+
+At small width, collapse mode tracks target structure.
+Ridge shows the strongest directional concentration; separable shows two-family splitting; radial resists collapse as predicted.
+
+The surprising finding is that collapse weakens monotonically as $m$ grows, opposite to what the large-$m$ theoretical prediction would suggest.
+At $m = 1024$, radial reaches $H = 3.53$, essentially at the uniform maximum of 3.58, confirming the rotational symmetry prediction --- but only because the network is wide enough to cover all orientations without collapsing.
+For ridge and separable, entropy increases with $m$ but collapse persists at small width.
+
+The interpretation is that collapse in 2D is capacity-constrained.
+A small network cannot fit the target without concentrating directions; a wide network can fit it while remaining spread.
+This is an open question for future theoretical work.
+
+% ================================================================
+\section*{Slide 18 \quad Open Problem 4.3: Pruning Bound}
+
+Open Problem 4.3 asks whether collapse provides a provable $L^2$ pruning guarantee.
+After gradient flow, biases have formed $k$ clusters.
+Pruning replaces each cluster with a single representative neuron, giving a network $\tilde{f}$ with only $k$ active neurons.
+The bound from the slides is
+\[
+  \|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^m |a_j|,
+\]
+where $\delta$ is the maximum intra-cluster diameter and $\sum|a_j|$ is the total weight mass.
+
+The bound holds because within a cluster all biases $b_j$ differ by at most $\delta$, so $\sigma(x - b_j) \approx \sigma(x - b_{\text{center}})$ up to error $\delta$.
+Summing over $m$ neurons, errors accumulate at most as $\delta \cdot \sum|a_j|$.
+
+For the bound to be non-vacuous --- meaning it goes to zero as networks grow --- we need $\delta \cdot \sum|a_j| \to 0$.
+Our data shows $\sum|a_j| \sim \sqrt{m}$, so the bound grows with $m$ unless $\delta$ shrinks fast enough.
+$\delta$ does not shrink with $m$ at fixed $T$, but it does shrink with longer training time.
+The path to a formal bound is therefore a study of $\delta$ as a function of $T$, not $m$.
+
+% ================================================================
+\section*{Slide 19 \quad OP 4.3: Pruning Bound Verification}
+
+We verified the bound across all 72 runs.
+It holds in every case, with tightness ratios --- actual error divided by bound --- ranging from 0.0002 to 0.148.
+The bound holds with substantial slack throughout.
+
+The key obstacle is visible in the plot: $\sum|a_j|$ grows roughly as $\sqrt{m}$, and $\delta$ does not shrink with $m$ at $T = 500$, so the bound loosens as $m$ grows even as the actual pruning error plateaus.
+For $\sin(\pi x)$, the actual error stabilizes near 2.5 from $m = 1000$ onward, but the bound grows from roughly 35 to 88 over the same range.
+
+Making the bound formally useful requires showing $\delta \to 0$ as $T \to \infty$ at fixed $m$, then combining that with the $\sqrt{m}$ growth rate to find a joint limit.
+
+% ================================================================
+\section*{Slide 20 \quad OP 4.1.4: Lottery Ticket --- Which Neurons Survive?}
+
+This experiment addresses a supporting question for OP 4.1: which neurons survive gradient flow collapse to become cluster representatives, and why?
+
+The setup exploits the fact that at $t = 0$ all amplitudes $a_j \sim \mathcal{N}(0, 0.01)$ are near zero, so the only structured quantity is the initial bias placement $b_j^{(0)}$.
+A neuron whose initial bias happens to fall near an inflection point of $f^*$ is geometrically lucky.
+We test whether such neurons preferentially survive.
+
+We ran five training conditions per (target, $m$): a full $m$-neuron baseline; $k$ neurons selected by proximity to inflection points (\texttt{geometric}); the same $k$ bias positions but fresh random amplitudes (\texttt{bias\_only}); the same $k$ amplitudes but random bias positions (\texttt{amp\_only}); and $k$ randomly selected neurons (\texttt{random\_k}).
+
+The results are clear.
+\texttt{geometric} and \texttt{bias\_only} perform identically in every case --- initial amplitude values carry no information, only bias position matters.
+\texttt{amp\_only} is consistently the worst condition, worse even than \texttt{random\_k}: good amplitudes paired with random positions perform worse than good positions paired with random amplitudes.
+
+The performance claim --- that just the $k$ lucky neurons can match the full network --- is false: they achieve 100$\times$ to 50{,}000$\times$ higher loss.
+$k$ neurons produce only $k$ kinks in the piecewise-linear approximation; the full network needs redundancy to achieve fine fits.
+But the survival claim is supported: bias position at $t = 0$ is the sole informative quantity for which neurons become cluster representatives.
+
+% ================================================================
+\section*{Slide 21 \quad Summary of Evidence}
+
+To summarize.
+For OP 4.1, the conjecture $C \to k$ is confirmed for $\sin(\pi x)$ at all tested widths.
+$\sin(7\pi x)$ reaches $C = 13 = k$ for the first time at $m = 5000$, stationarity pending.
+Below-$k$ states are initialization-dependent local minima; the $k$-cluster basin exists but is not the only attractor.
+
+The instability experiment is complete.
+Above-$k$ states are stable fixed points; exact-$k$ states are stable attractors; below-$k$ injection-resistant.
+
+For OP 4.2, collapse mode tracks target structure at small width, but weakens as width grows --- partial confirmation, with the large-$m$ behavior remaining an open question.
+
+For OP 4.3, the pruning bound holds in all 72 runs.
+Making it non-vacuous requires $\delta \to 0$ with $T$, which is not yet established.
+
+For OP 4.1.4, bias position at $t = 0$ is the sole informative quantity for survival.
+
+% ================================================================
+\section*{Slide 22 \quad Open Questions and Next Steps}
+
+The most immediate open question for OP 4.1 is whether $C = 13$ for $\sin(7\pi x)$ at $m = 5000$ is a genuine fixed point; we are running $T = 1000$ to check.
+More broadly, a proof of $C \to k$ must account for initialization geometry --- below-$k$ local minima exist, so the argument must show the $k$-cluster basin dominates at large $m$, not that other basins are absent.
+The result that above-$k$ states are stable rules out instability as the mechanism for the upper bound OP 4.1.1.
+
+For OP 4.2, the open question is why collapse weakens at large $m$.
+The theory predicts the opposite.
+Collapse appears to be capacity-constrained, and a theory for this behavior does not yet exist.
+
+For OP 4.3, the path to a formal proof runs through a study of $\delta(T)$ at fixed $m$: does $\delta \to 0$ as $T \to \infty$, and at what rate?
+If $\delta = O(T^{-\gamma})$ for some $\gamma > 0$ and $\sum|a_j| = O(m^{1/2})$, then $\delta \cdot \sum|a_j| \to 0$ as $T \to \infty$ at fixed $m$, making the bound formally non-vacuous.
+
+% ================================================================
+\section*{Slide 23 \quad Conclusion}
+
+To close.
+Gradient flow is not only an optimizer; it appears to act as a compression algorithm that discovers the minimum-complexity representation of the target's intrinsic structure.
+The inflection points of $f^*$ act as fixed-point attractors: neurons near one survive collapse, the rest dissolve.
+
+We have provided numerical evidence for this picture across 72 runs on 9 targets, with three supporting experiments on stability, geometry, and pruning.
+The conjecture is confirmed for low-$k$ targets and supported for the first time for $k = 13$.
+The main obstacle to a complete proof is the initialization geometry question --- showing the $k$-cluster basin dominates generically.
+A rigorous answer would give a mathematical explanation for why overparameterized networks generalize.
+
+Thank you.
+
+% ================================================================
+\section*{Repository}
+
+All scripts, data, and figures from this project are publicly available at:
+
+\begin{center}
+  \texttt{https://github.com/calebabr/NSF-RTG-Project4}
+\end{center}
+
+The \texttt{README} contains full documentation of every script, experiment design, parameter choices, and result tables, including entries not shown in this presentation.
+It is available directly at:
+
+\begin{center}
+  \texttt{https://github.com/calebabr/NSF-RTG-Project4/blob/main/README.md}
+\end{center}
+
+\end{document}
