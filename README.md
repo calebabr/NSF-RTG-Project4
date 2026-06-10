@@ -52,14 +52,15 @@ universally; the peak shifts to larger m as k increases.
 | poly_k3 | 3 | 29 | 45 | 35 | 20 | 11 | 8 | 7 | 4 | 2 |
 | x_cubed | 1 | 31 | 40 | 31 | 16 | 13 | 6 | 7 | 4 | 4 |
 
-†**Cluster structure dissolves:** at large m, the network switches to a near-uniform bias
-distribution across the full domain. Direct inspection of the saved b_j and a_j values for
-sin_3pi m=2000 confirms this: 1893 active neurons span [-1.04, 1.00] with only 1 gap
-exceeding 0.02, and amplitude weighting near each of the 5 inflection points is equal
-(~15.5 each) with no peaks. The cluster structure is genuinely absent, not merely
-undetectable. Whether this represents a failure of the conjecture or a different
-representational regime is an open question. Affects sin_2pi m ≥ 1500, sin_3pi m ≥ 2000,
-sin_4pi m ≥ 3500, sin_5pi m=5000. Excluded from limit conclusions.
+†**Cluster structure absent or too dense for fixed threshold to detect.** At large m,
+the fixed gap threshold (0.02) reports C=1 for two distinct reasons that cannot always
+be distinguished: (1) the cluster structure genuinely dissolves into a near-uniform bias
+distribution (confirmed for sin_3pi m=2000 by direct inspection: amplitude weighting near
+each inflection point is equal with no peaks), or (2) clusters still exist but biases are
+packed too densely for a fixed threshold to find the inter-cluster gaps (adaptive threshold
+analysis recovers C=k for sin_3pi m=3500 and sin_4pi m=5000 using a density-scaled
+threshold). Both cases produce C=1 under the fixed threshold. Affects sin_2pi m ≥ 1500,
+sin_3pi m ≥ 2000, sin_4pi m ≥ 3500, sin_5pi m=5000. Excluded from limit conclusions.
 
 ‡**Not fully stationary:** sin_7pi m=5000 reports C=13=k but max|da/dt|=0.034 exceeds
 the 0.01 stationarity threshold. The result may be transient; longer T needed to confirm.
