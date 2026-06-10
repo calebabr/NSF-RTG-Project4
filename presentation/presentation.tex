@@ -181,7 +181,7 @@
                 $L^2$ pruning bound after collapse?
         \end{enumerate}
         \vspace{4pt}
-        \textbf{78 runs,} 9 targets, $m$ up to 5000.
+        \textbf{72 runs,} 9 targets, $m$ up to 5000.
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -308,8 +308,8 @@
       \textbf{Main sweep (\texttt{simulate\_parallel.py}):}
       \begin{itemize}
         \item $m \in \{50,100,250,500,1000,2000,3500,5000\}$,\; $T = 500$
-        \item \textbf{78 completed runs}, 9 targets;
-              76/78 fully stationary ($\max|\dot{a}_j| < 0.01$)
+        \item \textbf{72 completed runs}, 9 targets;
+              70/72 fully stationary ($\max|\dot{a}_j| < 0.01$)
       \end{itemize}
       \vspace{0.35em}
       \textbf{Supporting experiments:}\\[3pt]
@@ -321,7 +321,7 @@
         \midrule
         \texttt{simulate\_discrete.py}       & 52 & Discrete GD vs.\ ODE \\
         \texttt{lottery\_ticket\_experiment.py} & 52 & OP 4.1.4 (survival) \\
-        \texttt{verify\_pruning.py}          & 78 & OP 4.3 bound check \\
+        \texttt{verify\_pruning.py}          & 72 & OP 4.3 bound check \\
         \texttt{collapse\_v2.py}             & 9  & OP 4.2, 2D targets \\
         \texttt{instability\_test.py}        & 22 & Stability near $k$ \\
         \bottomrule
@@ -395,7 +395,7 @@
   \vspace{-0.6em}
   \begin{center}
   \parbox{0.86\textwidth}{\small\raggedright
-    $C(m,\fstar)$ vs.\ $m$ at $T=500$ (78 runs, 9 targets).
+    $C(m,\fstar)$ vs.\ $m$ at $T=500$ (72 runs, 9 targets).
     \textbf{Crimson dashed line} $= k$.
     All panels show rise-then-fall.
     Low-$k$ trig targets reach $C=k$;
@@ -762,7 +762,7 @@
 \end{frame}
 
 %% ============================================================
-%%  OP 4.2 — INTRO SLIDE
+%%  OP 4.2 — INTRO SLIDES (2 frames: setup + target functions)
 %% ============================================================
 \begin{frame}{Open Problem 4.2: Higher-Dimensional Collapse}
   \begin{columns}[T]
@@ -788,34 +788,77 @@
       concentrates onto a low-dimensional subset.
     \end{column}
     \begin{column}{0.46\textwidth}
-      \begin{tcolorbox}[slideboxA, title={Three target functions}]
-        \footnotesize
-        \begin{itemize}\setlength{\itemsep}{1pt}
-          \item \textbf{Ridge:} $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$\\
-                \textit{Predicted:} normals concentrate at $\theta \approx 53°$
-          \item \textbf{Separable:} $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$\\
-                \textit{Predicted:} two families at $0°$ and $90°$
-          \item \textbf{Radial:} $\cos(\pi\|x\|)$\\
-                \textit{Predicted:} no collapse; entropy near uniform
-        \end{itemize}
-      \end{tcolorbox}
-      \vspace{0.15em}
       \begin{tcolorbox}[slideboxB, title={Diagnostic}]
-        \footnotesize
+        \small
         Angular entropy $H(\{\theta_j\})$: near 0 if collapsed;
         near $\log(36) \approx 3.58$ if uniform.
+        \vspace{3pt}
+        Effective neurons $N_{\rm eff} = e^H$:\\
+        $N_{\rm eff}{=}1$ full collapse;\; $N_{\rm eff}{\approx}36$ uniform.
       \end{tcolorbox}
-      \vspace{0.15em}
+      \vspace{0.3em}
       \begin{tcolorbox}[slideboxA, title={Width sweep}]
-        \footnotesize
+        \small
         $m \in \{64, 256, 512, 1024\}$,\; 6000 epochs, Adam.
+      \end{tcolorbox}
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxA, title={Three targets studied}]
+        \small
+        Ridge, Separable, and Radial.\\
+        See next slide for expected vs.\ observed behavior.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ----
+\begin{frame}{Open Problem 4.2: Target Functions}
+  \begin{columns}[T]
+    \begin{column}{0.33\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Ridge}]
+        \small
+        $\sin(2\pi u^\top x) + 0.5\sin(4\pi u^\top x)$
+        \vspace{4pt}
+
+        \textit{Expected (small width):}\\
+        concentration near $\theta \approx 53^\circ$
+        \vspace{4pt}
+
+        \textit{Observed:}\\
+        concentration weakens as width increases
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Separable}]
+        \small
+        $\sin(2\pi x_1) + 0.3\sin(2\pi x_2)$
+        \vspace{4pt}
+
+        \textit{Expected (small width):}\\
+        two dominant direction families
+        \vspace{4pt}
+
+        \textit{Observed:}\\
+        directional structure becomes diffuse at large width
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.33\textwidth}
+      \begin{tcolorbox}[slideboxC, title={Radial (reference)}]
+        \small
+        $\cos(\pi\|x\|)$
+        \vspace{4pt}
+
+        \textit{Reference case:}\\
+        approximately isotropic orientation distribution
       \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.2 Higher-Dimensional Collapse: Results}
+%%  OP 4.2 — RESULTS SLIDES (2 frames: distributions + key findings)
+%% ============================================================
+\begin{frame}{OP 4.2: Orientation Distributions}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \includegraphics[width=\textwidth, height=0.72\textheight,
@@ -823,36 +866,63 @@
     \end{column}
     \begin{column}{0.43\textwidth}
       \scriptsize
-      \textbf{Final entropy $H$ at epoch 6000:}\\[2pt]
+      \textbf{Entropy $H$ / Eff.\ neurons $N_{\rm eff}{=}e^H$ at epoch 6000:}\\[2pt]
       \tiny
       \renewcommand{\arraystretch}{1.1}
       \begin{tabular}{lcccc}
         \toprule
         Target & $m{=}64$ & $m{=}256$ & $m{=}512$ & $m{=}1024$ \\
         \midrule
-        Ridge     & 0.94 & 1.46 & 1.74 & 1.95 \\
-        Separable & 1.55 & 1.84 & 2.31 & 2.83 \\
-        Radial    & 2.78 & 3.31 & 3.42 & \textbf{3.53} \\
+        Ridge     & 0.94\,/\,3  & 1.46\,/\,4  & 1.74\,/\,6  & 1.95\,/\,7  \\
+        Separable & 1.55\,/\,5  & 1.84\,/\,6  & 2.31\,/\,10 & 2.83\,/\,17 \\
+        Radial    & 2.78\,/\,16 & 3.31\,/\,27 & 3.42\,/\,31 & \textbf{3.53\,/\,34} \\
         \bottomrule
       \end{tabular}\\[1pt]
-      {\tiny Max entropy $= \log(36) \approx 3.58$}
+      {\tiny $N_{\rm eff}{=}1$: full collapse;\quad $N_{\rm eff}{\approx}36$: uniform.\quad Max $H{=}\log(36){\approx}3.58$}
 
-      \vspace{0.2em}
-      \begin{tcolorbox}[slideboxC, title={Key findings}]
-        \footnotesize
-        Collapse \textbf{mode} tracks target structure at small $m$.\\[2pt]
-        Collapse \textbf{weakens monotonically} as $m$ grows,
-        opposite of the large-$m$ prediction.\\[2pt]
-        \textbf{Radial $m{=}1024$:} $H = 3.53$, 1 cluster,
-        near-perfect uniform.
-      \end{tcolorbox}
-
-      \vspace{0.15em}
+      \vspace{0.3em}
       \begin{tcolorbox}[slideboxB, title={Open question}]
         \footnotesize
-        Why does collapse weaken at large $m$?
-        Collapse is \emph{capacity-constrained}:
-        wide nets fit without collapsing directions.
+        Why does directional concentration weaken as width grows?
+        Observed collapse appears strongest in moderately
+        overparameterized networks.
+        The mechanism behind this trend remains unclear.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ----
+\begin{frame}{OP 4.2: Key Findings}
+  \begin{columns}[T]
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[slideboxC, title={What the data shows}]
+        \small
+        \begin{itemize}\setlength{\itemsep}{4pt}
+          \item At small width, directional concentration
+                reflects target geometry:\\
+                ridge $\to$ one direction family;\\
+                separable $\to$ two families;\\
+                radial $\to$ broadly distributed.
+          \item Concentration decreases steadily
+                as width grows.
+          \item Networks increasingly fit targets
+                using many distinct directions.
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[slideboxA, title={Effective directional complexity}]
+        \small
+        $N_{\rm eff} = e^H$ measures how many distinct
+        directions the network actively uses.
+        \vspace{5pt}
+        \begin{itemize}\setlength{\itemsep}{4pt}
+          \item $N_{\rm eff}$ increases monotonically with width.
+          \item Wider networks rely less on directional collapse.
+          \item Radial $m{=}1024$: $N_{\rm eff} \approx 34$
+                of 36 --- nearly uniform.
+        \end{itemize}
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -932,7 +1002,7 @@
       $\;\norm{\ftilde - f}_{L^2} \leq \delta \cdot \sum_j |a_j|$
 
       \vspace{0.4em}
-      \begin{tcolorbox}[slideboxC, title={78\,/\,78 runs: bound holds}]
+      \begin{tcolorbox}[slideboxC, title={72\,/\,72 runs: bound holds}]
         \small
         Tightness (actual\,/\,bound):
         $0.0002$ to $0.148$.
@@ -1013,38 +1083,36 @@
 
 %% ============================================================
 \begin{frame}{Summary of Evidence}
-  \renewcommand{\arraystretch}{1.15}
-  \footnotesize
-  \begin{tabular}{p{2.2cm} p{5.4cm} p{3.8cm}}
+  \renewcommand{\arraystretch}{1.08}
+  \scriptsize
+  \begin{tabular}{p{2.0cm} p{5.6cm} p{3.6cm}}
     \toprule
     \textbf{Problem} & \textbf{Main finding} & \textbf{Status} \\
     \midrule
     OP 4.1:\newline $C \to k$ &
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
       $\sin(7\pi x)$: $C = 13 = k$ at $m=5000$ (stationarity unconfirmed).
-      Below-$k$: \textbf{init-dependent local minima}
-      (multiple seeds confirm). &
+      Below-$k$: \textbf{init-dependent local minima} (multiple seeds). &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
-      {\color{auorange}\textbf{open}} for $k \geq 3$ \\[2pt]
+      {\color{auorange}\textbf{open}} for $k \geq 3$ \\
 
     Instability\newline near $k$ &
-      above\_k: stable ODE fixed points (8/8, no dissolution).
+      above\_k: stable fixed points (8/8, no dissolution).
       below\_k: injection-resistant (12/12, zero amplitude growth).
       exact\_k: all 16 returned to $k$ (stable attractors). &
-      {\color{darkgreen}\textbf{Complete}} \\[2pt]
+      {\color{darkgreen}\textbf{Complete}} \\
 
     OP 4.2:\newline 2D collapse &
-      Collapse mode tracks target structure at small $m$.
-      Weakens \textbf{monotonically} as $m$ grows (all 3 targets,
-      $m \in \{64,256,512,1024\}$).
-      Radial $m{=}1024$: $H = 3.53 \approx H_{\max}$, 1 cluster. &
-      {\color{auorange}\textbf{Partial}} \\[2pt]
+      Directional concentration tracks target structure at small width.
+      Decreases consistently with width ($m \in \{64,256,512,1024\}$).
+      Effective directional complexity ($N_{\rm eff}$) increases with $m$. &
+      {\color{auorange}\textbf{Partial}} \\
 
     OP 4.3:\newline Pruning bound &
-      78\,/\,78 hold. $\sum|a_j| \sim \sqrt{m}$.
+      72\,/\,72 hold. $\sum|a_j| \sim \sqrt{m}$.
       Non-vacuousness requires $\delta \to 0$ as $T \to \infty$. &
       {\color{darkgreen}\textbf{Verified numerically}};\newline
-      {\color{auorange}\textbf{open theoretically}} \\[2pt]
+      {\color{auorange}\textbf{open theoretically}} \\
 
     OP 4.1.4:\newline Lottery ticket &
       Bias position at $t=0$ is sole informative quantity.
@@ -1074,9 +1142,8 @@
       \vspace{0.4em}
       \textbf{OP 4.2 (open):}
       \begin{itemize}
-        \item Why does collapse weaken at large $m$?
-              Theory predicts the opposite.
-              Collapse appears \emph{capacity-constrained}.
+        \item Why does directional concentration weaken as width grows?
+              The mechanism behind this trend remains unclear.
       \end{itemize}
     \end{column}
     \begin{column}{0.49\textwidth}
@@ -1122,7 +1189,10 @@
         \item \textbf{Instability:} Above-$k$ states are
               stable fixed points. Proof of $C \to k$
               must use initialization geometry.
-        \item \textbf{OP 4.3:} Bound holds 78/78;
+        \item \textbf{OP 4.2:} Effective directional complexity
+              grows with width; wider networks rely less on
+              orientation collapse than narrower ones.
+        \item \textbf{OP 4.3:} Bound holds 72/72;
               $\delta \to 0$ with $T$ is the path to
               a formal proof.
         \item \textbf{Lottery ticket:} bias position at $t=0$
