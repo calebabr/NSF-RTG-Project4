@@ -538,49 +538,6 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1 Confirmation: $\sin(3\pi x)$, $k=5$}
-  \begin{columns}[T]
-    \begin{column}{0.60\textwidth}
-      \includegraphics[width=\textwidth, height=0.44\textheight,
-                       keepaspectratio]%
-        {sin_3pi/m=1000/T=500/final_fit_clean.png}
-      \vspace{4pt}
-      \biasloss{sin_3pi/m=1000/T=500/slide93_reproduction.png}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \small
-      \textbf{$\sin(3\pi x)$,\quad $m=1000$,\quad $k=5$}
-
-      \vspace{0.3em}
-      \textbf{Top:} Clean final fit. Five blue ticks
-      mark the \alert{5 bias clusters}, one per
-      inflection point.
-
-      \vspace{0.3em}
-      \textbf{Bottom:} Bias trajectories and MSE loss
-      on log scale.
-
-      \vspace{0.4em}
-      \begin{tcolorbox}[slideboxC, title={Non-monotone path to $k$}]
-        \small
-        \centering
-        $\underbrace{8}_{m=50}
-         \;\to\;
-         \underbrace{14}_{\text{peak},\;m=500}
-         \;\to\;
-         \underbrace{\mathbf{5}}_{k,\;m=1000}
-         \;\to\;
-         \underbrace{\dagger 1}_{m=2000}$
-
-        \vspace{3pt}
-        Rises above $k$, reaches $k=5$,
-        then $\dagger$cluster structure dissolves at larger $m$.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
 \begin{frame}[shrink=10]{OP 4.1: $\sin(7\pi x)$, $k=13$ (Most Complex Target)}
   \begin{columns}[T]
     \begin{column}{0.60\textwidth}
@@ -623,7 +580,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1: The Below-$k$ Phenomenon}
+\begin{frame}{OP 4.1 The Below-$k$ Phenomenon: Initialization Changes}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \textbf{Three cases at verified stationary states with $C < k$.
@@ -675,7 +632,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}[shrink=10]{Instability Near $k$: Results}
+\begin{frame}[shrink=10]{Instability Near $k$ Results: Post Training Changes}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \small
@@ -1072,7 +1029,7 @@
       \textbf{Key obstacle:}
       \begin{itemize}
         \item $\sum_j|a_j| \sim \sqrt{m}$ empirically
-        \item $\delta$ does not shrink with $m$ at $T=500$
+        \item $\delta$ does not shrink with $m$ after $m=500$
         \item Bound loosens $\sim\!\sqrt{m}$ while actual
               error plateaus
       \end{itemize}
