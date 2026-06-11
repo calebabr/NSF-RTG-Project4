@@ -84,6 +84,54 @@
 \newcommand{\norm}[1]{\left\|#1\right\|}
 \newcommand{\abs}[1]{\left|#1\right|}
 
+%% ---- Convergence plot panel crop helpers --------------------
+%% \convpanel{row}{col}  — single panel (3.0cm × 2.5cm)
+%%   row/col 0-indexed from top-left of the 3×3 grid
+\newcommand{\convpanel}[2]{%
+  \begin{tikzpicture}[baseline=(current bounding box.south)]
+    \begin{scope}
+      \clip (0,0) rectangle (3.0cm,2.5cm);
+      \node[anchor=north west,inner sep=0pt,outer sep=0pt]
+        at ({-#2*3.0cm},{(#1+1)*2.5cm})
+        {\includegraphics[width=9.0cm]{convergence_plot_parallel.png}};
+    \end{scope}
+    \draw[aunavy!30, line width=0.3pt] (0,0) rectangle (3.0cm,2.5cm);
+  \end{tikzpicture}%
+}
+%% \convpanelpair{row}  — two panels wide (cols 0+1), 6.0cm × 2.5cm
+\newcommand{\convpanelpair}[1]{%
+  \begin{tikzpicture}[baseline=(current bounding box.south)]
+    \begin{scope}
+      \clip (0,0) rectangle (6.0cm,2.5cm);
+      \node[anchor=north west,inner sep=0pt,outer sep=0pt]
+        at (0cm,{(#1+1)*2.5cm})
+        {\includegraphics[width=9.0cm]{convergence_plot_parallel.png}};
+    \end{scope}
+    \draw[aunavy!30, line width=0.3pt] (0,0) rectangle (6.0cm,2.5cm);
+  \end{tikzpicture}%
+}
+%% \biasloss{image}  — left (bias trajectories) + right (MSE loss) panels
+%%   of a 3-panel slide93_reproduction image; center (final fit) removed
+%%   displays as 6.6cm × 2.55cm
+\newcommand{\biasloss}[1]{%
+  \begin{tikzpicture}
+    \begin{scope}
+      \clip (0,0) rectangle (3.2cm,2.55cm);
+      \node[anchor=north west,inner sep=0pt,outer sep=0pt]
+        at (0cm,2.55cm)
+        {\includegraphics[width=9.6cm]{#1}};
+    \end{scope}
+    \begin{scope}[xshift=3.4cm]
+      \clip (0,0) rectangle (3.2cm,2.55cm);
+      \node[anchor=north west,inner sep=0pt,outer sep=0pt]
+        at (-6.4cm,2.55cm)
+        {\includegraphics[width=9.6cm]{#1}};
+    \end{scope}
+    \draw[aunavy!30,line width=0.3pt] (0,0) rectangle (3.2cm,2.55cm);
+    \draw[aunavy!30,line width=0.3pt] (3.4cm,0) rectangle (6.6cm,2.55cm);
+  \end{tikzpicture}%
+}
+
 %% ---- tcolorbox defaults -------------------------------------
 \tcbset{
   slideboxA/.style={
@@ -278,6 +326,34 @@
 \end{frame}
 
 %% ============================================================
+%%  OP 4.1 — INTRO SLIDE (stated in full before results)
+%% ============================================================
+\begin{frame}{Open Problem 4.1: Cluster Count Conjecture}
+  \begin{block}{Conjecture}
+    \[
+      \lim_{m \to \infty} C(m,\fstar) \;=\; k
+    \]
+    \vspace{-4pt}
+    \small
+    where $k :=$ \# sign-changing inflection points of $\fstar$ in $(-1,1)$
+  \end{block}
+  \vspace{0.6em}
+  \small
+  $C(m,\fstar)$ = number of distinct bias clusters at stationarity.\\[4pt]
+  $k$ = number of sign-changing inflection points of the \textbf{target} $\fstar$.\\[4pt]
+  $\fstar$ = the target function (e.g.\ $\sin(3\pi x)$).
+
+  \vspace{0.6em}
+  \textbf{Sub-problems we address:}
+  \begin{itemize}
+    \item \textbf{4.1.1:} Can we prove $C(m,\fstar) \leq k$
+          independently of $m$?
+    \item \textbf{4.1.4:} Which neurons survive collapse
+          to become cluster representatives?
+  \end{itemize}
+\end{frame}
+
+%% ============================================================
 \begin{frame}{Experimental Design}
   \begin{columns}[T]
     \begin{column}{0.40\textwidth}
@@ -305,83 +381,12 @@
     \end{column}
     \begin{column}{0.58\textwidth}
       \small
-      \textbf{Main sweep (\texttt{simulate\_parallel.py}):}
+      \textbf{Main sweep:}
       \begin{itemize}
         \item $m \in \{50,100,250,500,1000,2000,3500,5000\}$,\; $T = 500$
         \item \textbf{72 completed runs}, 9 targets;
               70/72 fully stationary ($\max|\dot{a}_j| < 0.01$)
       \end{itemize}
-      \vspace{0.35em}
-      \textbf{Supporting experiments:}\\[3pt]
-      \renewcommand{\arraystretch}{1.15}
-      \scriptsize
-      \begin{tabular}{lll}
-        \toprule
-        Experiment & Runs & Purpose \\
-        \midrule
-        \texttt{simulate\_discrete.py}       & 52 & Discrete GD vs.\ ODE \\
-        \texttt{lottery\_ticket\_experiment.py} & 52 & OP 4.1.4 (survival) \\
-        \texttt{verify\_pruning.py}          & 72 & OP 4.3 bound check \\
-        \texttt{collapse\_v2.py}             & 9  & OP 4.2, 2D targets \\
-        \texttt{instability\_test.py}        & 22 & Stability near $k$ \\
-        \bottomrule
-      \end{tabular}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-%%  OP 4.1 — INTRO SLIDE (stated in full before results)
-%% ============================================================
-\begin{frame}{Open Problem 4.1: Cluster Count Conjecture}
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
-      \begin{block}{Conjecture}
-        \[
-          \lim_{m \to \infty} C(m,\fstar) \;=\; k,
-        \]
-        \vspace{-4pt}
-        \small
-        where $k :=$ \# sign-changing inflection points of $\fstar$ in $(-1,1)$
-      \end{block}
-      \vspace{0.4em}
-      \small
-      $C(m,\fstar)$ = number of distinct bias clusters
-      at stationarity. \quad $k$ = number of sign-changing
-      inflection points of $\fstar$.
-
-      \vspace{0.5em}
-      \textbf{Sub-problems we address:}
-      \begin{itemize}
-        \item \textbf{4.1.1:} Can we prove $C(m,\fstar) \leq k$
-              independently of $m$?
-        \item \textbf{4.1.4:} Which neurons survive collapse
-              to become cluster representatives?
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{tcolorbox}[slideboxA, title={Why $k$ is the right target}]
-        \small
-        For $\sin(n\pi x)$, the second derivative
-        $(\fstar)'' = -n^2\pi^2\sin(n\pi x)$
-        has exactly $k = 2n-1$ sign changes in $(-1,1)$.
-
-        \vspace{4pt}
-        At stationarity, each active neuron satisfies
-        \[
-          R_j := \int_{b_j}^{1}(f - \fstar)\,dx = 0.
-        \]
-        A $k$-cluster arrangement satisfies this
-        condition at the inflection locations.
-      \end{tcolorbox}
-      \vspace{0.3em}
-      \begin{tcolorbox}[slideboxB, title={What makes this hard}]
-        \small
-        Above-$k$ and below-$k$ stationary states
-        both exist numerically. The conjecture requires
-        showing gradient flow selects $C = k$
-        \emph{from generic initializations}.
-      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
@@ -405,7 +410,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1: The Rise-Then-Fall Dynamic}
+\begin{frame}[shrink=5]{OP 4.1: The Rise-Then-Fall Dynamic}
   \begin{columns}[T]
     \begin{column}{0.46\textwidth}
       \textbf{Universal pattern across all 9 targets:}
@@ -446,228 +451,11 @@
       $\dagger$~Cluster structure absent or too dense for fixed threshold to detect.\\
       $\ddagger$~$C = k$ but not fully stationary
       ($\max|\dot{a}_j| = 0.034$).
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1 Confirmation: $\sin(\pi x)$, $k=1$}
-  \begin{columns}[T]
-    \begin{column}{0.60\textwidth}
-      \includegraphics[width=\textwidth, height=0.44\textheight,
-                       keepaspectratio]%
-        {sin_1pi/m=1000/T=500/final_fit_clean.png}
-      \vspace{2pt}
-      \includegraphics[width=\textwidth, height=0.34\textheight,
-                       keepaspectratio]%
-        {sin_1pi/m=1000/T=500/slide93_reproduction.png}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \small
-      \textbf{$\sin(\pi x)$,\quad $m=1000$,\quad $k=1$}
-
-      \vspace{0.4em}
-      \textbf{Top:} Clean final fit vs.\ target.
-      Blue ticks = single cluster center.
-
-      \vspace{0.3em}
-      \textbf{Bottom:} Bias trajectories (all 1000
-      collapse to \alert{one location}), final fit,
-      and MSE loss on log scale.
-
-      \vspace{0.4em}
-      \begin{tcolorbox}[slideboxC, title={Strongest confirmation}]
-        \small
-        $C = 1 = k$ for \emph{all} $m \geq 1000$
-        through $m = 5000$, fully stationary
-        ($\max|\dot{a}_j| < 3.6 \times 10^{-3}$).
-
-        \vspace{3pt}
-        Only target with $C = k$ confirmed
-        robustly across the full $m$ sweep.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1 Confirmation: $\sin(3\pi x)$, $k=5$}
-  \begin{columns}[T]
-    \begin{column}{0.60\textwidth}
-      \includegraphics[width=\textwidth, height=0.44\textheight,
-                       keepaspectratio]%
-        {sin_3pi/m=1000/T=500/final_fit_clean.png}
-      \vspace{2pt}
-      \includegraphics[width=\textwidth, height=0.34\textheight,
-                       keepaspectratio]%
-        {sin_3pi/m=1000/T=500/slide93_reproduction.png}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \small
-      \textbf{$\sin(3\pi x)$,\quad $m=1000$,\quad $k=5$}
-
-      \vspace{0.3em}
-      \textbf{Top:} Clean final fit. Five blue ticks
-      mark the \alert{5 bias clusters}, one per
-      inflection point.
-
-      \vspace{0.3em}
-      \textbf{Bottom:} Bias trajectories, final fit,
-      MSE loss on log scale.
-
-      \vspace{0.4em}
-      \begin{tcolorbox}[slideboxC, title={Non-monotone path to $k$}]
-        \small
-        \centering
-        $\underbrace{8}_{m=50}
-         \;\to\;
-         \underbrace{14}_{\text{peak},\;m=500}
-         \;\to\;
-         \underbrace{\mathbf{5}}_{k,\;m=1000}
-         \;\to\;
-         \underbrace{\dagger 1}_{m=2000}$
-
-        \vspace{3pt}
-        Rises above $k$, reaches $k=5$,
-        then $\dagger$cluster structure dissolves at larger $m$.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1 New at $m=5000$: $\sin(7\pi x)$, $k=13$}
-  \begin{columns}[T]
-    \begin{column}{0.60\textwidth}
-      \includegraphics[width=\textwidth, height=0.44\textheight,
-                       keepaspectratio]%
-        {sin_7pi/m=5000/T=500/final_fit_clean.png}
-      \vspace{2pt}
-      \includegraphics[width=\textwidth, height=0.34\textheight,
-                       keepaspectratio]%
-        {sin_7pi/m=5000/T=500/slide93_reproduction.png}
-    \end{column}
-    \begin{column}{0.38\textwidth}
-      \small
-      \textbf{$\sin(7\pi x)$,\quad $m=5000$,\quad $k=13$}
-
-      \vspace{0.3em}
-      \textbf{Top:} Clean final fit. Thirteen blue ticks
-      align with all \alert{13 inflection points}.
-
-      \vspace{0.3em}
-      Most complex target tested.
-      First time $C = k = 13$ is reached.
-
-      \vspace{0.3em}
-      \begin{tcolorbox}[slideboxC, title={Result}]
-        \small
-        $C = 13 = k$ at $m = 5000$.\\[2pt]
-        Path:\;
-        $14\!\to\!22\!\to\!36\!\to\!34\!\to\!\mathbf{13}$\\
-        {\scriptsize ($m = 50, 1000, 2000, 3500, 5000$)}
-      \end{tcolorbox}
-
-      \vspace{0.3em}
-      \begin{tcolorbox}[slideboxB, title={Caveat}]
-        \small
-        $\max|\dot{a}_j| = 0.034 > 0.01$.
-        May be \textbf{transient}; longer $T$ needed to confirm.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1: The Below-$k$ Phenomenon}
-  \begin{columns}[T]
-    \begin{column}{0.54\textwidth}
-      \textbf{Three cases at verified stationary states with $C < k$.
-              Re-run with 2 additional seeds each:}
-      \vspace{4pt}
-
-      \scriptsize
-      \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{lcc ccc}
-        \toprule
-        Target & $k$ & $m$ & seed 42 & seed 5 & seed 25 \\
-        \midrule
-        $\sin(2\pi x)$ & 3 & 1000 & 2 & 1 & 1 \\
-        $\sin(4\pi x)$ & 7 & 2000 & 2 & 3 & 5 \\
-        $x^5{-}3x^3$  & 3 & 5000 & 2 & 2 & \textbf{3}$=k$ \\
-        \bottomrule
-      \end{tabular}
-      \vspace{4pt}
-
-      \small
-      $C$ \textbf{varies across seeds} in all three cases.
-      No single below-$k$ value is consistent.
-    \end{column}
-    \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxC, title={Interpretation}]
-        \small
-        $C$ varies across seeds $\Rightarrow$ below-$k$ states
-        are \textbf{initialization-dependent local minima},
-        not universal fixed points.
-
-        \vspace{4pt}
-        Gradient flow has multiple basins of attraction.
-        The $k$-cluster basin exists but is not the only one.
-      \end{tcolorbox}
-      \vspace{0.3em}
-      \begin{tcolorbox}[slideboxA, title={$x^5{-}3x^3$ seed 25: $C = k = 3$}]
-        \small
-        First time $x^5{-}3x^3$ reaches $C = k$.
-        Shows the $k$-cluster attractor exists for
-        polynomial targets, though harder to find.
-      \end{tcolorbox}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-%% ============================================================
-\begin{frame}{OP 4.1: Polynomial vs.\ Trigonometric Targets}
-  \begin{columns}[T]
-    \begin{column}{0.52\textwidth}
-      \textbf{Same $k$, very different convergence speed:}
-      \vspace{4pt}
-
-      \scriptsize
-      \renewcommand{\arraystretch}{1.2}
-      \begin{tabular}{lc ccc}
-        \toprule
-        Target & $k$ & $m{=}1000$ & $m{=}2000$ & $m{=}5000$ \\
-        \midrule
-        $\sin(\pi x)$  & 1 & \textbf{1} & 1 & 1 \\
-        $x^3$          & 1 & 13 & 7  & 4 \\[2pt]
-        $\sin(2\pi x)$ & 3 & 2  & $\dagger$1 & $\dagger$1 \\
-        $x^5{-}3x^3$  & 3 & 11 & 7  & 2 \\
-        \bottomrule
-      \end{tabular}
-      \vspace{4pt}
-
-      \small
-      $x^3$ reaches only $C = 4$ at $m = 5000$,
-      despite $k = 1$.
-    \end{column}
-    \begin{column}{0.46\textwidth}
-      \begin{tcolorbox}[slideboxA,
-                        title={Why inflection geometry matters}]
-        \small\raggedright
-        For $\sin(n\pi x)$, the $k$ inflection points
-        are \emph{evenly spaced} across $[-1,1]$,
-        forming strong, symmetric attractors that neurons
-        organize around early in training.
-
-        \vspace{4pt}
-        Polynomial targets have \emph{irregular} spacing:
-        weaker, asymmetric attractors.
-        Neurons take far longer to find them.
-
-        \vspace{4pt}
-        \textbf{Implication:} a proof of OP 4.1 must
-        account for attractor geometry, not just count.
-      \end{tcolorbox}
+      \vspace{3pt}
+      \begin{center}
+        \convpanel{1}{2}\\[-2pt]
+        {\tiny $\hookrightarrow$ $\sin(4\pi x)$, $k=7$: rise-then-fall}
+      \end{center}
     \end{column}
   \end{columns}
 \end{frame}
@@ -709,14 +497,189 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Instability Near $k$: Results (36/36 complete)}
+\begin{frame}{OP 4.1 Confirmation: $\sin(\pi x)$, $k=1$}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
+                       keepaspectratio]%
+        {sin_1pi/m=1000/T=500/final_fit_clean.png}
+      \vspace{4pt}
+      \biasloss{sin_1pi/m=1000/T=500/slide93_reproduction.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(\pi x)$,\quad $m=1000$,\quad $k=1$}
+
+      \vspace{0.4em}
+      \textbf{Top:} Clean final fit vs.\ target.
+      Blue ticks = single cluster center.
+
+      \vspace{0.3em}
+      \textbf{Bottom:} Bias trajectories (all 1000
+      collapse to \alert{one location}) and MSE loss
+      on log scale.
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxC, title={Strongest confirmation}]
+        \small
+        $C = 1 = k$ for \emph{all} $m \geq 1000$
+        through $m = 5000$, fully stationary
+        ($\max|\dot{a}_j| < 3.6 \times 10^{-3}$).
+
+        \vspace{3pt}
+        Only target with $C = k$ confirmed
+        robustly across the full $m$ sweep.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1 Confirmation: $\sin(3\pi x)$, $k=5$}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
+                       keepaspectratio]%
+        {sin_3pi/m=1000/T=500/final_fit_clean.png}
+      \vspace{4pt}
+      \biasloss{sin_3pi/m=1000/T=500/slide93_reproduction.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(3\pi x)$,\quad $m=1000$,\quad $k=5$}
+
+      \vspace{0.3em}
+      \textbf{Top:} Clean final fit. Five blue ticks
+      mark the \alert{5 bias clusters}, one per
+      inflection point.
+
+      \vspace{0.3em}
+      \textbf{Bottom:} Bias trajectories and MSE loss
+      on log scale.
+
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxC, title={Non-monotone path to $k$}]
+        \small
+        \centering
+        $\underbrace{8}_{m=50}
+         \;\to\;
+         \underbrace{14}_{\text{peak},\;m=500}
+         \;\to\;
+         \underbrace{\mathbf{5}}_{k,\;m=1000}
+         \;\to\;
+         \underbrace{\dagger 1}_{m=2000}$
+
+        \vspace{3pt}
+        Rises above $k$, reaches $k=5$,
+        then $\dagger$cluster structure dissolves at larger $m$.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}[shrink=10]{OP 4.1: $\sin(7\pi x)$, $k=13$ (Most Complex Target)}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\textwidth, height=0.44\textheight,
+                       keepaspectratio]%
+        {sin_7pi/m=5000/T=500/final_fit_clean.png}
+      \vspace{4pt}
+      \biasloss{sin_7pi/m=5000/T=500/slide93_reproduction.png}
+    \end{column}
+    \begin{column}{0.38\textwidth}
+      \small
+      \textbf{$\sin(7\pi x)$,\quad $m=5000$,\quad $k=13$}
+
+      \vspace{0.3em}
+      \textbf{Top/Bottom:} At $T=500$, the fit shows
+      13 clusters aligning with inflection points,
+      but the network has not settled.
+
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxB, title={$C$ at $m=5000$}]
+        \small
+        $T=500$:\; $C = 13 = k$,\quad
+        $\max|\dot{a}_j| = 0.034$\\[3pt]
+        $T=1000$:\; $C = 22$,\quad
+        $\max|\dot{a}_j| = 0.077$\\[3pt]
+        $C=13$ was \textbf{transient}: the run has
+        not stabilized at $m=5000$, $T=500$.
+      \end{tcolorbox}
+
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxA, title={What is needed}]
+        \small
+        Confirmed $C \to k$ for $k=13$ likely requires
+        $m \gg 5000$. Larger $m$ provides the redundancy
+        for stable collapse; longer $T$ alone is
+        insufficient if $m$ is too small.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1: The Below-$k$ Phenomenon}
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \textbf{Three cases at verified stationary states with $C < k$.
+              Re-run with 2 additional seeds each:}
+      \vspace{4pt}
+
+      \scriptsize
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{lcc ccc}
+        \toprule
+        Target & $k$ & $m$ & seed 42 & seed 5 & seed 25 \\
+        \midrule
+        $\sin(2\pi x)$ & 3 & 1000 & 2 & 1 & 1 \\
+        $\sin(4\pi x)$ & 7 & 2000 & 2 & 3 & 5 \\
+        $x^5{-}3x^3$  & 3 & 5000 & 2 & 2 & \textbf{3}$=k$ \\
+        \bottomrule
+      \end{tabular}
+      \vspace{4pt}
+
+      \small
+      $C$ \textbf{varies across seeds} in all three cases.
+      No single $C < k$ value is consistent.
+      \vspace{3pt}
+      \begin{center}
+        \convpanel{0}{2}\\[-2pt]
+        {\tiny $\hookrightarrow$ $\sin(2\pi x)$, $k=3$: $C$ stays below $k$}
+      \end{center}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{tcolorbox}[slideboxC, title={Interpretation}]
+        \small
+        $C$ varies across seeds $\Rightarrow$ $C < k$ states
+        are \textbf{initialization-dependent local minima},
+        not universal fixed points.
+
+        \vspace{4pt}
+        Gradient flow has multiple basins of attraction.
+        The $k$-cluster basin exists but is not the only one.
+      \end{tcolorbox}
+      \vspace{0.3em}
+      \begin{tcolorbox}[slideboxA, title={$x^5{-}3x^3$ seed 25: $C = k = 3$}]
+        \small
+        First time $x^5{-}3x^3$ reaches $C = k$.
+        Shows the $k$-cluster attractor exists for
+        polynomial targets, though harder to find.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}[shrink=10]{Instability Near $k$: Results}
   \begin{columns}[T]
     \begin{column}{0.54\textwidth}
       \small
-      \textbf{Question:} Are above-$k$ states unstable?
-      Does gradient flow dissolve extra clusters toward $k$?\\[6pt]
-      \textbf{22 qualifying runs:} 8 exact\_k,\;
-      8 above\_k,\; 6 below\_k.
+      \textbf{Question:} Are states with $C \neq k$ unstable?
+      Does gradient flow push them toward $C = k$?\\[6pt]
+      \textbf{22 qualifying runs:} 8 ($C=k$),\;
+      8 ($C>k$),\; 6 ($C<k$).
       $T_{\text{perturb}} = 1000$.\\[4pt]
       \renewcommand{\arraystretch}{1.15}
       \scriptsize
@@ -724,38 +687,131 @@
         \toprule
         Category & Status & Finding \\
         \midrule
-        \textbf{above\_k} & 8/8 done &
+        $C > k$ states & 8/8 done &
           \textbf{No change.} $C$ stays fixed; ODE fixed points
           do not dissolve. \\[3pt]
-        \textbf{below\_k} & 12/12 done &
+        $C < k$ states & 12/12 done &
           \textbf{No change.} Injected neuron amplitude
           stays at $0.01$ and cannot grow. \\[3pt]
-        \textbf{exact\_k} & 16/16 done &
+        $C = k$ states & 16/16 done &
           \textbf{All returned to $k$.}
           Exact-$k$ states are stable attractors. \\
         \bottomrule
       \end{tabular}
+      \vspace{3pt}
+      \begin{center}
+        \convpanel{1}{1}\\[-2pt]
+        {\tiny $\hookrightarrow$ $\sin(3\pi x)$, $k=5$: $C=k$ state is stable}
+      \end{center}
     \end{column}
     \begin{column}{0.44\textwidth}
-      \begin{tcolorbox}[slideboxB, title={above\_k: stable fixed points}]
+      \begin{tcolorbox}[slideboxB, title={$C > k$: stable fixed points}]
         \footnotesize
         Continuing ODE for $T=1000$: $C$ does
-        \textbf{not} decrease. Above-$k$ states are
+        \textbf{not} decrease. $C > k$ states are
         \emph{stable} fixed points, not metastable.
       \end{tcolorbox}
       \vspace{0.2em}
-      \begin{tcolorbox}[slideboxC, title={below\_k: injection-resistant}]
+      \begin{tcolorbox}[slideboxC, title={$C < k$: injection-resistant}]
         \footnotesize
         Injected neurons gain \textbf{zero amplitude}.
         ODE provides no restoring force toward $k$.
-        Supports: below-$k$ states are true fixed points.
+        Supports: $C < k$ states are true fixed points.
       \end{tcolorbox}
       \vspace{0.2em}
-      \begin{tcolorbox}[slideboxA, title={Implication for OP 4.1.1}]
+      \begin{tcolorbox}[slideboxA, title={Takeaway}]
         \footnotesize
-        $C \to k$ cannot rely on above-$k$ instability.
-        Proof must use \emph{initialization geometry},
-        not gradient flow instability.
+        Both $C > k$ and $C < k$ states are stable fixed
+        points. A proof of $C \to k$ cannot argue that
+        other states dissolve on their own; it must explain
+        why random initializations land at $C = k$.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1: Polynomial vs.\ Trigonometric Targets}
+  \begin{columns}[T]
+    \begin{column}{0.52\textwidth}
+      \textbf{Same $k$, very different convergence speed:}
+      \vspace{4pt}
+
+      \scriptsize
+      \renewcommand{\arraystretch}{1.2}
+      \begin{tabular}{lc ccc}
+        \toprule
+        Target & $k$ & $m{=}1000$ & $m{=}2000$ & $m{=}5000$ \\
+        \midrule
+        $\sin(\pi x)$  & 1 & \textbf{1} & 1 & 1 \\
+        $x^3$          & 1 & 13 & 7  & 4 \\[2pt]
+        $\sin(2\pi x)$ & 3 & 2  & $\dagger$1 & $\dagger$1 \\
+        $x^5{-}3x^3$  & 3 & 11 & 7  & 2 \\
+        \bottomrule
+      \end{tabular}
+      \vspace{4pt}
+
+      \small
+      $x^3$ reaches only $C = 4$ at $m = 5000$,
+      despite $k = 1$.
+      \vspace{3pt}
+      \begin{center}
+        \convpanelpair{0}\\[-2pt]
+        {\tiny $\hookrightarrow$ $\sin(\pi x)$ (left) vs $x^3$ (right), same $k=1$}
+      \end{center}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \begin{tcolorbox}[slideboxA,
+                        title={Why inflection geometry matters}]
+        \small\raggedright
+        For $\sin(n\pi x)$, the $k$ inflection points
+        are \emph{evenly spaced} across $[-1,1]$,
+        forming strong, symmetric attractors that neurons
+        organize around early in training.
+
+        \vspace{4pt}
+        Polynomial targets have \emph{irregular} spacing:
+        weaker, asymmetric attractors.
+        Neurons take far longer to find them.
+
+        \vspace{4pt}
+        \textbf{Implication:} a proof of OP 4.1 must
+        account for attractor geometry, not just count.
+      \end{tcolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+%% ============================================================
+\begin{frame}{OP 4.1: Key Findings}
+  \begin{columns}[T]
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[slideboxC, title={What was confirmed}]
+        \small
+        \begin{itemize}\setlength{\itemsep}{3pt}
+          \item $C \to k$ confirmed for $\sin(\pi x)$ ($k=1$),
+                all $m \geq 1000$ (strongest case).
+          \item $\sin(7\pi x)$: $C=13$ at $m=5000$, $T=500$
+                was transient ($C=22$ at $T=1000$).
+                Confirmed $C \to k$ requires $m \gg 5000$.
+          \item $C = k$ states are stable attractors:
+                all 16 perturbation runs returned to $C = k$.
+        \end{itemize}
+      \end{tcolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{tcolorbox}[slideboxB, title={What the data reveals about OP 4.1}]
+        \small
+        \begin{itemize}\setlength{\itemsep}{3pt}
+          \item $C < k$ local minima exist for 3 targets
+                at genuinely stationary states.
+          \item $C > k$ and $C < k$ states are both
+                stable fixed points; a proof of $C \to k$
+                must rely on \textbf{initialization geometry},
+                not instability.
+          \item Polynomial targets converge far more slowly
+                due to irregular attractor geometry.
+        \end{itemize}
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -921,7 +977,7 @@
           \item $N_{\rm eff}$ increases monotonically with width.
           \item Wider networks rely less on directional collapse.
           \item Radial $m{=}1024$: $N_{\rm eff} \approx 34$
-                of 36 --- nearly uniform.
+                of 36 (nearly uniform).
         \end{itemize}
       \end{tcolorbox}
     \end{column}
@@ -1091,15 +1147,15 @@
     \midrule
     OP 4.1:\newline $C \to k$ &
       Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
-      $\sin(7\pi x)$: $C = 13 = k$ at $m=5000$ (stationarity unconfirmed).
+      $\sin(7\pi x)$: $C=13$ at $m=5000$, $T=500$ was transient ($C=22$ at $T=1000$); $m \gg 5000$ needed.
       Below-$k$: \textbf{init-dependent local minima} (multiple seeds). &
       {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
       {\color{auorange}\textbf{open}} for $k \geq 3$ \\
 
     Instability\newline near $k$ &
-      above\_k: stable fixed points (8/8, no dissolution).
-      below\_k: injection-resistant (12/12, zero amplitude growth).
-      exact\_k: all 16 returned to $k$ (stable attractors). &
+      $C > k$: stable fixed points (8/8, no dissolution).
+      $C < k$: injection-resistant (12/12, zero amplitude growth).
+      $C = k$: all 16 returned to $k$ (stable attractors). &
       {\color{darkgreen}\textbf{Complete}} \\
 
     OP 4.2:\newline 2D collapse &
@@ -1133,7 +1189,7 @@
               initialization geometry. Below-$k$ local minima
               exist, so the $k$-cluster basin must be shown
               to dominate at large $m$
-        \item \textbf{4.1.1:} above\_k states are \emph{stable}
+        \item \textbf{4.1.1:} $C > k$ states are \emph{stable}
               fixed points, so instability alone cannot drive $C \to k$
         \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
               to confirm stationarity of $C=13$
@@ -1233,7 +1289,7 @@
     \centering\scriptsize
     \textbf{Repository \& documentation}\quad
     \texttt{github.com/calebabr/NSF-RTG-Project4}\quad
-    {\color{mygray}--- full scripts, data, and result tables in \texttt{README.md}}
+    {\color{mygray}full scripts, data, and result tables in \texttt{README.md}}
   \end{tcolorbox}
 \end{frame}
 
