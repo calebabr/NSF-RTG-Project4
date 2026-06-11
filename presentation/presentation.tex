@@ -177,9 +177,8 @@
 %% ============================================================
 \title[Bias Collapse in Shallow ReLU Networks]{%
   Bias Collapse in Shallow ReLU Networks}
-\subtitle{Numerical Evidence for Open Problems 4.1, 4.2, and 4.3}
-\author[NSF RTG]{NSF RTG}
-\institute{}
+\author[Caleb Abrantes, Bobby Chen, Om Kannan]{Caleb Abrantes, Bobby Chen, Om Kannan}
+\institute{NSF RTG}
 \date{June 2026}
 
 %% ============================================================
@@ -392,6 +391,14 @@
               adjusting step size to maintain accuracy.
         \item \textbf{72 completed runs} across 9 targets
       \end{itemize}
+      \vspace{0.4em}
+      \begin{tcolorbox}[slideboxA, title={Discrete GD comparison}]
+        \small
+        Fixed step-size discrete GD did not reproduce
+        $C \to k$ for most targets. Adaptive step sizing
+        (as in RK45) appears to matter for the clustering
+        behavior to emerge.
+      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
@@ -409,8 +416,8 @@
     \textbf{Crimson dashed line} $= k$.
     All panels show rise-then-fall.
     Low-$k$ trig targets reach $C=k$;
-    $\sin(7\pi x)$ ($k=13$) reaches $C=13$ at $m=5000$
-    for the first time (stationarity unconfirmed).}
+    $\sin(7\pi x)$ ($k=13$) has not yet confirmed $C=k$
+    at tested widths (stationarity unconfirmed at $m=5000$).}
   \end{center}
 \end{frame}
 
@@ -488,14 +495,6 @@
       {\color{auorange}(red)}, confirming the theoretical
       fixed-point condition numerically.
 
-      \vspace{0.5em}
-      \begin{tcolorbox}[slideboxA, title={Discrete GD comparison}]
-        \small
-        Discrete GD does \emph{not} produce
-        $C \to k$ for any target except $\sin(\pi x)$.
-        The conjecture is specific to continuous
-        ODE gradient flow dynamics.
-      \end{tcolorbox}
     \end{column}
   \end{columns}
 \end{frame}
@@ -796,7 +795,7 @@
           \item $C \to k$ confirmed for $\sin(\pi x)$ ($k=1$),
                 all $m \geq 1000$ (strongest case).
           \item $\sin(7\pi x)$: $C=13$ at $m=5000$, $T=500$
-                was transient ($C=22$ at $T=1000$).
+                was transient; $C=22$ at $T=1000$.
                 Confirmed $C \to k$ requires $m \gg 5000$.
           \item $C = k$ states are stable attractors:
                 all 16 perturbation runs returned to $C = k$.
@@ -1142,47 +1141,6 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{Summary of Evidence}
-  \renewcommand{\arraystretch}{1.08}
-  \scriptsize
-  \begin{tabular}{p{2.0cm} p{5.6cm} p{3.6cm}}
-    \toprule
-    \textbf{Problem} & \textbf{Main finding} & \textbf{Status} \\
-    \midrule
-    OP 4.1:\newline $C \to k$ &
-      Confirmed for $\sin(\pi x)$ ($k=1$), all $m \geq 1000$.
-      $\sin(7\pi x)$: $C=13$ at $m=5000$, $T=500$ was transient ($C=22$ at $T=1000$); $m \gg 5000$ needed.
-      Below-$k$: \textbf{init-dependent local minima} (multiple seeds). &
-      {\color{darkgreen}\textbf{Supported}} for $k=1$;\newline
-      {\color{auorange}\textbf{open}} for $k \geq 3$ \\
-
-    Instability\newline near $k$ &
-      $C > k$: stable fixed points (8/8, no dissolution).
-      $C < k$: injection-resistant (12/12, zero amplitude growth).
-      $C = k$: all 16 returned to $k$ (stable attractors). &
-      {\color{darkgreen}\textbf{Complete}} \\
-
-    OP 4.2:\newline 2D collapse &
-      Directional concentration tracks target structure at small width.
-      Decreases consistently with width ($m \in \{64,256,512,1024\}$).
-      Effective directional complexity ($N_{\rm eff}$) increases with $m$. &
-      {\color{auorange}\textbf{Partial}} \\
-
-    OP 4.3:\newline Pruning bound &
-      72\,/\,72 hold. $\sum|a_j| \sim \sqrt{m}$.
-      Non-vacuousness requires $\delta \to 0$ as $T \to \infty$. &
-      {\color{darkgreen}\textbf{Verified numerically}};\newline
-      {\color{auorange}\textbf{open theoretically}} \\
-
-    OP 4.1.4:\newline Lottery ticket &
-      Bias position at $t=0$ is sole informative quantity.
-      Amplitude values irrelevant. Performance claim false. &
-      {\color{darkgreen}\textbf{Resolved}} \\
-    \bottomrule
-  \end{tabular}
-\end{frame}
-
-%% ============================================================
 \begin{frame}{Open Questions and Next Steps}
   \begin{columns}[T]
     \begin{column}{0.49\textwidth}
@@ -1213,8 +1171,6 @@
         \item Exponent $\alpha$ in
               $\sum_j|a_j| = O(m^\alpha)$;
               data suggests $\alpha \approx 1/2$
-        \item If $\delta = O(T^{-\gamma})$ the bound
-              becomes non-vacuous as $T \to \infty$
       \end{itemize}
 
       \vspace{0.4em}
@@ -1239,20 +1195,16 @@
         \item \textbf{Rise-then-fall} is universal:
               peak scales with $k$; inflection geometry
               sets the convergence rate.
-        \item \textbf{Below-$k$:} 3 targets have $C < k$
-              at genuinely stationary states,
-              an open challenge for OP 4.1.
-        \item \textbf{Instability:} Above-$k$ states are
+        \item \textbf{Instability:} $C > k$ and $C < k$ states are
               stable fixed points. Proof of $C \to k$
               must use initialization geometry.
         \item \textbf{OP 4.2:} Effective directional complexity
               grows with width; wider networks rely less on
               orientation collapse than narrower ones.
-        \item \textbf{OP 4.3:} Bound holds 72/72;
-              $\delta \to 0$ with $T$ is the path to
-              a formal proof.
-        \item \textbf{Lottery ticket:} bias position at $t=0$
-              is the sole informative quantity.
+        \item \textbf{OP 4.3:}  72\,/\,72 hold. $\sum|a_j| \sim \sqrt{m}$.
+      Non-vacuousness requires $\delta \to 0$ as $T \to \infty$.
+        \item \textbf{Lottery ticket:}  Bias position at $t=0$ is sole informative quantity.
+      Amplitude values irrelevant. Performance claim false.
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
