@@ -210,7 +210,7 @@
         \item $m = 1500$ neurons $\;\longrightarrow\;$ effective
               complexity of $k = 7$ neurons
         \item The number of surviving \emph{bias clusters}
-              equals the number of \emph{inflection points}
+              is approximately around the number of \emph{inflection points}
               of the target function
       \end{itemize}
     \end{column}
@@ -426,8 +426,7 @@
               $C$ grows above $k$.
         \item \textbf{Peak:} $C$ reaches a maximum scaling
               with $k$ (up to $C = 40$ for $k = 11$).
-        \item \textbf{Fall:} With sufficient redundancy,
-              collapse proceeds and $C$ decreases toward $k$.
+        \item \textbf{Fall:} Collapse proceeds and $C$ decreases toward $k$.
       \end{enumerate}
       \vspace{0.4em}
       \begin{tcolorbox}[slideboxB, title={Key observation}]
@@ -1196,8 +1195,6 @@
               to dominate at large $m$
         \item \textbf{4.1.1:} $C > k$ states are \emph{stable}
               fixed points, so instability alone cannot drive $C \to k$
-        \item \textbf{$\sin(7\pi x)$:} Re-run at $T=1000$
-              to confirm stationarity of $C=13$
       \end{itemize}
 
       \vspace{0.4em}
@@ -1223,9 +1220,8 @@
       \vspace{0.4em}
       \begin{tcolorbox}[slideboxA, title={Immediate priorities}]
         \small
-        (1) $\sin(7\pi x)$ at $T = 1000$ (confirm $C=13$)\\
-        (2) $\delta(T)$ trajectory study\\
-        (3) Theory for capacity-constrained collapse
+        (1) $\delta(T)$ trajectory study\\
+        (2) Theory for capacity-constrained collapse
       \end{tcolorbox}
     \end{column}
   \end{columns}
@@ -1239,8 +1235,7 @@
       \textbf{What we showed:}
       \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
         \item $C \to k$ confirmed for $\sin(\pi x)$ ($k=1$),
-              $m \geq 1000$. First high-$k$ evidence:
-              $\sin(7\pi x)$ reaches $C = 13$ at $m=5000$.
+              $m \geq 1000$.
         \item \textbf{Rise-then-fall} is universal:
               peak scales with $k$; inflection geometry
               sets the convergence rate.
