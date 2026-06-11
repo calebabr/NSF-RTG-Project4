@@ -346,9 +346,9 @@
   \vspace{0.6em}
   \textbf{Sub-problems we address:}
   \begin{itemize}
-    \item \textbf{4.1.1:} Can we prove $C(m,\fstar) \leq k$
+    \item Can we prove $C(m,\fstar) \leq k$
           independently of $m$?
-    \item \textbf{4.1.4:} Which neurons survive collapse
+    \item Which neurons survive collapse
           to become cluster representatives?
   \end{itemize}
 \end{frame}
@@ -383,9 +383,14 @@
       \small
       \textbf{Main sweep:}
       \begin{itemize}
-        \item $m \in \{50,100,250,500,1000,2000,3500,5000\}$,\; $T = 500$
-        \item \textbf{72 completed runs}, 9 targets;
-              70/72 fully stationary ($\max|\dot{a}_j| < 0.01$)
+        \item $m \in \{50,100,250,500,1000,2000,3500,5000\}$:
+              number of neurons in the network
+        \item $T = 500$: time horizon for ODE integration.
+              SciPy's RK45 solver, a standard adaptive step-size
+              integrator, numerically solves the gradient flow
+              equations from $t=0$ to $t=T$, automatically
+              adjusting step size to maintain accuracy.
+        \item \textbf{72 completed runs} across 9 targets
       \end{itemize}
     \end{column}
   \end{columns}
@@ -1087,7 +1092,7 @@
 \end{frame}
 
 %% ============================================================
-\begin{frame}{OP 4.1.4 Lottery Ticket: Which Neurons Survive?}
+\begin{frame}{Lottery Ticket: Which Neurons Survive?}
   \begin{columns}[T]
     \begin{column}{0.50\textwidth}
       \small
@@ -1276,9 +1281,7 @@
       \end{tcolorbox}
       \vspace{0.1em}
       \begin{center}
-        \large\textbf{Thank you}\\
-        \vspace{0.1em}
-        \small\textit{Supported by NSF RTG}
+        \large\textbf{Thank you}
       \end{center}
     \end{column}
   \end{columns}
