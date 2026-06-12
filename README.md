@@ -238,7 +238,6 @@ MathProject4/
 |   |-- simulate_colab_sin7pi_jax.ipynb
 |   |-- simulate_colab.ipynb
 |   |-- notebooks/                  Gradient flow simulator notebook
-|   |-- speaker_notes/              Speaker scripts for presentation
 |   |-- data/                       Raw intermediate .npy files
 |   |-- collapse_v2_results.json    Duplicate of figures/ copy
 ```
@@ -670,16 +669,3 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 ---
 
-**Run status (all complete as of 6/9/2026):**
-
-| Script | Status |
-|---|---|
-| simulate_parallel.py | Complete: 78 runs (T=500, m up to 5000, all 9 targets) |
-| sin7pi_T1000.py | Complete: extended run for sin(7πx) at T=1000 |
-| simulate_discrete.py (archived) | Complete: 52 runs; C does not converge to k under discrete GD |
-| lottery_ticket_experiment.py | Complete: 52 runs; bias position is sole informative quantity |
-| verify_pruning.py | Complete: bound holds for all 78 T=500 runs |
-| higher_dim_collapse.py | Complete: all 2D results analyzed |
-| instability_test.py | Complete: 36/36 jobs; above_k and below_k are stable fixed points, exact_k all returned to k |
-| multiple_seeds.py | Complete: below-k states are initialization-dependent local minima |
-| regenerate_figures.py | Complete: final_fit_clean.png generated for all targets at T=500 |
