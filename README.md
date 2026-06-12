@@ -185,49 +185,62 @@ MathProject4/
 |-- MathProject Slides.pdf          Source slides: model, ODEs, and open problems
 |
 |-- simulate_parallel.py            Main simulation: m sweep at T=500, all 9 targets (Goals 1, 3)
+|-- sin7pi_T1000.py                 Extended T=1000 run for sin(7πx) (cited in presentation)
 |-- lottery_ticket_experiment.py    Geometric lottery ticket analysis (supporting 4.1)
 |-- verify_pruning.py               Pruning bound verification (Goal 4)
 |-- instability_test.py             k+1 instability test (Goal 2)
+|-- multiple_seeds.py               Below-k seed variation experiment (supporting 4.1)
 |-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
+|-- plot_convergence_now.py         Generates convergence plot from current data
 |-- regenerate_figures.py           Helper: regenerates clean final fit figures
 |
-|-- archive/                        Superseded scripts (simulate_discrete.py data still used)
-|   |-- simulate_discrete.py        Discrete GD version: 52 runs complete, data in figures/
+|-- presentation/                   LaTeX presentation and compiled PDF
+|   |-- presentation.tex
+|   |-- presentation.pdf
 |
 |-- figures/
-|   |-- Replication data/
-|       |-- {target}/
-|       |   |-- m={m}/
-|       |       |-- T={T}/
-|       |           |-- slide93_reproduction.png      Bias trajectories, final fit, loss
-|       |           |-- clusters_vs_inflections.png   Cluster locations vs inflection pts
-|       |           |-- ode_verification.png          ODE velocities and R_j at convergence
-|       |           |-- convergence_check.csv         Per neuron da, db, R_j, active flag
-|       |           |-- run_meta.csv                  Single row summary for restart safety
-|       |           |-- pruning_verification.png      Pruning bound check per run
-|       |           |-- goal2_near.png                k+1 instability, near injection
-|       |           |-- goal2_isolated.png            k+1 instability, isolated injection
-|       |
-|       |-- run_summary_parallel.csv         Results from simulate_parallel.py
-|       |-- convergence_plot_parallel.png    C(m) vs m for all 9 targets
+|   |-- Replication data/           Main OP 4.1 + 4.3 figures (referenced by presentation)
+|   |   |-- {target}/m={m}/T={T}/
+|   |   |   |-- slide93_reproduction.png      Bias trajectories, final fit, loss
+|   |   |   |-- clusters_vs_inflections.png   Cluster locations vs inflection pts
+|   |   |   |-- ode_verification.png          ODE velocities and R_j at convergence
+|   |   |   |-- final_fit_clean.png           Clean final fit with cluster tick marks
+|   |   |   |-- convergence_check.csv         Per neuron da, db, R_j, active flag
+|   |   |   |-- run_meta.csv                  Single row summary for restart safety
+|   |   |   |-- pruning_verification.png      Pruning bound check per run
+|   |   |-- run_summary_parallel.csv          Results from simulate_parallel.py
+|   |   |-- convergence_plot_parallel.png     C(m) vs m for all 9 targets
+|   |   |-- pruning_bound_summary.png         OP 4.3 summary plots
+|   |   |-- multiple_seeds_summary.png        Seed variation summary
+|   |
+|   |-- Discrete GD/               Discrete gradient descent comparison (52 runs)
+|   |   |-- {target}/m={m}/steps={n}/        Per-run figures and CSVs
+|   |   |-- convergence_plot_current.png     C(m) vs m for discrete GD
+|   |
+|   |-- collapse_v2_plots_and_results/       OP 4.2 figures (referenced by presentation)
+|       |-- collapse_v2_results.json         Diagnostic snapshots across all runs
+|       |-- collapse_v2_summary.png          3x3 summary grid: all targets x all widths
+|       |-- collapse_v2_{target}.png         Per-target diagnostic plots
+|
+|-- collapse_v2_plots/              OP 4.2 plots (also in presentation graphicspath)
 |
 |-- plots/
 |   |-- lth_geometric/              Lottery ticket outputs: survival, loss curves, overlap
 |
-|   |-- Discrete GD/
-|       |-- {target}/m={m}/steps={n}/        Per-run figures and CSVs
-|       |-- convergence_plot_current.png     C(m) vs m for discrete GD
-|       |-- pruning_bound_results.csv        Pruning bound metrics across all runs
-|       |-- pruning_bound_summary.png        Summary plots for Open Problem 4.3
-|       |-- goal2_results.csv               Instability test results across all runs
-|       |-- goal2_summary.png               Summary heatmap and return rates
-|
-|   |-- collapse_v2_plots_and_results/
-|       |-- collapse_v2_results.json        Diagnostic snapshots across all runs
-|       |-- collapse_v2_summary.png         3x3 summary grid: all targets x all widths
-|       |-- collapse_v2_ridge.png           Per-target diagnostic plot (ridge)
-|       |-- collapse_v2_separable.png       Per-target diagnostic plot (separable)
-|       |-- collapse_v2_radial.png          Per-target diagnostic plot (radial)
+|-- archive/                        Superseded/exploratory scripts and data
+|   |-- simulate.py                 Original simulation script
+|   |-- simulate_discrete.py        Discrete GD version (data in figures/Discrete GD/)
+|   |-- adaptive_cluster_analysis.py
+|   |-- adaptive_cluster_plots/     Adaptive threshold analysis outputs
+|   |-- grokking_bias_collapse.py
+|   |-- simulate_T_comparison.py
+|   |-- simulate_colab_sin7pi.ipynb
+|   |-- simulate_colab_sin7pi_jax.ipynb
+|   |-- simulate_colab.ipynb
+|   |-- notebooks/                  Gradient flow simulator notebook
+|   |-- speaker_notes/              Speaker scripts for presentation
+|   |-- data/                       Raw intermediate .npy files
+|   |-- collapse_v2_results.json    Duplicate of figures/ copy
 ```
 
 ---
@@ -362,7 +375,7 @@ tested targets and m values (sin_1pi, sin_3pi, sin_4pi, sin_7pi).
 
 ---
 
-### collapse_v2.py: Open Problem 4.2, 2D Collapse Experiment
+### higher_dim_collapse.py: Open Problem 4.2, 2D Collapse Experiment
 
 **Open problems addressed:** 4.2 (higher-dimensional collapse)
 
@@ -427,7 +440,7 @@ grid: rows = angular entropy / cluster count / prune ratio, cols = targets), and
 per-target diagnostic plot (collapse_v2_{target}.png) with loss curve, entropy trajectory,
 (θ,β) point cloud at final epoch, and effective width panel.
 
-**Run with:** `python collapse_v2.py`
+**Run with:** `python higher_dim_collapse.py`
 
 ---
 
@@ -553,7 +566,7 @@ python lottery_ticket_experiment.py   # depends on simulate_parallel.py output
 python verify_pruning.py
 python instability_test.py
 python regenerate_figures.py
-python collapse_v2.py                 # independent; can be run at any time
+python higher_dim_collapse.py          # independent; can be run at any time
 ```
 
 All scripts are safe to interrupt and restart. Already completed runs are detected via
@@ -657,15 +670,16 @@ For sin(nπx): the second derivative has exactly 2n−1 sign-changing zeros in (
 
 ---
 
-**Note on current run status (as of 6/9/2026):**
+**Run status (all complete as of 6/9/2026):**
 
 | Script | Status |
 |---|---|
-| simulate_parallel.py | ✅ Complete: 78 runs (T=500, m up to 5000, all 9 targets) |
-| simulate_discrete.py | ✅ Complete: 52 runs; C does not converge to k under discrete GD |
-| lottery_ticket_experiment.py | ✅ Complete: 52 runs; geometric ≈ bias_only confirmed; k-ticket does not match full network |
-| verify_pruning.py | ✅ Complete: bound holds for all 78 T=500 runs; Σ\|aⱼ\| grows ~√m, bound loosens at large m |
-| collapse_v2.py | ✅ Complete: all 2D results analyzed |
-| instability_test.py | ✅ Complete: 36/36 jobs done; above_k stable fixed points, below_k injection-resistant, exact_k all returned to k |
-| regenerate_figures.py | ✅ Complete: final_fit_clean.png generated for all targets × M_VALUES at T=500 |
-| multiple_seeds.py | ✅ Complete: 6 jobs done; below-k states are initialization-dependent local minima; C varies across seeds for all 3 targets |
+| simulate_parallel.py | Complete: 78 runs (T=500, m up to 5000, all 9 targets) |
+| sin7pi_T1000.py | Complete: extended run for sin(7πx) at T=1000 |
+| simulate_discrete.py (archived) | Complete: 52 runs; C does not converge to k under discrete GD |
+| lottery_ticket_experiment.py | Complete: 52 runs; bias position is sole informative quantity |
+| verify_pruning.py | Complete: bound holds for all 78 T=500 runs |
+| higher_dim_collapse.py | Complete: all 2D results analyzed |
+| instability_test.py | Complete: 36/36 jobs; above_k and below_k are stable fixed points, exact_k all returned to k |
+| multiple_seeds.py | Complete: below-k states are initialization-dependent local minima |
+| regenerate_figures.py | Complete: final_fit_clean.png generated for all targets at T=500 |
