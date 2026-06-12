@@ -1,5 +1,9 @@
 # NSF RTG Project 4: Bias Collapse in Shallow ReLU Networks
 
+## Program
+
+This project was developed as part of the **NSF Research Training Group (RTG) Internship on the Mathematical Foundations of AI and Data Science**, a collaboration between Auburn University and Tuskegee University. The internship ran May 18 -- June 14, 2026, with sessions held at Tuskegee University and a concluding workshop at Auburn University.
+
 ## Overview
 Worked on by: Bobby Chen, Caleb Abrantes, Om Kannan, Rayshawn Holscher, Shari Pinckney
 
