@@ -29,155 +29,71 @@ mode is determined by the structure of the target function.
 
 ### Open Problem 4.1: Cluster Count
 
-**Conjecture from the slides:**
+$$\lim_{m \to \infty} C(m, f^\ast) = k$$
 
-$$\lim_{m \to \infty} C(m, f^\ast) = \lvert\{x \in [-1,1] : (f^\ast)''(x) = 0 \text{ and changes sign}\}\rvert$$
-
-| Specific Goal | Description | Status |
-|---|---|---|
-| 4.1.1 | Prove C(m, f*) ≤ Cmax(f*) independent of m | Numerically supported via simulate_parallel.py and instability_test.py; experiment in process |
-| 4.1.2 | Is convergence finite-time or asymptotic? | Data implies asymptotic (C decreases gradually with T); not yet explicitly addressed |
-| 4.1.3 | Does count depend on curvature amplitude or only sign pattern of f''? | Not addressed; would require comparing targets with identical inflection locations but different curvature magnitudes |
-| 4.1.4 | What determines which neurons survive collapse to become cluster representatives? | Addressed by lottery_ticket_experiment.py: bias position at t=0 is the sole informative quantity; neurons geometrically close to inflection points are the "lucky" survivors. Amplitude values at initialization carry no information. |
-
-#### Current Numerical Findings (T=500, m up to 5000, complete)
-
-78 runs across 9 targets. C(m, f*) follows a non-monotone rise-then-fall pattern
-universally; the peak shifts to larger m as k increases.
-
-| Target | k | m=50 | m=100 | m=250 | m=500 | m=1000 | m=1500 | m=2000 | m=3500 | m=5000 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| sin_1pi | 1 | 31 | 45 | 22 | 6 | **1** | 1 | 1 | 1 | 1 |
-| sin_2pi | 3 | 26 | 29 | 13 | 8 | 2 | †1 | †1 | †1 | †1 |
-| sin_3pi | 5 | 11 | 16 | 23 | 14 | **5** | 2 | †1 | †1 | †1 |
-| sin_4pi | 7 | 9 | 11 | 21 | 26 | 17 | **7** | 2 | †1 | †1 |
-| sin_5pi | 9 | 11 | 11 | 18 | 23 | 31 | — | 13 | 2 | †1 |
-| sin_6pi | 11 | 13 | 14 | 14 | 15 | 31 | — | 40 | 13 | 2 |
-| sin_7pi | 13 | 14 | 15 | 18 | 17 | 22 | — | 36 | 34 | ‡13 |
-| poly_k3 | 3 | 29 | 45 | 35 | 20 | 11 | 8 | 7 | 4 | 2 |
-| x_cubed | 1 | 31 | 40 | 31 | 16 | 13 | 6 | 7 | 4 | 4 |
-
-†**Cluster structure absent or too dense for fixed threshold to detect.** At large m,
-the fixed gap threshold (0.02) reports C=1 for two distinct reasons that cannot always
-be distinguished: (1) the cluster structure genuinely dissolves into a near-uniform bias
-distribution (confirmed for sin_3pi m=2000 by direct inspection: amplitude weighting near
-each inflection point is equal with no peaks), or (2) clusters still exist but biases are
-packed too densely for a fixed threshold to find the inter-cluster gaps (adaptive threshold
-analysis recovers C=k for sin_3pi m=3500 and sin_4pi m=5000 using a density-scaled
-threshold). Both cases produce C=1 under the fixed threshold. Affects sin_2pi m ≥ 1500,
-sin_3pi m ≥ 2000, sin_4pi m ≥ 3500, sin_5pi m=5000. Excluded from limit conclusions.
-
-‡**Not fully stationary:** sin_7pi m=5000 reports C=13=k but max|da/dt|=0.034 exceeds
-the 0.01 stationarity threshold. The result may be transient; longer T needed to confirm.
-
-**Conclusions:**
-
-- **Conjecture supported for k=1 (sin_1pi):** C=1=k holds from m=1000 through m=5000,
-  fully stationary. Strongest evidence for the conjecture.
-- **sin_7pi (k=13) reaches C=k=13 at m=5000**, the first high-k target to show C=k, but
-  not yet fully stationary (max_da=0.034). Promising; needs verification at longer T.
-- **Below-k pattern is widespread, not isolated.** Four targets show C < k at a verified
-  stationary state: sin_2pi (C=2, m=1000), sin_3pi (C=2, m=1500), sin_4pi (C=2, m=2000),
-  poly_k3 (C=2, m=5000). The critical open question is whether these are true stationary
-  states or initialization-dependent local minima. Multiple seeds would resolve this.
-- **Polynomial targets converge far more slowly** than trigonometric targets with the same k.
-  poly_k3 and x_cubed have no evenly-spaced inflection structure; x_cubed reaches only C=4
-  at m=5000 despite k=1. Inflection point geometry shapes convergence beyond just counting k.
-- **k=9, 11 targets (sin_5pi, sin_6pi) not yet resolved.** At m=5000 the cluster structure
-  dissolves (uniform bias spread, no amplitude peaks); sin_6pi shows C=2 at m=5000 which
-  may be a genuine 2-cluster state or an early stage of dissolution. Resolving this requires
-  m > 5000 or analysis at intermediate m before dissolution occurs.
-
-**multiple_seeds experiment (complete):**
-
-At three points where C falls below k at a verified stationary state, rerun with 2
-additional random seeds to determine whether below-k is consistent or initialization-dependent.
-(sin_3pi m=1500 was excluded: m=1500 is not in M_VALUES, and cluster structure begins
-dissolving at m=2000, making C ambiguous in that range.)
-
-| Target | k | m | seed=42 | seed=5 | seed=25 |
-|---|---|---|---|---|---|
-| sin_2pi | 3 | 1000 | 2 | 1 | 1 |
-| sin_4pi | 7 | 2000 | 2 | 3 | 5 |
-| poly_k3 | 3 | 5000 | 2 | 2 | **3** (=k) |
-
-**Finding:** C varies across seeds for all three targets, so below-k states are initialization-dependent local minima, not universal fixed points.
-The k-cluster attractor exists (poly_k3 seed=25 reaches C=k=3), but has a narrow basin
-of attraction. A proof of C→k must account for initialization geometry.
+where k = number of sign-changing inflection points of f* in (-1,1). 72 runs across 9
+targets, m up to 5000, T=500. Scripts: simulate_parallel.py, instability_test.py,
+multiple_seeds.py, sin7pi_T1000.py.
 
 ### Open Problem 4.2: Higher-Dimensional Collapse
 
-**Conjecture from the slides:** For structured d-dimensional targets, gradient flow
-concentrates the neuron measure onto a lower-dimensional set in hyperplane space. The
-support may be points (same hyperplane), curves (parallel offsets), or several direction
-families.
+Does gradient flow concentrate the neuron measure onto a lower-dimensional set in
+hyperplane parameter space for structured 2D targets? Three targets (ridge, separable,
+radial), m in {64, 256, 512, 1024}, 6000 epochs. Script: higher_dim_collapse.py.
 
-| Specific Goal | Description | Status |
-|---|---|---|
-| 4.2.1 | Does directional collapse occur for structured targets? | Partially confirmed: angular entropy drops for ridge and separable targets, especially at small width |
-| 4.2.2 | Does collapse mode track target structure? | Confirmed at m=64: ridge shows mild directional concentration, separable shows family splitting, radial resists collapse |
-| 4.2.3 | Does collapse generalize to larger width? | **Collapse weakens monotonically** as m grows across all 3 targets (m∈{64,256,512,1024}). Radial m=1024: H=3.53≈H_max, 1 cluster, near-perfect uniform distribution, confirming rotational symmetry. Ridge and separable entropy increases with m but collapse persists. Large-m behavior is opposite of theoretical prediction. |
-| 4.2.4 | Are collapsed neurons functionally redundant (prunable)? | Not confirmed; pruning diagnostic is unreliable due to sign-cancellation in output weights |
-
-### Open Problem 4.3: Provable Pruning
-
-**Bound from the slides:**
+### Open Problem 4.3: Provable Pruning Bound
 
 $$\|\tilde{f} - f\|_{L^2} \leq \delta \cdot \sum_{j=1}^{m} |a_j|$$
 
-| Aspect | Status |
-|---|---|
-| Numerically verify the bound holds | Confirmed by verify_pruning.py across all completed runs |
-| Bound the key challenge: Σ\|aⱼ\| grows with m | Tracked in summary figure; growth observed but not controlled; remains open |
+Numerically verify the bound holds after collapse and track how bound components scale
+with m. Script: verify_pruning.py.
+
+### Lottery Ticket Analysis
+
+Which neurons survive collapse? Test whether bias position at initialization determines
+survival. 52 runs across 4 targets, 5 conditions per (target, m). Script:
+lottery_ticket_experiment.py.
 
 ---
 
-## Research Goals and Script Mapping
+## Key Findings
 
-### Goal 1: Verify the Cluster Count Conjecture (4.1 conjecture, 4.1.1)
+### OP 4.1: Cluster Count
 
-Numerically confirm that C(m, f*) converges toward k as m grows, and that this convergence
-stabilizes independently of how large m gets once past a threshold. Addressed by
-**simulate_parallel.py**.
+- C(m, f*) follows a universal rise-then-fall pattern across all 9 targets; the peak
+  shifts to larger m as k grows.
+- Conjecture confirmed for sin(pi*x) (k=1): C=1=k at all m >= 1000, fully stationary.
+- Both C > k and C < k states are stable ODE fixed points (verified by perturbation and
+  injection experiments). A proof of C -> k cannot rely on instability of non-k states;
+  it must appeal to initialization geometry.
+- Below-k states vary across random seeds, confirming they are initialization-dependent
+  local minima, not universal attractors.
+- Polynomial targets converge far more slowly than trigonometric targets with the same k
+  due to irregular inflection point spacing. Attractor geometry, not just count, shapes
+  convergence.
 
-### Goal 2: Show Configurations Near k Are Unstable Above k and Attracted to k (4.1.1)
+### OP 4.2: Higher-Dimensional Collapse
 
-Test the stability of configurations where the cluster count is within a threshold of k.
-Three run categories: **exact_k**, **above_k**, and **below_k** (threshold = 2). Addressed
-by **instability_test.py**. Supports 4.1.1 by building evidence that k acts as an attractor
-from both sides.
+- At small width, directional concentration reflects target geometry: ridge concentrates
+  toward one direction, separable splits into two families, radial stays broadly distributed.
+- Effective directional complexity (N_eff = e^H) increases monotonically with width.
+  Wider networks rely less on orientation collapse, contrary to the theoretical prediction.
+- The mechanism behind this width-dependent weakening remains an open question.
 
-### Goal 3: Verify Stationary Point Conditions (4.1 conjecture support)
+### OP 4.3: Pruning Bound
 
-At convergence, verify ODE velocities are approximately zero and the integrated residual R_j
-from each bias to 1 is approximately zero for every active neuron. Addressed automatically
-inside **simulate_parallel.py**.
+- Bound holds for all 72 runs with tightness ratios from 0.0002 to 0.148.
+- Total weight mass grows as sum|a_j| ~ sqrt(m), while intra-cluster diameter delta
+  does not shrink with m at fixed T. The bound loosens with m.
+- Making the bound non-vacuous requires showing delta -> 0 as T -> infinity at fixed m,
+  not as m grows.
 
-### Goal 4: Numerically Verify the Pruning Bound (4.3)
+### Lottery Ticket
 
-Verify ||f_tilde minus f|| ≤ δ · Σ|aⱼ| across all converged runs, and track how the bound
-components behave as m grows. Addressed by **verify_pruning.py**.
-
-### Goal 5: Test Whether Collapse Generalizes to d=2 (4.2)
-
-Train a shallow ReLU network on three structurally distinct 2D target functions and measure
-whether gradient descent concentrates neuron directions and offsets into clusters over
-training. The three targets are chosen to provoke different theoretically predicted collapse
-modes: directional collapse (ridge), family splitting (separable), and no collapse (radial).
-Addressed by **higher_dim_collapse.py**.
-
-### Goal 6: Identify Which Neurons Survive Collapse and Why (4.1.4)
-
-Test whether neurons geometrically close to inflection points at initialization
-preferentially survive gradient flow collapse to become cluster representatives, and
-whether selecting just those k neurons reproduces full-network performance. Understanding
-the initialization geometry of surviving neurons constrains what any proof of 4.1 must
-account for. Addressed by **lottery_ticket_experiment.py**.
-
-### Goal 7: Build Intuition Toward a Formal Proof (4.1 and 4.3)
-
-Synthesize numerical evidence from all goals to identify proof strategies. This is an
-interpretive goal informed by all scripts.
+- Bias position at t=0 is the sole informative quantity for collapse survival; initial
+  amplitude values carry no information (geometric ~ bias_only in every case).
+- The k geometrically-selected neurons alone achieve 100x-50,000x higher loss than the
+  full network. Full redundancy is necessary for approximation quality.
 
 ---
 
@@ -188,13 +104,13 @@ MathProject4/
 |
 |-- MathProject Slides.pdf          Source slides: model, ODEs, and open problems
 |
-|-- simulate_parallel.py            Main simulation: m sweep at T=500, all 9 targets (Goals 1, 3)
-|-- sin7pi_T1000.py                 Extended T=1000 run for sin(7πx) (cited in presentation)
-|-- lottery_ticket_experiment.py    Geometric lottery ticket analysis (supporting 4.1)
-|-- verify_pruning.py               Pruning bound verification (Goal 4)
-|-- instability_test.py             k+1 instability test (Goal 2)
-|-- multiple_seeds.py               Below-k seed variation experiment (supporting 4.1)
-|-- higher_dim_collapse.py          2D collapse experiment (Goal 5)
+|-- simulate_parallel.py            Main simulation: m sweep at T=500, all 9 targets (OP 4.1)
+|-- sin7pi_T1000.py                 Extended T=1000 run for sin(7πx) (OP 4.1)
+|-- instability_test.py             Perturbation/injection stability tests (OP 4.1)
+|-- multiple_seeds.py               Below-k seed variation experiment (OP 4.1)
+|-- lottery_ticket_experiment.py    Geometric lottery ticket analysis (OP 4.1)
+|-- verify_pruning.py               Pruning bound verification (OP 4.3)
+|-- higher_dim_collapse.py          2D collapse experiment (OP 4.2)
 |-- plot_convergence_now.py         Generates convergence plot from current data
 |-- regenerate_figures.py           Helper: regenerates clean final fit figures
 |
@@ -262,7 +178,7 @@ stationarity at all tested m values (verified: max|da/dt| < 0.01 for nearly all 
 
 | Targets | m values | T |
 |---|---|---|
-| All 9 (sin_1pi through sin_7pi, x_cubed, poly_k3) | 50, 100, 250, 500, 1000, 1500, 2000, 3500, 5000 | 500 |
+| All 9 (sin_1pi through sin_7pi, x_cubed, poly_k3) | 50, 100, 250, 500, 1000, 2000, 3500, 5000 | 500 |
 
 **Speed optimization:** N_QUAD reduced from 400 to 200. The quadrature grid evaluates
 spatial integrals at every ODE step; halving its size gives approximately 1.9x speedup
