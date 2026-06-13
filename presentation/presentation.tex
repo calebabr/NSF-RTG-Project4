@@ -178,7 +178,7 @@
 \title[Bias Collapse in Shallow ReLU Networks]{%
   Bias Collapse in Shallow ReLU Networks}
 \author[Presented by: Bobby Chen, Caleb Abrantes, Om Kannan]{Presented by: Bobby Chen, Caleb Abrantes, Om Kannan}
-\subtitle{Group: Bobby Chen, Caleb Abrantes, Om Kannan, Rayshawn Holscher, Shari Pinckney}
+\subtitle{Group: Bobby Chen (Georgia Tech), Caleb Abrantes (Auburn University), Om Kannan (UC Berkeley), Rayshawn Holscher (Tuskegee University), Shari Pinckney (Fort Valley State University)}
 \institute{NSF RTG}
 \date{June 2026}
 
@@ -207,8 +207,7 @@
       \begin{itemize}\small
         \item Gradient flow automatically eliminates redundant
               neurons, with no regularization required
-        \item $m = 1500$ neurons $\;\longrightarrow\;$ effective
-              complexity of $k = 7$ neurons
+        \item $m = 1500$ neurons collapses to $\sim7$ distinct values.
         \item The number of surviving \emph{bias clusters}
               is approximately around the number of \emph{inflection points}
               of the target function
@@ -764,8 +763,6 @@
       \begin{tcolorbox}[slideboxB, title={What the data reveals about OP 4.1}]
         \small
         \begin{itemize}\setlength{\itemsep}{3pt}
-          \item $C < k$ local minima exist for 3 targets
-                at genuinely stationary states.
           \item $C > k$ and $C < k$ states are both
                 stable fixed points; a proof of $C \to k$
                 must rely on \textbf{initialization geometry},
@@ -1184,10 +1181,6 @@
         A rigorous proof would explain generalization
         in overparameterized networks.
       \end{tcolorbox}
-      \vspace{0.1em}
-      \begin{center}
-        \large\textbf{Thank you}
-      \end{center}
     \end{column}
   \end{columns}
   \vspace{0.3em}
@@ -1199,6 +1192,13 @@
     \texttt{github.com/calebabr/NSF-RTG-Project4}\quad
     {\color{mygray}full scripts, data, and result tables in \texttt{README.md}}
   \end{tcolorbox}
+\end{frame}
+
+\begin{frame}{}
+  \begin{center}
+    \vspace{2em}
+    {\Huge\textbf{Thank You}}
+  \end{center}
 \end{frame}
 
 \end{document}
